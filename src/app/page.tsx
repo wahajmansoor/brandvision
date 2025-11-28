@@ -85,7 +85,7 @@ export default function Home() {
       </header>
       <main className="container mx-auto p-4 md:p-8 lg:p-12 xl:p-16">
         <div className="flex flex-col lg:flex-row lg:gap-12 xl:gap-24">
-          <div className="w-full flex-shrink-0 lg:w-[35%]">
+          <div className="w-full flex-shrink-0 lg:w-[25%]">
             <BrandKitForm onSubmit={handleFormSubmit} isLoading={isLoading} />
           </div>
           <div className="w-full mt-10 lg:mt-0">
