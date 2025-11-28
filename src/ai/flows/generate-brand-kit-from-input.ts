@@ -41,7 +41,6 @@ const BrandKitOutputSchema = z.object({
     body: z.string().describe('Suggested font family for body text.'),
     accent: z.string().describe('Suggested font family for accent text.'),
   }),
-  moodBoardIdeas: z.array(z.string()).describe('Mood board ideas with 3-5 descriptive ideas for a mood board.'),
   siteStructure: z
     .array(z.object({ page: z.string(), sections: z.array(z.string()) }))
     .describe('A suggested site structure with pages and sections for each page.'),
@@ -67,7 +66,6 @@ export async function generateBrandKit(input: BrandKitInput): Promise<BrandKitOu
     {
       "colorPalette": { "primary": "#...", "secondary": "#...", "accent": "#...", "neutral": "#...", "background": "#..." },
       "typographySuggestions": { "heading": "Font Name", "body": "Font Name", "accent": "Font Name" },
-      "moodBoardIdeas": ["Idea 1", "Idea 2", "Idea 3"],
       "siteStructure": [ { "page": "Home", "sections": ["Hero", "About Us", "Services", "Testimonials", "Contact"] } ],
       "recommendedPlatforms": ["Platform 1", "Platform 2"],
       "competitorWebsites": [ { "name": "Competitor 1", "url": "https://competitor1.com" } ]

@@ -3,7 +3,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import type { BrandKitOutput } from '@/ai/flows/generate-brand-kit-from-input';
-import { Palette, Type, Image as ImageIcon, Globe, Network, Building2, ExternalLink } from 'lucide-react';
+import { Palette, Type, Globe, Network, Building2, ExternalLink } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from "@/hooks/use-toast";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from './ui/accordion';
@@ -160,18 +160,6 @@ export function BrandKitDisplay({ brandKit, isLoading }: BrandKitDisplayProps) {
                      <ExternalLink className="w-4 h-4" />
                   </Link>
                 </li>
-              ))}
-            </ul>
-          </div>
-  
-          <div>
-            <h3 className="flex items-center gap-2 text-lg font-semibold mb-4">
-              <ImageIcon className="w-5 h-5" />
-              Mood Board Ideas
-            </h3>
-            <ul className="list-disc list-inside space-y-2 text-muted-foreground">
-              {brandKit.moodBoardIdeas.map((idea) => (
-                <li key={idea}>{idea}</li>
               ))}
             </ul>
           </div>
