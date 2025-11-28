@@ -28,38 +28,45 @@ export function BrandKitDisplay({ brandKit, isLoading }: BrandKitDisplayProps) {
   const renderContent = () => {
     if (isLoading) {
       return (
-        <Card className="bg-transparent border-dashed">
-          <CardHeader>
-            <Skeleton className="h-8 w-48" />
-            <Skeleton className="h-4 w-full max-w-sm" />
-          </CardHeader>
-          <CardContent className="space-y-8">
-            <div>
-              <Skeleton className="h-6 w-32 mb-4" />
-              <div className="flex flex-wrap gap-4">
-                <Skeleton className="h-20 w-20 rounded-lg" />
-                <Skeleton className="h-20 w-20 rounded-lg" />
-                <Skeleton className="h-20 w-20 rounded-lg" />
-                <Skeleton className="h-20 w-20 rounded-lg" />
+        <div className="space-y-6">
+          <Card>
+            <CardHeader>
+              <Skeleton className="h-6 w-32" />
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-3 sm:grid-cols-5 gap-4">
+                <Skeleton className="h-20 w-full rounded-lg" />
+                <Skeleton className="h-20 w-full rounded-lg" />
+                <Skeleton className="h-20 w-full rounded-lg" />
+                <Skeleton className="h-20 w-full rounded-lg" />
+                <Skeleton className="h-20 w-full rounded-lg" />
               </div>
-            </div>
-            <div>
-              <Skeleton className="h-6 w-40 mb-4" />
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <Skeleton className="h-6 w-32" />
+            </CardHeader>
+            <CardContent>
+              <div className="grid sm:grid-cols-3 gap-4">
+                <Skeleton className="h-16 w-full rounded-lg" />
+                <Skeleton className="h-16 w-full rounded-lg" />
+                <Skeleton className="h-16 w-full rounded-lg" />
+              </div>
+            </CardContent>
+          </Card>
+           <Card>
+            <CardHeader>
+               <Skeleton className="h-6 w-36" />
+            </CardHeader>
+            <CardContent>
               <div className="space-y-3">
-                <Skeleton className="h-5 w-1/2" />
-                <Skeleton className="h-5 w-1/3" />
+                <Skeleton className="h-8 w-full" />
+                <Skeleton className="h-8 w-full" />
               </div>
-            </div>
-            <div>
-              <Skeleton className="h-6 w-36 mb-4" />
-              <div className="space-y-3">
-                <Skeleton className="h-5 w-3/4" />
-                <Skeleton className="h-5 w-full" />
-                <Skeleton className="h-5 w-2/3" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </div>
       );
     }
   
@@ -76,63 +83,69 @@ export function BrandKitDisplay({ brandKit, isLoading }: BrandKitDisplayProps) {
     }
 
     return (
-      <Card className="animate-in fade-in-50 duration-500 bg-transparent border-dashed">
-        <CardHeader>
-          <CardTitle>Generated Brand Kit</CardTitle>
-          <CardDescription>Here are the AI-generated assets for your brand.</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-8">
-          <div>
-            <h3 className="flex items-center gap-2 text-lg font-semibold mb-4">
+      <div className="space-y-6 animate-in fade-in-50 duration-500">
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
               <Palette className="w-5 h-5" />
               Color Palette
-            </h3>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
             <div className="grid grid-cols-3 sm:grid-cols-5 gap-4">
               {Object.entries(brandKit.colorPalette).map(([name, color]) => (
                 <div key={name} className="text-center">
                    <div className="relative group">
                     <div
-                      className="w-full h-20 rounded-lg shadow-md mb-2 border border-border/20"
+                      className="w-full h-20 rounded-lg shadow-inner mb-2 border border-border/20"
                       style={{ backgroundColor: color }}
                     />
                     <div 
-                      className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg cursor-pointer"
+                      className="absolute inset-0 flex items-center justify-center bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg cursor-pointer"
                       onClick={() => copyToClipboard(color, name)}
                     >
                       <Copy className="w-6 h-6 text-white" />
                     </div>
                   </div>
                   <div className="capitalize text-sm font-medium mt-1">{name}</div>
-                  <div className="text-muted-foreground text-sm font-mono">{color}</div>
+                  <div className="text-muted-foreground text-xs font-mono">{color}</div>
                 </div>
               ))}
             </div>
-          </div>
+          </CardContent>
+        </Card>
   
-          <div>
-            <h3 className="flex items-center gap-2 text-lg font-semibold mb-4">
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
               <Type className="w-5 h-5" />
               Typography
-            </h3>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
             <div className="grid sm:grid-cols-3 gap-4">
               {Object.entries(brandKit.typographySuggestions).map(([type, font]) => (
-                 <div key={type} className="p-4 bg-muted/50 rounded-md">
+                 <div key={type} className="p-4 bg-muted/50 rounded-lg text-center">
                    <div className="text-sm capitalize text-muted-foreground">{type}</div>
-                   <div className="text-lg font-semibold">{font}</div>
+                   <div className="text-lg font-semibold mt-1">{font}</div>
                  </div>
               ))}
             </div>
-          </div>
+          </CardContent>
+        </Card>
 
-          <div>
-            <h3 className="flex items-center gap-2 text-lg font-semibold mb-4">
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
               <Network className="w-5 h-5" />
               Site Structure
-            </h3>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
             <Accordion type="single" collapsible className="w-full">
               {brandKit.siteStructure.map((item, index) => (
                 <AccordionItem value={`item-${index}`} key={index}>
-                  <AccordionTrigger className="font-medium">{item.page}</AccordionTrigger>
+                  <AccordionTrigger className="font-medium text-base">{item.page}</AccordionTrigger>
                   <AccordionContent>
                     <ul className="list-disc list-inside space-y-1 text-muted-foreground pl-4">
                       {item.sections.map((section, i) => <li key={i}>{section}</li>)}
@@ -141,38 +154,48 @@ export function BrandKitDisplay({ brandKit, isLoading }: BrandKitDisplayProps) {
                 </AccordionItem>
               ))}
             </Accordion>
-          </div>
+          </CardContent>
+        </Card>
 
-          <div>
-            <h3 className="flex items-center gap-2 text-lg font-semibold mb-4">
-              <Globe className="w-5 h-5" />
-              Recommended Platforms
-            </h3>
-            <div className="flex flex-wrap gap-2">
-              {brandKit.recommendedPlatforms.map((platform) => (
-                <Badge key={platform} variant="outline" className="text-base py-1 px-3">{platform}</Badge>
-              ))}
-            </div>
-          </div>
+        <div className="grid md:grid-cols-2 gap-6">
+            <Card>
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                        <Globe className="w-5 h-5" />
+                        Recommended Platforms
+                    </CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <div className="flex flex-wrap gap-2">
+                    {brandKit.recommendedPlatforms.map((platform) => (
+                        <Badge key={platform} variant="secondary" className="text-base py-1 px-3">{platform}</Badge>
+                    ))}
+                    </div>
+                </CardContent>
+            </Card>
 
-          <div>
-            <h3 className="flex items-center gap-2 text-lg font-semibold mb-4">
-              <Building2 className="w-5 h-5" />
-              Top Competitors
-            </h3>
-            <ul className="space-y-2">
-              {brandKit.competitorWebsites.map((site) => (
-                <li key={site.name} className="p-3 bg-muted/50 rounded-md text-foreground flex justify-between items-center">
-                  <span>{site.name}</span>
-                  <Link href={site.url} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
-                     <ExternalLink className="w-4 h-4" />
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </CardContent>
-      </Card>
+            <Card>
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                        <Building2 className="w-5 h-5" />
+                        Top Competitors
+                    </CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <ul className="space-y-2">
+                    {brandKit.competitorWebsites.map((site) => (
+                        <li key={site.name} className="flex justify-between items-center p-3 bg-muted/50 rounded-md text-foreground">
+                        <span>{site.name}</span>
+                        <Link href={site.url} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+                            <ExternalLink className="w-4 h-4" />
+                        </Link>
+                        </li>
+                    ))}
+                    </ul>
+                </CardContent>
+            </Card>
+        </div>
+      </div>
     )
   }
 
