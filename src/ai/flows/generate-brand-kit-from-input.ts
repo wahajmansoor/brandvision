@@ -68,8 +68,8 @@ const generateBrandKitFlow = ai.defineFlow(
   },
   async input => {
     const llmResponse = await ai.generate({
-      model: googleAI.model('gemini-1.5-pro-latest'),
-      prompt: prompt,
+      model: 'gemini-1.5-pro-latest',
+      prompt: prompt.prompt,
       input: input,
       output: {
         schema: BrandKitOutputSchema,
