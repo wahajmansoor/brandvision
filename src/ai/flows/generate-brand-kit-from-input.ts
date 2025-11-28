@@ -9,7 +9,7 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
-import {openai} from 'genkitx-openai';
+import {openAI} from 'genkitx-openai';
 
 const BrandKitInputSchema = z.object({
   businessName: z.string().describe('The name of the business.'),
@@ -40,7 +40,7 @@ const prompt = ai.definePrompt({
   name: 'generateBrandKitPrompt',
   input: {schema: BrandKitInputSchema},
   output: {schema: BrandKitOutputSchema},
-  model: openai.model('gpt-4o-mini'),
+  model: openAI('gpt-4o-mini'),
   prompt: `You are an expert branding consultant. You will generate a basic brand kit based on the provided business information.
 
   Business Name: {{{businessName}}}
