@@ -3,7 +3,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import type { BrandKitOutput } from '@/ai/flows/generate-brand-kit-from-input';
-import { Palette, Type, Globe, Network, Building2, ExternalLink } from 'lucide-react';
+import { Palette, Type, Globe, Network, Building2, ExternalLink, Copy } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from "@/hooks/use-toast";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from './ui/accordion';
@@ -89,13 +89,21 @@ export function BrandKitDisplay({ brandKit, isLoading }: BrandKitDisplayProps) {
             </h3>
             <div className="grid grid-cols-3 sm:grid-cols-5 gap-4">
               {Object.entries(brandKit.colorPalette).map(([name, color]) => (
-                <div key={name} className="text-center group cursor-pointer" onClick={() => copyToClipboard(color, name)}>
-                  <div
-                    className="w-full h-20 rounded-lg shadow-md mb-2 border border-border/20 transition-transform group-hover:scale-105"
-                    style={{ backgroundColor: color }}
-                  />
-                  <div className="capitalize text-sm font-medium">{name}</div>
-                  <Badge variant="secondary" className="cursor-pointer transition-colors group-hover:bg-primary group-hover:text-primary-foreground">{color}</Badge>
+                <div key={name} className="text-center">
+                   <div className="relative group">
+                    <div
+                      className="w-full h-20 rounded-lg shadow-md mb-2 border border-border/20"
+                      style={{ backgroundColor: color }}
+                    />
+                    <div 
+                      className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg cursor-pointer"
+                      onClick={() => copyToClipboard(color, name)}
+                    >
+                      <Copy className="w-6 h-6 text-white" />
+                    </div>
+                  </div>
+                  <div className="capitalize text-sm font-medium mt-1">{name}</div>
+                  <div className="text-muted-foreground text-sm font-mono">{color}</div>
                 </div>
               ))}
             </div>
