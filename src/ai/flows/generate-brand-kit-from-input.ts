@@ -39,7 +39,6 @@ const prompt = ai.definePrompt({
   name: 'generateBrandKitPrompt',
   input: {schema: BrandKitInputSchema},
   output: {schema: BrandKitOutputSchema},
-  model: 'gpt-4o-mini',
   prompt: `You are an expert branding consultant. You will generate a basic brand kit based on the provided business information.
 
   Business Name: {{{businessName}}}
