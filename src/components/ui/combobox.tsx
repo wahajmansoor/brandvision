@@ -28,23 +28,11 @@ interface ComboboxProps {
 
 export function Combobox({ options, value, onChange, placeholder }: ComboboxProps) {
   const [open, setOpen] = React.useState(false)
-  const [inputValue, setInputValue] = React.useState(value || "")
-
-  React.useEffect(() => {
-    setInputValue(value || "")
-  }, [value])
 
   const handleSelect = (currentValue: string) => {
     const newValue = currentValue === value ? "" : currentValue
     onChange(newValue)
-    setInputValue(newValue)
     setOpen(false)
-  }
-
-  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const newValue = event.target.value
-    setInputValue(newValue)
-    onChange(newValue)
   }
 
   return (
@@ -57,7 +45,7 @@ export function Combobox({ options, value, onChange, placeholder }: ComboboxProp
           className="w-full justify-between"
         >
           {value
-            ? options.find((option) => option.value === value)?.label
+            ? options.find((option) => option.value === value)?.label || value
             : placeholder || "Select an option..."}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
@@ -66,8 +54,8 @@ export function Combobox({ options, value, onChange, placeholder }: ComboboxProp
         <Command>
           <CommandInput 
             placeholder={placeholder || "Search or type..."} 
-            value={inputValue}
-            onValueChange={setInputValue}
+            value={value}
+            onValueChange={onChange}
           />
           <CommandList>
             <CommandEmpty>No results found.</CommandEmpty>
