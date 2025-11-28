@@ -11,6 +11,10 @@ export async function generateBrandKitAction(input: BrandKitInput) {
     return result;
   } catch (error) {
     console.error('AI generation failed:', error);
+    // Propagate a user-friendly error message.
+    if (error instanceof Error) {
+        throw new Error(error.message);
+    }
     throw new Error('Failed to generate brand kit. The AI model may be unavailable. Please try again later.');
   }
 }

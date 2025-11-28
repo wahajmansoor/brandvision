@@ -1,15 +1,18 @@
 'use server';
 /**
- * @fileOverview Generates a basic brand kit based on user-provided business information.
+ * @fileOverview Generates a basic brand kit based on user-provided business information using the OpenAI API.
  *
  * - generateBrandKit - A function that generates a brand kit.
  * - BrandKitInput - The input type for the generateBrandKit function.
  * - BrandKitOutput - The return type for the generateBrandKit function.
  */
 
-import {ai} from '@/ai/genkit';
-import {z} from 'genkit';
-import {openAI} from '@genkit-ai/compat-oai/openai';
+import OpenAI from 'openai';
+import {z} from 'zod';
+
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
 
 const BrandKitInputSchema = z.object({
   businessName: z.string().describe('The name of the business.'),
@@ -20,7 +23,7 @@ const BrandKitInputSchema = z.object({
     .string()
     .optional()
     .describe(
-      "The business's existing logo as a data URI that must include a MIME type and use Base64 encoding. Expected format: 'data:<mimetype>;base64,<encoded_data>'."
+      "The business's existing logo as a data URI. This is not currently used by the OpenAI implementation."
     ),
 });
 export type BrandKitInput = z.infer<typeof BrandKitInputSchema>;
@@ -32,45 +35,39 @@ const BrandKitOutputSchema = z.object({
 });
 export type BrandKitOutput = z.infer<typeof BrandKitOutputSchema>;
 
-const generateBrandKitFlow = ai.defineFlow(
-  {
-    name: 'generateBrandKitFlow',
-    inputSchema: BrandKitInputSchema,
-    outputSchema: BrandKitOutputSchema,
-  },
-  async (input) => {
-    const {text} = await ai.generate({
-      model: openAI.model('gpt-4o'),
-      prompt: `You are an expert branding consultant. Generate a brand kit based on the following business details.
+export async function generateBrandKit(input: BrandKitInput): Promise<BrandKitOutput> {
+  const prompt = `
+    You are an expert branding consultant. Generate a brand kit based on the following business details.
 
-Business Name: ${input.businessName}
-Description: ${input.businessDescription}
-${input.industry ? `Industry: ${input.industry}` : ''}
-${input.location ? `Location: ${input.location}` : ''}
-${input.logoDataUri ? `Analyze the provided logo for color and style influences. Logo: {{media url=${input.logoDataUri}}}` : ''}
+    Business Name: ${input.businessName}
+    Description: ${input.businessDescription}
+    ${input.industry ? `Industry: ${input.industry}` : ''}
+    ${input.location ? `Location: ${input.location}` : ''}
 
-Your response must be a valid JSON object with the following structure, and nothing else:
-{
-  "colorPalette": ["#..."],
-  "typographySuggestions": ["Font Name"],
-  "moodBoardIdeas": ["Idea"]
-}`,
+    Your response must be a valid JSON object with the following structure, and nothing else:
+    {
+      "colorPalette": ["#..."],
+      "typographySuggestions": ["Font Name"],
+      "moodBoardIdeas": ["Idea"]
+    }
+  `;
+
+  try {
+    const response = await openai.chat.completions.create({
+      model: 'gpt-4o',
+      messages: [{ role: 'user', content: prompt }],
+      response_format: { type: 'json_object' },
     });
 
-    if (!text) {
-      throw new Error('Failed to get a text response from the model.');
+    const content = response.choices[0].message.content;
+    if (!content) {
+      throw new Error('OpenAI returned an empty response.');
     }
-    
-    try {
-      const parsedOutput = JSON.parse(text);
-      return BrandKitOutputSchema.parse(parsedOutput);
-    } catch (e) {
-      console.error("Failed to parse AI model's JSON response.", e);
-      throw new Error("AI model returned an invalid format.");
-    }
-  }
-);
 
-export async function generateBrandKit(input: BrandKitInput): Promise<BrandKitOutput> {
-  return generateBrandKitFlow(input);
+    const parsedOutput = JSON.parse(content);
+    return BrandKitOutputSchema.parse(parsedOutput);
+  } catch (error) {
+    console.error('Error calling OpenAI API:', error);
+    throw new Error('Failed to generate brand kit from OpenAI.');
+  }
 }
