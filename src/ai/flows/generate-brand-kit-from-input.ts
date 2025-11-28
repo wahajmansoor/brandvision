@@ -45,8 +45,14 @@ const BrandKitOutputSchema = z.object({
     .array(z.object({ page: z.string(), sections: z.array(z.string()) }))
     .describe('A suggested site structure with pages and sections for each page.'),
   recommendedPlatforms: z
-    .array(z.string())
-    .describe('A list of recommended platforms (e.g., Shopify, Webflow, WordPress) for the business website.'),
+    .array(
+      z.object({
+        name: z.string(),
+        description: z.string(),
+        bestChoice: z.boolean(),
+      })
+    )
+    .describe('A list of recommended platforms for the business website.'),
   competitorWebsites: z
     .array(z.object({ name: z.string(), url: z.string() }))
     .describe('A list of top competitor websites with their name and URL.'),
@@ -56,6 +62,7 @@ export type BrandKitOutput = z.infer<typeof BrandKitOutputSchema>;
 export async function generateBrandKit(input: BrandKitInput): Promise<BrandKitOutput> {
   const prompt = `
     You are an expert branding and web design consultant. Generate a brand kit and website strategy based on the following business details.
+    For the recommended platforms, choose the best two for the business's needs, mark one as the 'bestChoice', and provide a concise description for why each is a good fit.
 
     Business Name: ${input.businessName}
     Description: ${input.businessDescription}
@@ -67,7 +74,7 @@ export async function generateBrandKit(input: BrandKitInput): Promise<BrandKitOu
       "colorPalette": { "primary": "#...", "secondary": "#...", "accent": "#...", "neutral": "#...", "background": "#..." },
       "typographySuggestions": { "heading": "Font Name", "body": "Font Name", "accent": "Font Name" },
       "siteStructure": [ { "page": "Home", "sections": ["Hero", "About Us", "Services", "Testimonials", "Contact"] } ],
-      "recommendedPlatforms": ["Platform 1", "Platform 2"],
+      "recommendedPlatforms": [ { "name": "Platform 1", "description": "...", "bestChoice": true }, { "name": "Platform 2", "description": "...", "bestChoice": false } ],
       "competitorWebsites": [ { "name": "Competitor 1", "url": "https://competitor1.com" } ]
     }
   `;

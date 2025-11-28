@@ -148,17 +148,51 @@ export function BrandKitDisplay({ brandKit, isLoading }: BrandKitDisplayProps) {
 
         <Card>
           <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                  <Globe className="w-5 h-5" />
-                  Recommended Platforms
-              </CardTitle>
-          </CardHeader>
-          <CardContent>
-              <div className="flex flex-wrap gap-2">
-              {brandKit.recommendedPlatforms.map((platform) => (
-                  <Badge key={platform} variant="secondary" className="text-base py-1 px-3">{platform}</Badge>
-              ))}
+            <CardTitle className="flex items-center gap-2">
+              <div className="bg-primary/10 text-primary p-2 rounded-lg">
+                <Globe className="w-5 h-5" />
               </div>
+              Recommended Platforms
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {brandKit.recommendedPlatforms.map((platform) => (
+              <div
+                key={platform.name}
+                className={`p-6 rounded-lg relative overflow-hidden ${
+                  platform.bestChoice
+                    ? 'bg-primary text-primary-foreground'
+                    : 'bg-card border'
+                }`}
+              >
+                {platform.bestChoice && (
+                    <div className="absolute top-0 right-0 h-16 w-16 text-primary-foreground/10">
+                        <div className="absolute transform rotate-45 bg-primary text-center text-white font-semibold py-1 right-[-34px] top-[32px] w-[170px]">
+                        </div>
+                        <svg className="absolute inset-0 h-full w-full opacity-10" viewBox="0 0 100 100">
+                          <defs>
+                            <pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse">
+                              <path d="M 10 0 L 0 0 0 10" fill="none" stroke="currentColor" strokeWidth="0.5"/>
+                            </pattern>
+                          </defs>
+                          <rect width="100" height="100" fill="url(#grid)" />
+                        </svg>
+                    </div>
+                )}
+                <div className="flex justify-between items-start">
+                  <h3 className="text-2xl font-bold">{platform.name}</h3>
+                  <Badge
+                    variant={platform.bestChoice ? 'secondary' : 'outline'}
+                    className={platform.bestChoice ? 'bg-white/20 text-white' : ''}
+                  >
+                    {platform.bestChoice ? 'Best Choice' : 'Alternative'}
+                  </Badge>
+                </div>
+                <p className={`mt-2 text-base ${platform.bestChoice ? 'text-primary-foreground/80' : 'text-muted-foreground'}`}>
+                  {platform.description}
+                </p>
+              </div>
+            ))}
           </CardContent>
         </Card>
 
