@@ -66,14 +66,14 @@ export async function generateBrandKit(input: BrandKitInput): Promise<BrandKitOu
     If a logo is provided, you MUST analyze it. Identify the most prominent color in the logo and set that as the "primary" color in your response. Then, generate the secondary, accent, neutral, and background colors to be harmonious with that primary color.
     If no logo is provided, generate a fitting color palette based on the business description and industry.
 
-    For the site structure, suggest a complete and logical website structure. Provide a list of top-level pages. For each page, provide a list of relevant sections or sub-pages only if it's logical. Some pages, like 'Contact', might not have any sections.
+    For the site structure, suggest a complete and logical website structure based on the business description and industry. Provide a list of top-level pages. For each page, provide a list of relevant sections or sub-pages only if it's logical. Some pages, like 'Contact', might not have any sections.
     For the recommended platforms, choose the best two for the business's needs, mark one as the 'bestChoice', and provide a concise description for why each is a good fit.
     For the competitor websites, find at least two real-world competitors.
 
     Business Name: ${input.businessName}
     Description: ${input.businessDescription}
     ${input.industry ? `Industry: ${input.industry}` : ''}
-    ${location ? `Location: ${input.location}` : ''}
+    ${input.location ? `Location: ${input.location}` : ''}
 
     Your response must be a valid JSON object with the following structure, and nothing else:
     {
