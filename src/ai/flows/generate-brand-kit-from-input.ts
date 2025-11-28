@@ -9,6 +9,7 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
+import {googleAI} from '@genkit-ai/google-genai';
 
 const BrandKitInputSchema = z.object({
   businessName: z.string().describe('The name of the business.'),
@@ -37,6 +38,7 @@ export async function generateBrandKit(input: BrandKitInput): Promise<BrandKitOu
 
 const prompt = ai.definePrompt({
   name: 'generateBrandKitPrompt',
+  model: googleAI('gemini-1.5-flash-latest'),
   input: {schema: BrandKitInputSchema},
   output: {schema: BrandKitOutputSchema},
   prompt: `You are an expert branding consultant. Generate a brand kit based on the following business details.
