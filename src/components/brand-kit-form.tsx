@@ -18,6 +18,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { UploadCloud, File as FileIcon, Loader2 } from 'lucide-react';
 import { useState, useRef } from 'react';
 import { Combobox } from './ui/combobox';
+import { RadioGroup, RadioGroupItem } from './ui/radio-group';
+import { Label } from './ui/label';
 
 const industries = [
   { label: 'Technology', value: 'Technology' },
@@ -41,6 +43,7 @@ const formSchema = z.object({
   }),
   industry: z.string().optional(),
   location: z.string().optional(),
+  model: z.enum(['gpt-4o', 'gpt-4o-mini']).default('gpt-4o-mini'),
 });
 
 export type FormValues = z.infer<typeof formSchema>;
@@ -58,10 +61,11 @@ export function BrandKitForm({ onSubmit, isLoading }: BrandKitFormProps) {
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      businessName: 'Acme Studio',
+      businessName: '',
       businessDescription: '',
       industry: '',
-      location: 'City, Country',
+      location: '',
+      model: 'gpt-4o-mini',
     },
   });
 
@@ -127,7 +131,7 @@ export function BrandKitForm({ onSubmit, isLoading }: BrandKitFormProps) {
               <FormItem>
                 <FormLabel>Company Name</FormLabel>
                 <FormControl>
-                  <Input {...field} />
+                  <Input {...field} placeholder="Acme Inc." />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -145,6 +149,40 @@ export function BrandKitForm({ onSubmit, isLoading }: BrandKitFormProps) {
                     className="resize-none h-24"
                     {...field}
                   />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+           <FormField
+            control={form.control}
+            name="model"
+            render={({ field }) => (
+              <FormItem className="space-y-3">
+                <FormLabel>Generation Model</FormLabel>
+                <FormControl>
+                  <RadioGroup
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                    className="flex flex-col space-y-1"
+                  >
+                    <FormItem className="flex items-center space-x-3 space-y-0">
+                      <FormControl>
+                        <RadioGroupItem value="gpt-4o-mini" />
+                      </FormControl>
+                      <Label className="font-normal">
+                        GPT-4o mini <span className="text-muted-foreground/80">(Fast &amp; Cheap)</span>
+                      </Label>
+                    </FormItem>
+                    <FormItem className="flex items-center space-x-3 space-y-0">
+                      <FormControl>
+                        <RadioGroupItem value="gpt-4o" />
+                      </FormControl>
+                      <Label className="font-normal">
+                        GPT-4o <span className="text-muted-foreground/80">(Powerful &amp; Creative)</span>
+                      </Label>
+                    </FormItem>
+                  </RadioGroup>
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -173,14 +211,14 @@ export function BrandKitForm({ onSubmit, isLoading }: BrandKitFormProps) {
               <FormItem>
                 <FormLabel>Location <span className="text-muted-foreground/80">(Optional)</span></FormLabel>
                 <FormControl>
-                  <Input {...field} />
+                  <Input {...field} placeholder="City, Country" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
           <FormItem>
-            <FormLabel>Logo</FormLabel>
+            <FormLabel>Logo <span className="text-muted-foreground/80">(Optional)</span></FormLabel>
             <FormControl>
                <label
                 onDragEnter={handleDragEnter}
