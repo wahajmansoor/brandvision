@@ -60,11 +60,11 @@ export default function Home() {
         </Button>
       </header>
       <main className="container mx-auto p-4 md:p-8 lg:p-12 xl:p-16">
-        <div className="grid grid-cols-1 lg:grid-cols-4 lg:gap-12 xl:gap-24">
-          <div className="w-full lg:col-span-1">
+        <div className="grid grid-cols-1 lg:grid-cols-12 lg:gap-12 xl:gap-24">
+          <div className="w-full lg:col-span-4">
             <BrandKitForm onSubmit={handleFormSubmit} isLoading={isLoading} />
           </div>
-          <div className="w-full mt-10 lg:mt-0 lg:col-span-3">
+          <div className="w-full mt-10 lg:mt-0 lg:col-span-8">
             <BrandKitDisplay brandKit={brandKit} isLoading={isLoading} />
           </div>
         </div>
