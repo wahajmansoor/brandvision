@@ -8,6 +8,7 @@ import { Card, CardContent } from './ui/card';
 import { Reorder, useReorderItem } from '@/components/ui/reorder';
 import { cn } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Badge } from '@/components/ui/badge';
 
 type Section = {
   id: string;
@@ -43,6 +44,7 @@ function SectionItem({
             <Button variant="ghost" size="icon" className={cn("w-8 h-8 cursor-grab", isReordering ? "":"hidden")} onPointerDown={(e) => dragControls.start(e)}>
                 <GripVertical size={14} className="text-muted-foreground"/>
             </Button>
+             <Badge variant="outline" className="border-dashed text-muted-foreground">Section</Badge>
             <Input
             value={item.name}
             onChange={(e) => updateSectionName(pageId, item.id, e.target.value)}
@@ -92,6 +94,7 @@ function PageItem({
                 <div className="bg-primary/10 text-primary p-2 rounded-md">
                 <File size={20} />
                 </div>
+                 <Badge variant="secondary">Page</Badge>
                 <Input
                 value={item.page}
                 onChange={(e) => updatePageName(item.id, e.target.value)}
