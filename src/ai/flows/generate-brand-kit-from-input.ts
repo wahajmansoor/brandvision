@@ -32,25 +32,6 @@ const BrandKitOutputSchema = z.object({
 });
 export type BrandKitOutput = z.infer<typeof BrandKitOutputSchema>;
 
-const prompt = ai.definePrompt({
-  name: 'generateBrandKitPrompt',
-  model: openAI.model('gpt-4o'),
-  input: {schema: BrandKitInputSchema},
-  output: {schema: BrandKitOutputSchema},
-  prompt: `You are an expert branding consultant. Generate a brand kit based on the following business details.
-
-Business Name: {{{businessName}}}
-Description: {{{businessDescription}}}
-{{#if industry}}Industry: {{{industry}}}{{/if}}
-{{#if location}}Location: {{{location}}}{{/if}}
-{{#if logoDataUri}}
-Analyze the provided logo for color and style influences.
-Logo: {{media url=logoDataUri}}
-{{/if}}
-
-Your response must be a valid JSON object matching the output schema.`,
-});
-
 const generateBrandKitFlow = ai.defineFlow(
   {
     name: 'generateBrandKitFlow',
@@ -58,11 +39,35 @@ const generateBrandKitFlow = ai.defineFlow(
     outputSchema: BrandKitOutputSchema,
   },
   async (input) => {
-    const { output } = await prompt(input);
-    if (!output) {
-      throw new Error('Failed to get a structured response from the model.');
+    const {text} = await ai.generate({
+      model: openAI.model('gpt-4o'),
+      prompt: `You are an expert branding consultant. Generate a brand kit based on the following business details.
+
+Business Name: ${input.businessName}
+Description: ${input.businessDescription}
+${input.industry ? `Industry: ${input.industry}` : ''}
+${input.location ? `Location: ${input.location}` : ''}
+${input.logoDataUri ? `Analyze the provided logo for color and style influences. Logo: {{media url=${input.logoDataUri}}}` : ''}
+
+Your response must be a valid JSON object with the following structure, and nothing else:
+{
+  "colorPalette": ["#..."],
+  "typographySuggestions": ["Font Name"],
+  "moodBoardIdeas": ["Idea"]
+}`,
+    });
+
+    if (!text) {
+      throw new Error('Failed to get a text response from the model.');
     }
-    return output;
+    
+    try {
+      const parsedOutput = JSON.parse(text);
+      return BrandKitOutputSchema.parse(parsedOutput);
+    } catch (e) {
+      console.error("Failed to parse AI model's JSON response.", e);
+      throw new Error("AI model returned an invalid format.");
+    }
   }
 );
 
