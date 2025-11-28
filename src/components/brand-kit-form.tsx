@@ -60,7 +60,7 @@ export function BrandKitForm({ onSubmit, isLoading }: BrandKitFormProps) {
     defaultValues: {
       businessName: 'Acme Studio',
       businessDescription: '',
-      industry: 'Technology',
+      industry: '',
       location: 'City, Country',
     },
   });
@@ -160,7 +160,7 @@ export function BrandKitForm({ onSubmit, isLoading }: BrandKitFormProps) {
                   options={industries}
                   value={field.value}
                   onChange={field.onChange}
-                  placeholder="Select or type an industry..."
+                  placeholder="Select or Type your Industry"
                 />
                 <FormMessage />
               </FormItem>
