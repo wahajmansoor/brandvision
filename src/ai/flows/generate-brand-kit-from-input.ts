@@ -51,10 +51,21 @@ Logo: {{media url=logoDataUri}}
 Your response must be a valid JSON object matching the output schema.`,
 });
 
-export async function generateBrandKit(input: BrandKitInput): Promise<BrandKitOutput> {
-  const { output } = await prompt(input);
-  if (!output) {
-    throw new Error('Failed to get a structured response from the model.');
+const generateBrandKitFlow = ai.defineFlow(
+  {
+    name: 'generateBrandKitFlow',
+    inputSchema: BrandKitInputSchema,
+    outputSchema: BrandKitOutputSchema,
+  },
+  async (input) => {
+    const { output } = await prompt(input);
+    if (!output) {
+      throw new Error('Failed to get a structured response from the model.');
+    }
+    return output;
   }
-  return output;
+);
+
+export async function generateBrandKit(input: BrandKitInput): Promise<BrandKitOutput> {
+  return generateBrandKitFlow(input);
 }
