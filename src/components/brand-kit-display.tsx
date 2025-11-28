@@ -1,13 +1,13 @@
 'use client';
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import type { BrandKitOutput } from '@/ai/flows/generate-brand-kit-from-input';
 import { Palette, Type, Globe, Network, Building2, ExternalLink, Copy } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from "@/hooks/use-toast";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from './ui/accordion';
 import Link from 'next/link';
+import { SiteStructure } from './site-structure';
 
 interface BrandKitDisplayProps {
   brandKit: BrandKitOutput | null;
@@ -142,59 +142,46 @@ export function BrandKitDisplay({ brandKit, isLoading }: BrandKitDisplayProps) {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <Accordion type="single" collapsible className="w-full">
-              {brandKit.siteStructure.map((item, index) => (
-                <AccordionItem value={`item-${index}`} key={index}>
-                  <AccordionTrigger className="font-medium text-base">{item.page}</AccordionTrigger>
-                  <AccordionContent>
-                    <ul className="list-disc list-inside space-y-1 text-muted-foreground pl-4">
-                      {item.sections.map((section, i) => <li key={i}>{section}</li>)}
-                    </ul>
-                  </AccordionContent>
-                </AccordionItem>
-              ))}
-            </Accordion>
+            <SiteStructure initialStructure={brandKit.siteStructure} />
           </CardContent>
         </Card>
 
-        <div className="grid md:grid-cols-2 gap-6">
-            <Card>
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                        <Globe className="w-5 h-5" />
-                        Recommended Platforms
-                    </CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <div className="flex flex-wrap gap-2">
-                    {brandKit.recommendedPlatforms.map((platform) => (
-                        <Badge key={platform} variant="secondary" className="text-base py-1 px-3">{platform}</Badge>
-                    ))}
-                    </div>
-                </CardContent>
-            </Card>
+        <Card>
+          <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                  <Globe className="w-5 h-5" />
+                  Recommended Platforms
+              </CardTitle>
+          </CardHeader>
+          <CardContent>
+              <div className="flex flex-wrap gap-2">
+              {brandKit.recommendedPlatforms.map((platform) => (
+                  <Badge key={platform} variant="secondary" className="text-base py-1 px-3">{platform}</Badge>
+              ))}
+              </div>
+          </CardContent>
+        </Card>
 
-            <Card>
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                        <Building2 className="w-5 h-5" />
-                        Top Competitors
-                    </CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <ul className="space-y-2">
-                    {brandKit.competitorWebsites.map((site) => (
-                        <li key={site.name} className="flex justify-between items-center p-3 bg-muted/50 rounded-md text-foreground">
-                        <span>{site.name}</span>
-                        <Link href={site.url} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
-                            <ExternalLink className="w-4 h-4" />
-                        </Link>
-                        </li>
-                    ))}
-                    </ul>
-                </CardContent>
-            </Card>
-        </div>
+        <Card>
+            <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                    <Building2 className="w-5 h-5" />
+                    Top Competitors
+                </CardTitle>
+            </CardHeader>
+            <CardContent>
+                <ul className="space-y-2">
+                {brandKit.competitorWebsites.map((site) => (
+                    <li key={site.name} className="flex justify-between items-center p-3 bg-muted/50 rounded-md text-foreground">
+                    <span>{site.name}</span>
+                    <Link href={site.url} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+                        <ExternalLink className="w-4 h-4" />
+                    </Link>
+                    </li>
+                ))}
+                </ul>
+            </CardContent>
+        </Card>
       </div>
     )
   }
