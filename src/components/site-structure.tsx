@@ -5,7 +5,7 @@ import { File, Plus, Trash2, GripVertical, Shuffle } from 'lucide-react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Card, CardContent } from './ui/card';
-import { Reorder } from '@/components/ui/reorder';
+import { Reorder, useReorderItem } from '@/components/ui/reorder';
 import { cn } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
@@ -23,6 +23,94 @@ type Page = {
 interface SiteStructureProps {
   initialStructure: { page: string; sections: string[] }[];
 }
+
+function PageItem({
+  item,
+  isReordering,
+  updatePageName,
+  addSection,
+  deletePage,
+  handleSectionReorder,
+  updateSectionName,
+  deleteSection,
+}: {
+  item: Page;
+  isReordering: boolean;
+  updatePageName: (pageId: string, newName: string) => void;
+  addSection: (pageId: string) => void;
+  deletePage: (pageId: string) => void;
+  handleSectionReorder: (pageId: string, newOrder: Section[]) => void;
+  updateSectionName: (pageId: string, sectionId: string, newName: string) => void;
+  deleteSection: (pageId: string, sectionId: string) => void;
+}) {
+    const { dragControls, isDragging } = useReorderItem();
+    return (
+        <Card className={cn("bg-muted/40 group/page", isDragging && "opacity-50")}>
+            <CardContent className="p-2">
+            <div className="flex items-center gap-2">
+                <Button variant="ghost" size="icon" className={cn("cursor-grab", isReordering ? "" : "hidden")} onPointerDown={(e) => dragControls.start(e)} >
+                    <GripVertical size={20} className="text-muted-foreground" />
+                </Button>
+                <div className="bg-primary/10 text-primary p-2 rounded-md">
+                <File size={20} />
+                </div>
+                <Input
+                value={item.page}
+                onChange={(e) => updatePageName(item.id, e.target.value)}
+                className="font-medium bg-transparent border-none focus-visible:ring-1 focus-visible:ring-ring"
+                />
+                <div className="flex items-center opacity-0 group-hover/page:opacity-100 transition-opacity">
+                <Tooltip>
+                    <TooltipTrigger asChild>
+                        <Button variant="ghost" size="icon" onClick={() => addSection(item.id)}>
+                            <Plus size={16} />
+                        </Button>
+                    </TooltipTrigger>
+                    <TooltipContent><p>Add Section</p></TooltipContent>
+                </Tooltip>
+                <Tooltip>
+                    <TooltipTrigger asChild>
+                        <Button variant="ghost" size="icon" className="text-destructive" onClick={() => deletePage(item.id)}>
+                            <Trash2 size={16} />
+                        </Button>
+                    </TooltipTrigger>
+                    <TooltipContent><p>Delete Page</p></TooltipContent>
+                </Tooltip>
+                </div>
+            </div>
+            {item.sections.length > 0 && (
+                <div className="ml-10 mt-2 pl-2 border-l border-border">
+                <Reorder value={item.sections} onReorder={(newOrder) => handleSectionReorder(item.id, newOrder)} className="space-y-1">
+                    {item.sections.map((section) => (
+                        <Reorder.Item key={section.id} value={section} className="flex items-center gap-2 group/section">
+                             <Button variant="ghost" size="icon" className={cn("w-8 h-8 cursor-grab", isReordering ? "":"hidden")} onPointerDown={(e) => dragControls.start(e)}>
+                                <GripVertical size={14} className="text-muted-foreground"/>
+                            </Button>
+                            <Input
+                            value={section.name}
+                            onChange={(e) => updateSectionName(item.id, section.id, e.target.value)}
+                            className="h-8 bg-transparent border-none focus-visible:ring-1 focus-visible:ring-ring"
+                            />
+                            <div className="flex items-center opacity-0 group-hover/section:opacity-100 transition-opacity">
+                                <Tooltip>
+                                    <TooltipTrigger asChild>
+                                        <Button variant="ghost" size="icon" className="text-destructive w-8 h-8" onClick={() => deleteSection(item.id, section.id)}>
+                                            <Trash2 size={14} />
+                                        </Button>
+                                    </TooltipTrigger>
+                                    <TooltipContent><p>Delete Section</p></TooltipContent>
+                                </Tooltip>
+                            </div>
+                        </Reorder.Item>
+                    ))}
+                </Reorder>
+                </div>
+            )}
+            </CardContent>
+        </Card>
+    );
+}
+
 
 export function SiteStructure({ initialStructure }: SiteStructureProps) {
   const [structure, setStructure] = useState<Page[]>([]);
@@ -133,89 +221,22 @@ export function SiteStructure({ initialStructure }: SiteStructureProps) {
             </Tooltip>
         </div>
 
-        <Reorder.Group
-          values={structure}
-          onReorder={handlePageReorder}
-          as="div"
-          className="space-y-2"
-          disabled={!isReordering}
-        >
-          {structure.map((item) => (
-            <Reorder.Item key={item.id} value={item}>
-                <Card className="bg-muted/40 group/page">
-                  <CardContent className="p-2">
-                    <div className="flex items-center gap-2">
-                      <Button variant="ghost" size="icon" className={cn("cursor-grab", isReordering ? "":"hidden")}>
-                         <GripVertical size={20} className="text-muted-foreground" />
-                      </Button>
-                      <div className="bg-primary/10 text-primary p-2 rounded-md">
-                        <File size={20} />
-                      </div>
-                      <Input
-                        value={item.page}
-                        onChange={(e) => updatePageName(item.id, e.target.value)}
-                        className="font-medium bg-transparent border-none focus-visible:ring-1 focus-visible:ring-ring"
-                      />
-                      <div className="flex items-center opacity-0 group-hover/page:opacity-100 transition-opacity">
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                              <Button variant="ghost" size="icon" onClick={() => addSection(item.id)}>
-                                <Plus size={16} />
-                              </Button>
-                          </TooltipTrigger>
-                          <TooltipContent><p>Add Section</p></TooltipContent>
-                        </Tooltip>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                              <Button variant="ghost" size="icon" className="text-destructive" onClick={() => deletePage(item.id)}>
-                                <Trash2 size={16} />
-                              </Button>
-                          </TooltipTrigger>
-                           <TooltipContent><p>Delete Page</p></TooltipContent>
-                        </Tooltip>
-                      </div>
-                    </div>
-                    {item.sections.length > 0 && (
-                      <div className="ml-10 mt-2 pl-2 border-l border-border">
-                        <Reorder.Group 
-                            values={item.sections} 
-                            onReorder={(newOrder) => handleSectionReorder(item.id, newOrder)}
-                            as="div"
-                            className="space-y-1"
-                            disabled={!isReordering}
-                        >
-                            {item.sections.map((section) => (
-                                <Reorder.Item key={section.id} value={section}>
-                                    <div className="flex items-center gap-2 group/section">
-                                        <Button variant="ghost" size="icon" className={cn("w-8 h-8 cursor-grab", isReordering ? "":"hidden")}>
-                                            <GripVertical size={14} className="text-muted-foreground"/>
-                                        </Button>
-                                        <Input
-                                        value={section.name}
-                                        onChange={(e) => updateSectionName(item.id, section.id, e.target.value)}
-                                        className="h-8 bg-transparent border-none focus-visible:ring-1 focus-visible:ring-ring"
-                                        />
-                                        <div className="flex items-center opacity-0 group-hover/section:opacity-100 transition-opacity">
-                                            <Tooltip>
-                                                <TooltipTrigger asChild>
-                                                    <Button variant="ghost" size="icon" className="text-destructive w-8 h-8" onClick={() => deleteSection(item.id, section.id)}>
-                                                        <Trash2 size={14} />
-                                                    </Button>
-                                                </TooltipTrigger>
-                                                <TooltipContent><p>Delete Section</p></TooltipContent>
-                                            </Tooltip>
-                                        </div>
-                                    </div>
-                                </Reorder.Item>
-                            ))}
-                        </Reorder.Group>
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-            </Reorder.Item>
-          ))}
-        </Reorder.Group>
+        <Reorder value={structure} onReorder={handlePageReorder} className="space-y-2">
+            {structure.map((item) => (
+                <Reorder.Item key={item.id} value={item}>
+                    <PageItem 
+                        item={item}
+                        isReordering={isReordering}
+                        updatePageName={updatePageName}
+                        addSection={addSection}
+                        deletePage={deletePage}
+                        handleSectionReorder={handleSectionReorder}
+                        updateSectionName={updateSectionName}
+                        deleteSection={deleteSection}
+                    />
+                </Reorder.Item>
+            ))}
+        </Reorder>
         
         <Button onClick={addPage} variant="outline" className="w-full">
           <Plus size={16} className="mr-2" /> Add Page
