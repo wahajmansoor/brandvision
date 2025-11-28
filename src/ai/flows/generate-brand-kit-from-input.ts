@@ -53,8 +53,7 @@ Your response must be a JSON object with three properties: 'colorPalette', 'typo
 Generate a cohesive brand kit that reflects the business's identity.`,
 });
 
-
-export const generateBrandKit = ai.defineFlow(
+const generateBrandKitFlow = ai.defineFlow(
   {
     name: 'generateBrandKitFlow',
     inputSchema: BrandKitInputSchema,
@@ -65,3 +64,7 @@ export const generateBrandKit = ai.defineFlow(
     return output!;
   }
 );
+
+export async function generateBrandKit(input: BrandKitInput): Promise<BrandKitOutput> {
+  return generateBrandKitFlow(input);
+}
