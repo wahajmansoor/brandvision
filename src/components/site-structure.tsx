@@ -24,6 +24,44 @@ interface SiteStructureProps {
   initialStructure: { page: string; sections: string[] }[];
 }
 
+function SectionItem({
+  item,
+  pageId,
+  isReordering,
+  updateSectionName,
+  deleteSection,
+}: {
+  item: Section;
+  pageId: string;
+  isReordering: boolean;
+  updateSectionName: (pageId: string, sectionId: string, newName: string) => void;
+  deleteSection: (pageId: string, sectionId: string) => void;
+}) {
+    const { dragControls, isDragging } = useReorderItem();
+    return (
+        <div className={cn("flex items-center gap-2 group/section", isDragging && "opacity-50")}>
+            <Button variant="ghost" size="icon" className={cn("w-8 h-8 cursor-grab", isReordering ? "":"hidden")} onPointerDown={(e) => dragControls.start(e)}>
+                <GripVertical size={14} className="text-muted-foreground"/>
+            </Button>
+            <Input
+            value={item.name}
+            onChange={(e) => updateSectionName(pageId, item.id, e.target.value)}
+            className="h-8 bg-transparent border-none focus-visible:ring-1 focus-visible:ring-ring"
+            />
+            <div className="flex items-center opacity-0 group-hover/section:opacity-100 transition-opacity">
+                <Tooltip>
+                    <TooltipTrigger asChild>
+                        <Button variant="ghost" size="icon" className="text-destructive w-8 h-8" onClick={() => deleteSection(pageId, item.id)}>
+                            <Trash2 size={14} />
+                        </Button>
+                    </TooltipTrigger>
+                    <TooltipContent><p>Delete Section</p></TooltipContent>
+                </Tooltip>
+            </div>
+        </div>
+    );
+}
+
 function PageItem({
   item,
   isReordering,
@@ -82,25 +120,14 @@ function PageItem({
                 <div className="ml-10 mt-2 pl-2 border-l border-border">
                 <Reorder value={item.sections} onReorder={(newOrder) => handleSectionReorder(item.id, newOrder)} className="space-y-1">
                     {item.sections.map((section) => (
-                        <Reorder.Item key={section.id} value={section} className="flex items-center gap-2 group/section">
-                             <Button variant="ghost" size="icon" className={cn("w-8 h-8 cursor-grab", isReordering ? "":"hidden")} onPointerDown={(e) => dragControls.start(e)}>
-                                <GripVertical size={14} className="text-muted-foreground"/>
-                            </Button>
-                            <Input
-                            value={section.name}
-                            onChange={(e) => updateSectionName(item.id, section.id, e.target.value)}
-                            className="h-8 bg-transparent border-none focus-visible:ring-1 focus-visible:ring-ring"
-                            />
-                            <div className="flex items-center opacity-0 group-hover/section:opacity-100 transition-opacity">
-                                <Tooltip>
-                                    <TooltipTrigger asChild>
-                                        <Button variant="ghost" size="icon" className="text-destructive w-8 h-8" onClick={() => deleteSection(item.id, section.id)}>
-                                            <Trash2 size={14} />
-                                        </Button>
-                                    </TooltipTrigger>
-                                    <TooltipContent><p>Delete Section</p></TooltipContent>
-                                </Tooltip>
-                            </div>
+                        <Reorder.Item key={section.id} value={section}>
+                           <SectionItem 
+                             item={section}
+                             pageId={item.id}
+                             isReordering={isReordering}
+                             updateSectionName={updateSectionName}
+                             deleteSection={deleteSection}
+                           />
                         </Reorder.Item>
                     ))}
                 </Reorder>
