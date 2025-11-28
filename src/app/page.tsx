@@ -6,7 +6,9 @@ import { BrandKitForm, type FormValues } from '@/components/brand-kit-form';
 import { BrandKitDisplay } from '@/components/brand-kit-display';
 import { generateBrandKitAction } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
-import { Sparkles } from 'lucide-react';
+import { AppLogo } from '@/components/app-logo';
+import { Sun } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
@@ -49,24 +51,24 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen container mx-auto p-4 md:p-8">
-      <header className="text-center mb-10">
-        <h1 className="text-4xl md:text-5xl font-bold tracking-tight bg-gradient-to-r from-primary to-blue-400 text-transparent bg-clip-text flex items-center justify-center gap-3">
-          <Sparkles className="w-8 h-8 md:w-10 md:h-10" />
-          Brand Vision In Seconds
-        </h1>
-        <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">
-          Instantly generate a complete brand kit. Just describe your business, upload your logo, and let our AI do the magic.
-        </p>
+    <div className="min-h-screen w-full">
+      <header className="flex items-center justify-between p-4 border-b border-border/40">
+        <AppLogo />
+        <Button variant="ghost" size="icon">
+            <Sun className="h-5 w-5" />
+            <span className="sr-only">Toggle theme</span>
+        </Button>
       </header>
-      <div className="grid grid-cols-1 lg:grid-cols-2 lg:gap-12 xl:gap-16">
-        <div className="w-full">
-          <BrandKitForm onSubmit={handleFormSubmit} isLoading={isLoading} />
+      <main className="container mx-auto p-4 md:p-8 lg:p-12 xl:p-16">
+        <div className="grid grid-cols-1 lg:grid-cols-2 lg:gap-12 xl:gap-24">
+          <div className="w-full">
+            <BrandKitForm onSubmit={handleFormSubmit} isLoading={isLoading} />
+          </div>
+          <div className="w-full mt-10 lg:mt-0">
+            <BrandKitDisplay brandKit={brandKit} isLoading={isLoading} />
+          </div>
         </div>
-        <div className="w-full mt-10 lg:mt-0">
-          <BrandKitDisplay brandKit={brandKit} isLoading={isLoading} />
-        </div>
-      </div>
-    </main>
+      </main>
+    </div>
   );
 }

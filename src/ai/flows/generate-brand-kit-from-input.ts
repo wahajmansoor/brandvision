@@ -14,8 +14,8 @@ import {openAI} from 'genkitx-openai';
 const BrandKitInputSchema = z.object({
   businessName: z.string().describe('The name of the business.'),
   businessDescription: z.string().describe('A brief description of the business.'),
-  industry: z.string().describe('The industry the business operates in.'),
-  location: z.string().describe('The location of the business.'),
+  industry: z.string().optional().describe('The industry the business operates in.'),
+  location: z.string().optional().describe('The location of the business.'),
   logoDataUri: z
     .string()
     .optional()
@@ -45,8 +45,8 @@ const prompt = ai.definePrompt({
 
   Business Name: {{{businessName}}}
   Business Description: {{{businessDescription}}}
-  Industry: {{{industry}}}
-  Location: {{{location}}}
+  {{#if industry}}Industry: {{{industry}}}{{/if}}
+  {{#if location}}Location: {{{location}}}{{/if}}
   {{#if logoDataUri}}
   Logo: {{media url=logoDataUri}}
   {{/if}}
