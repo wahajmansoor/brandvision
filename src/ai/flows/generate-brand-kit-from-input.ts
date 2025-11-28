@@ -62,7 +62,7 @@ export type BrandKitOutput = z.infer<typeof BrandKitOutputSchema>;
 export async function generateBrandKit(input: BrandKitInput): Promise<BrandKitOutput> {
   const prompt = `
     You are an expert branding and web design consultant. Generate a brand kit and website strategy based on the following business details.
-    For the site structure, suggest a complete and logical website structure with multiple top-level pages. For each page, provide a list of relevant sub-pages or sections. For example, an 'About Us' page might have 'Our Story' and 'Our Team' as sections.
+    For the site structure, suggest a complete and logical website structure. Provide a list of top-level pages. For each page, provide a list of relevant sections or sub-pages only if it's logical. Some pages, like 'Contact', might not have any sections.
     For the recommended platforms, choose the best two for the business's needs, mark one as the 'bestChoice', and provide a concise description for why each is a good fit.
     For the competitor websites, find at least two real-world competitors.
 
@@ -78,7 +78,7 @@ export async function generateBrandKit(input: BrandKitInput): Promise<BrandKitOu
       "siteStructure": [ 
         { "page": "Home", "sections": ["Hero", "About Us", "Services", "Testimonials", "Contact"] },
         { "page": "About Us", "sections": ["Our Story", "Our Mission", "Our Team"] },
-        { "page": "Services", "sections": ["Service A", "Service B", "Pricing"] }
+        { "page": "Contact", "sections": [] }
       ],
       "recommendedPlatforms": [ { "name": "Platform 1", "description": "...", "bestChoice": true }, { "name": "Platform 2", "description": "...", "bestChoice": false } ],
       "competitorWebsites": [ { "name": "Competitor 1", "url": "https://competitor1.com" }, { "name": "Competitor 2", "url": "https://competitor2.com" } ]
