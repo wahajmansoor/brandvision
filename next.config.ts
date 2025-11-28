@@ -1,4 +1,5 @@
 import type {NextConfig} from 'next';
+import {withGenkit} from '@genkit-ai/next';
 
 const nextConfig: NextConfig = {
   /* config options here */
@@ -32,7 +33,6 @@ const nextConfig: NextConfig = {
   },
   // This is to allow cross-origin requests from the development environment.
   allowedDevOrigins: ['https://*.cloudworkstations.dev'],
-  experimental: {},
 };
 
-export default nextConfig;
+export default withGenkit(nextConfig);

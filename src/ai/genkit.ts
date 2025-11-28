@@ -7,4 +7,6 @@ export const ai = genkit({
       apiKey: process.env.OPENAI_API_KEY,
     }),
   ],
+  logLevel: 'debug',
+  enableTracingAndMetrics: true,
 });
