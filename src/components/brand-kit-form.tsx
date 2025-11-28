@@ -17,6 +17,20 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { UploadCloud, File as FileIcon, Loader2 } from 'lucide-react';
 import { useState, useRef } from 'react';
+import { Combobox } from './ui/combobox';
+
+const industries = [
+  { label: 'Technology', value: 'Technology' },
+  { label: 'Healthcare', value: 'Healthcare' },
+  { label: 'Finance', value: 'Finance' },
+  { label: 'Education', value: 'Education' },
+  { label: 'Retail', value: 'Retail' },
+  { label: 'Hospitality', value: 'Hospitality' },
+  { label: 'Real Estate', value: 'Real Estate' },
+  { label: 'Manufacturing', value: 'Manufacturing' },
+  { label: 'Entertainment', value: 'Entertainment' },
+  { label: 'Non-profit', value: 'Non-profit' },
+];
 
 const formSchema = z.object({
   businessName: z.string().min(2, {
@@ -96,7 +110,7 @@ export function BrandKitForm({ onSubmit, isLoading }: BrandKitFormProps) {
   }
 
   return (
-    <div className="w-full max-w-lg">
+    <div className="w-full">
       <div className="mb-8">
         <h1 className="text-4xl font-bold tracking-tight">Create Your Brand</h1>
         <p className="mt-2 text-muted-foreground">
@@ -140,11 +154,14 @@ export function BrandKitForm({ onSubmit, isLoading }: BrandKitFormProps) {
             control={form.control}
             name="industry"
             render={({ field }) => (
-              <FormItem>
+              <FormItem className="flex flex-col">
                 <FormLabel>Industry <span className="text-muted-foreground/80">(Optional)</span></FormLabel>
-                <FormControl>
-                  <Input {...field} />
-                </FormControl>
+                <Combobox
+                  options={industries}
+                  value={field.value}
+                  onChange={field.onChange}
+                  placeholder="Select or type an industry..."
+                />
                 <FormMessage />
               </FormItem>
             )}
