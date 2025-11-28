@@ -9,7 +9,7 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
-import {googleAI} from '@genkit-ai/google-genai';
+import {openAI} from '@genkit-ai/compat-oai/openai';
 
 const BrandKitInputSchema = z.object({
   businessName: z.string().describe('The name of the business.'),
@@ -34,7 +34,7 @@ export type BrandKitOutput = z.infer<typeof BrandKitOutputSchema>;
 
 const prompt = ai.definePrompt({
   name: 'generateBrandKitPrompt',
-  model: googleAI('gemini-1.5-flash-latest'),
+  model: openAI.model('gpt-4o'),
   input: {schema: BrandKitInputSchema},
   output: {schema: BrandKitOutputSchema},
   prompt: `You are an expert branding consultant. Generate a brand kit based on the following business details.
