@@ -8,6 +8,7 @@
  */
 
 import {ai} from '@/ai/genkit';
+import {googleAI} from '@genkit-ai/google-genai';
 import {z} from 'genkit';
 
 const BrandKitInputSchema = z.object({
@@ -66,7 +67,14 @@ const generateBrandKitFlow = ai.defineFlow(
     outputSchema: BrandKitOutputSchema,
   },
   async input => {
-    const {output} = await prompt(input);
-    return output!;
+    const llmResponse = await ai.generate({
+      model: googleAI.model('gemini-1.5-pro-latest'),
+      prompt: (await prompt.render({input})).prompt,
+      output: {
+        schema: BrandKitOutputSchema,
+      },
+    });
+
+    return llmResponse.output()!;
   }
 );
