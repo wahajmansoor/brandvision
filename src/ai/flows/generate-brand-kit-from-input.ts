@@ -31,6 +31,10 @@ const BrandKitOutputSchema = z.object({
 });
 export type BrandKitOutput = z.infer<typeof BrandKitOutputSchema>;
 
+export async function generateBrandKit(input: BrandKitInput): Promise<BrandKitOutput> {
+  return generateBrandKitFlow(input);
+}
+
 const prompt = ai.definePrompt({
   name: 'generateBrandKitPrompt',
   input: {schema: BrandKitInputSchema},
@@ -61,10 +65,9 @@ const generateBrandKitFlow = ai.defineFlow(
   },
   async (input) => {
     const { output } = await prompt(input);
-    return output!;
+    if (!output) {
+      throw new Error('Failed to get a structured response from the model.');
+    }
+    return output;
   }
 );
-
-export async function generateBrandKit(input: BrandKitInput): Promise<BrandKitOutput> {
-  return generateBrandKitFlow(input);
-}
