@@ -39,24 +39,22 @@ const prompt = ai.definePrompt({
   name: 'generateBrandKitPrompt',
   input: {schema: BrandKitInputSchema},
   output: {schema: BrandKitOutputSchema},
-  prompt: `You are an expert branding consultant. You will generate a basic brand kit based on the provided business information.
+  prompt: `You are an expert branding consultant. Generate a brand kit based on the following business details.
 
-  Business Name: {{{businessName}}}
-  Business Description: {{{businessDescription}}}
-  {{#if industry}}Industry: {{{industry}}}{{/if}}
-  {{#if location}}Location: {{{location}}}{{/if}}
-  {{#if logoDataUri}}
-  Logo: {{media url=logoDataUri}}
-  {{/if}}
+Business Name: {{{businessName}}}
+Description: {{{businessDescription}}}
+{{#if industry}}Industry: {{{industry}}}{{/if}}
+{{#if location}}Location: {{{location}}}{{/if}}
+{{#if logoDataUri}}
+Logo: {{media url=logoDataUri}}
+{{/if}}
 
-  Based on this information, generate the following:
+Your response must be a JSON object with three properties: 'colorPalette', 'typographySuggestions', and 'moodBoardIdeas'.
+- 'colorPalette' should be an array of 3-5 appropriate hex color codes.
+- 'typographySuggestions' should be an array of 2-3 font family names.
+- 'moodBoardIdeas' should be an array of 3-5 descriptive ideas for a mood board.
 
-  *   **Color Palette:** Suggest 3-5 colors that would be appropriate for the brand, as hex codes.
-  *   **Typography Suggestions:** Suggest 2-3 fonts that would be appropriate for the brand.
-  *   **Mood Board Ideas:** Suggest 3-5 mood board ideas that would be appropriate for the brand.
-
-  Ensure that the generated brand kit is cohesive and reflects the business's identity.
-  Output the values as JSON conforming to the schema descriptions.`,
+Generate a cohesive brand kit that reflects the business's identity.`,
 });
 
 const generateBrandKitFlow = ai.defineFlow(
