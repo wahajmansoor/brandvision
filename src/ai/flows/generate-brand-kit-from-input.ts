@@ -25,7 +25,6 @@ const BrandKitInputSchema = z.object({
     .describe(
       "The business's existing logo as a data URI. This is not currently used by the OpenAI implementation."
     ),
-  model: z.enum(['gpt-4o', 'gpt-4o-mini']).default('gpt-4o-mini'),
 });
 export type BrandKitInput = z.infer<typeof BrandKitInputSchema>;
 
@@ -55,7 +54,7 @@ export async function generateBrandKit(input: BrandKitInput): Promise<BrandKitOu
 
   try {
     const response = await openai.chat.completions.create({
-      model: input.model,
+      model: 'gpt-4o-mini',
       messages: [{ role: 'user', content: prompt }],
       response_format: { type: 'json_object' },
     });
