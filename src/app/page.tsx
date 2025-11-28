@@ -20,14 +20,16 @@ import {
 export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
   const [brandKit, setBrandKit] = useState<BrandKitOutput | null>(null);
+  const [logoDataUri, setLogoDataUri] = useState<string | undefined>(undefined);
   const { toast } = useToast();
   const { setTheme } = useTheme();
 
   const handleFormSubmit = async (data: FormValues, file?: File) => {
     setIsLoading(true);
     setBrandKit(null);
+    setLogoDataUri(undefined);
 
-    let logoDataUri: string | undefined = undefined;
+    let newLogoDataUri: string | undefined = undefined;
     if (file) {
       const getBase64 = (file: File): Promise<string> =>
         new Promise((resolve, reject) => {
@@ -36,13 +38,14 @@ export default function Home() {
           reader.onload = () => resolve(reader.result as string);
           reader.onerror = (error) => reject(error);
         });
-      logoDataUri = await getBase64(file);
+      newLogoDataUri = await getBase64(file);
+      setLogoDataUri(newLogoDataUri);
     }
 
     try {
       const result = await generateBrandKitAction({
         ...data,
-        logoDataUri,
+        logoDataUri: newLogoDataUri,
       });
       setBrandKit(result);
     } catch (error) {
@@ -89,7 +92,7 @@ export default function Home() {
             <BrandKitForm onSubmit={handleFormSubmit} isLoading={isLoading} />
           </div>
           <div className="w-full mt-10 lg:mt-0">
-            <BrandKitDisplay brandKit={brandKit} isLoading={isLoading} />
+            <BrandKitDisplay brandKit={brandKit} isLoading={isLoading} logoDataUri={logoDataUri} />
           </div>
         </div>
       </main>

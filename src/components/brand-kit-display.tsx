@@ -3,18 +3,20 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import type { BrandKitOutput } from '@/ai/flows/generate-brand-kit-from-input';
-import { Palette, Type, Globe, Network, Building2, ExternalLink, Copy } from 'lucide-react';
+import { Palette, Type, Globe, Network, Building2, ExternalLink, Copy, Image as ImageIcon } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from "@/hooks/use-toast";
 import Link from 'next/link';
+import Image from 'next/image';
 import { SiteStructure } from './site-structure';
 
 interface BrandKitDisplayProps {
   brandKit: BrandKitOutput | null;
   isLoading: boolean;
+  logoDataUri?: string;
 }
 
-export function BrandKitDisplay({ brandKit, isLoading }: BrandKitDisplayProps) {
+export function BrandKitDisplay({ brandKit, isLoading, logoDataUri }: BrandKitDisplayProps) {
   const { toast } = useToast();
 
   const copyToClipboard = (text: string, label: string) => {
@@ -29,6 +31,16 @@ export function BrandKitDisplay({ brandKit, isLoading }: BrandKitDisplayProps) {
     if (isLoading) {
       return (
         <div className="space-y-6">
+           {logoDataUri && (
+             <Card>
+                <CardHeader>
+                  <Skeleton className="h-6 w-24" />
+                </CardHeader>
+                <CardContent className="flex items-center justify-center p-6">
+                    <Skeleton className="h-24 w-24 rounded-lg" />
+                </CardContent>
+              </Card>
+           )}
           <Card>
             <CardHeader>
               <Skeleton className="h-6 w-32" />
@@ -84,6 +96,25 @@ export function BrandKitDisplay({ brandKit, isLoading }: BrandKitDisplayProps) {
 
     return (
       <div className="space-y-6 animate-in fade-in-50 duration-500">
+        {logoDataUri && (
+            <Card>
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                        <ImageIcon className="w-5 h-5" />
+                        Logo
+                    </CardTitle>
+                </CardHeader>
+                <CardContent className="flex items-center justify-center p-6 bg-muted/20 rounded-lg">
+                    <Image 
+                        src={logoDataUri}
+                        alt="Uploaded Logo"
+                        width={128}
+                        height={128}
+                        className="object-contain max-h-32"
+                    />
+                </CardContent>
+            </Card>
+        )}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">

@@ -23,7 +23,7 @@ const BrandKitInputSchema = z.object({
     .string()
     .optional()
     .describe(
-      "The business's existing logo as a data URI. This is not currently used by the OpenAI implementation."
+      "The business's existing logo as a data URI."
     ),
 });
 export type BrandKitInput = z.infer<typeof BrandKitInputSchema>;
@@ -60,8 +60,12 @@ const BrandKitOutputSchema = z.object({
 export type BrandKitOutput = z.infer<typeof BrandKitOutputSchema>;
 
 export async function generateBrandKit(input: BrandKitInput): Promise<BrandKitOutput> {
-  const prompt = `
+  const textPrompt = `
     You are an expert branding and web design consultant. Generate a brand kit and website strategy based on the following business details.
+    
+    If a logo is provided, you MUST analyze it. Identify the most prominent color in the logo and set that as the "primary" color in your response. Then, generate the secondary, accent, neutral, and background colors to be harmonious with that primary color.
+    If no logo is provided, generate a fitting color palette based on the business description and industry.
+
     For the site structure, suggest a complete and logical website structure. Provide a list of top-level pages. For each page, provide a list of relevant sections or sub-pages only if it's logical. Some pages, like 'Contact', might not have any sections.
     For the recommended platforms, choose the best two for the business's needs, mark one as the 'bestChoice', and provide a concise description for why each is a good fit.
     For the competitor websites, find at least two real-world competitors.
@@ -69,7 +73,7 @@ export async function generateBrandKit(input: BrandKitInput): Promise<BrandKitOu
     Business Name: ${input.businessName}
     Description: ${input.businessDescription}
     ${input.industry ? `Industry: ${input.industry}` : ''}
-    ${input.location ? `Location: ${input.location}` : ''}
+    ${location ? `Location: ${input.location}` : ''}
 
     Your response must be a valid JSON object with the following structure, and nothing else:
     {
@@ -85,10 +89,29 @@ export async function generateBrandKit(input: BrandKitInput): Promise<BrandKitOu
     }
   `;
 
+  const messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
+    {
+      role: 'user',
+      content: [
+        { type: 'text', text: textPrompt },
+      ],
+    },
+  ];
+
+  if (input.logoDataUri) {
+    (messages[0].content as any[]).push({
+      type: 'image_url',
+      image_url: {
+        url: input.logoDataUri,
+      },
+    });
+  }
+
+
   try {
     const response = await openai.chat.completions.create({
       model: 'gpt-4o-mini',
-      messages: [{ role: 'user', content: prompt }],
+      messages: messages,
       response_format: { type: 'json_object' },
     });
 
