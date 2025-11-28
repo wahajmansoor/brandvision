@@ -194,7 +194,7 @@ export function BrandKitForm({ onSubmit, isLoading }: BrandKitFormProps) {
             )}
           </FormItem>
 
-          <Button type="submit" disabled={isLoading} className="w-full h-12 text-base font-semibold">
+          <Button type="submit" disabled={isLoading} className="w-full h-12 text-base font-light">
             {isLoading ? <Loader2 className="animate-spin" /> : 'Generate Brand Kit'}
           </Button>
         </form>
