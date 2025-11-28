@@ -29,15 +29,34 @@ const BrandKitInputSchema = z.object({
 export type BrandKitInput = z.infer<typeof BrandKitInputSchema>;
 
 const BrandKitOutputSchema = z.object({
-  colorPalette: z.array(z.string()).describe('A suggested color palette with 3-5 appropriate hex color codes.'),
-  typographySuggestions: z.array(z.string()).describe('Suggested typography with 2-3 font family names.'),
+  colorPalette: z.object({
+    primary: z.string().describe('The primary color hex code.'),
+    secondary: z.string().describe('The secondary color hex code.'),
+    accent: z.string().describe('The accent color hex code.'),
+    neutral: z.string().describe('The neutral color hex code.'),
+    background: z.string().describe('The background color hex code.'),
+  }),
+  typographySuggestions: z.object({
+    heading: z.string().describe('Suggested font family for headings.'),
+    body: z.string().describe('Suggested font family for body text.'),
+    accent: z.string().describe('Suggested font family for accent text.'),
+  }),
   moodBoardIdeas: z.array(z.string()).describe('Mood board ideas with 3-5 descriptive ideas for a mood board.'),
+  siteStructure: z
+    .array(z.object({ page: z.string(), sections: z.array(z.string()) }))
+    .describe('A suggested site structure with pages and sections for each page.'),
+  recommendedPlatforms: z
+    .array(z.string())
+    .describe('A list of recommended platforms (e.g., Shopify, Webflow, WordPress) for the business website.'),
+  competitorWebsites: z
+    .array(z.object({ name: z.string(), url: z.string() }))
+    .describe('A list of top competitor websites with their name and URL.'),
 });
 export type BrandKitOutput = z.infer<typeof BrandKitOutputSchema>;
 
 export async function generateBrandKit(input: BrandKitInput): Promise<BrandKitOutput> {
   const prompt = `
-    You are an expert branding consultant. Generate a brand kit based on the following business details.
+    You are an expert branding and web design consultant. Generate a brand kit and website strategy based on the following business details.
 
     Business Name: ${input.businessName}
     Description: ${input.businessDescription}
@@ -46,9 +65,12 @@ export async function generateBrandKit(input: BrandKitInput): Promise<BrandKitOu
 
     Your response must be a valid JSON object with the following structure, and nothing else:
     {
-      "colorPalette": ["#..."],
-      "typographySuggestions": ["Font Name"],
-      "moodBoardIdeas": ["Idea"]
+      "colorPalette": { "primary": "#...", "secondary": "#...", "accent": "#...", "neutral": "#...", "background": "#..." },
+      "typographySuggestions": { "heading": "Font Name", "body": "Font Name", "accent": "Font Name" },
+      "moodBoardIdeas": ["Idea 1", "Idea 2", "Idea 3"],
+      "siteStructure": [ { "page": "Home", "sections": ["Hero", "About Us", "Services", "Testimonials", "Contact"] } ],
+      "recommendedPlatforms": ["Platform 1", "Platform 2"],
+      "competitorWebsites": [ { "name": "Competitor 1", "url": "https://competitor1.com" } ]
     }
   `;
 
