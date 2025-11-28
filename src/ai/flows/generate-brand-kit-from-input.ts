@@ -31,10 +31,6 @@ const BrandKitOutputSchema = z.object({
 });
 export type BrandKitOutput = z.infer<typeof BrandKitOutputSchema>;
 
-export async function generateBrandKit(input: BrandKitInput): Promise<BrandKitOutput> {
-  return generateBrandKitFlow(input);
-}
-
 const prompt = ai.definePrompt({
   name: 'generateBrandKitPrompt',
   input: {schema: BrandKitInputSchema},
@@ -57,14 +53,15 @@ Your response must be a JSON object with three properties: 'colorPalette', 'typo
 Generate a cohesive brand kit that reflects the business's identity.`,
 });
 
-const generateBrandKitFlow = ai.defineFlow(
+
+export const generateBrandKit = ai.defineFlow(
   {
     name: 'generateBrandKitFlow',
     inputSchema: BrandKitInputSchema,
     outputSchema: BrandKitOutputSchema,
   },
-  async input => {
-    const {output} = await prompt(input);
+  async (input) => {
+    const { output } = await prompt(input);
     return output!;
   }
 );
