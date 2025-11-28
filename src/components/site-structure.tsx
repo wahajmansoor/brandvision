@@ -129,80 +129,82 @@ export function SiteStructure({ initialStructure }: SiteStructureProps) {
   }
 
   if (!isClient) {
-    return null;
+    return null; // Or a loading skeleton
   }
 
   return (
-    <DragDropContext onDragEnd={onDragEnd}>
-      <div className="space-y-2">
-        <Droppable droppableId="all-pages" type="PAGES">
-          {(provided) => (
-            <div {...provided.droppableProps} ref={provided.innerRef} className="space-y-2">
-              {structure.map((item, index) => (
-                <Draggable key={item.id} draggableId={item.id} index={index}>
-                  {(provided) => (
-                    <div ref={provided.innerRef} {...provided.draggableProps}>
-                      <Card className="bg-muted/40">
-                        <CardContent className="p-2">
-                          <div className="flex items-center gap-2">
-                            <span {...provided.dragHandleProps} className="cursor-grab text-muted-foreground">
-                              <GripVertical size={20} />
-                            </span>
-                             <div className="bg-primary/10 text-primary p-2 rounded-md">
-                                <File size={20} />
+    <div>
+      <DragDropContext onDragEnd={onDragEnd}>
+        <div className="space-y-2">
+          <Droppable droppableId="all-pages" type="PAGES">
+            {(provided) => (
+              <div {...provided.droppableProps} ref={provided.innerRef} className="space-y-2">
+                {structure.map((item, index) => (
+                  <Draggable key={item.id} draggableId={item.id} index={index}>
+                    {(provided) => (
+                      <div ref={provided.innerRef} {...provided.draggableProps}>
+                        <Card className="bg-muted/40">
+                          <CardContent className="p-2">
+                            <div className="flex items-center gap-2">
+                              <span {...provided.dragHandleProps} className="cursor-grab text-muted-foreground">
+                                <GripVertical size={20} />
+                              </span>
+                               <div className="bg-primary/10 text-primary p-2 rounded-md">
+                                  <File size={20} />
+                              </div>
+                              <Input 
+                                value={item.page} 
+                                onChange={(e) => updatePageName(item.id, e.target.value)}
+                                className="font-medium bg-transparent border-none focus-visible:ring-1 focus-visible:ring-ring" 
+                              />
+                              <Button variant="ghost" size="icon" onClick={() => addSection(item.id)}><Plus size={16}/></Button>
+                              <Button variant="ghost" size="icon" className="text-destructive" onClick={() => deletePage(item.id)}><Trash2 size={16}/></Button>
                             </div>
-                            <Input 
-                              value={item.page} 
-                              onChange={(e) => updatePageName(item.id, e.target.value)}
-                              className="font-medium bg-transparent border-none focus-visible:ring-1 focus-visible:ring-ring" 
-                            />
-                            <Button variant="ghost" size="icon" onClick={() => addSection(item.id)}><Plus size={16}/></Button>
-                            <Button variant="ghost" size="icon" className="text-destructive" onClick={() => deletePage(item.id)}><Trash2 size={16}/></Button>
-                          </div>
-                          {item.sections.length > 0 && (
-                            <div className="ml-8 mt-2">
-                                <Droppable droppableId={item.id} type="SECTIONS">
-                                    {(provided) => (
-                                        <div {...provided.droppableProps} ref={provided.innerRef} className="space-y-1">
-                                            {item.sections.map((section, sIndex) => (
-                                                <Draggable key={section.id} draggableId={section.id} index={sIndex}>
-                                                    {(provided) => (
-                                                         <div ref={provided.innerRef} {...provided.draggableProps}>
-                                                            <div className="flex items-center gap-2 p-1 bg-background/50 rounded-md">
-                                                                <span {...provided.dragHandleProps} className="cursor-grab text-muted-foreground">
-                                                                    <Grip size={16}/>
-                                                                </span>
-                                                                <Input 
-                                                                    value={section.name} 
-                                                                    onChange={(e) => updateSectionName(item.id, section.id, e.target.value)}
-                                                                    className="h-8 bg-transparent border-none focus-visible:ring-1 focus-visible:ring-ring"
-                                                                />
-                                                                <Button variant="ghost" size="icon" className="text-destructive w-8 h-8" onClick={() => deleteSection(item.id, section.id)}><Trash2 size={14}/></Button>
-                                                            </div>
-                                                        </div>
-                                                    )}
-                                                </Draggable>
-                                            ))}
-                                            {provided.placeholder}
-                                        </div>
-                                    )}
-                                </Droppable>
-                            </div>
-                          )}
-                        </CardContent>
-                      </Card>
-                    </div>
-                  )}
-                </Draggable>
-              ))}
-              {provided.placeholder}
-            </div>
-          )}
-        </Droppable>
-        <Button onClick={addPage} variant="outline" className="w-full">
-          <Plus size={16} className="mr-2" /> Add Page
-        </Button>
-      </div>
-    </DragDropContext>
+                            {item.sections.length > 0 && (
+                              <div className="ml-8 mt-2">
+                                  <Droppable droppableId={item.id} type="SECTIONS">
+                                      {(provided) => (
+                                          <div {...provided.droppableProps} ref={provided.innerRef} className="space-y-1">
+                                              {item.sections.map((section, sIndex) => (
+                                                  <Draggable key={section.id} draggableId={section.id} index={sIndex}>
+                                                      {(provided) => (
+                                                           <div ref={provided.innerRef} {...provided.draggableProps}>
+                                                              <div className="flex items-center gap-2 p-1 bg-background/50 rounded-md">
+                                                                  <span {...provided.dragHandleProps} className="cursor-grab text-muted-foreground">
+                                                                      <Grip size={16}/>
+                                                                  </span>
+                                                                  <Input 
+                                                                      value={section.name} 
+                                                                      onChange={(e) => updateSectionName(item.id, section.id, e.target.value)}
+                                                                      className="h-8 bg-transparent border-none focus-visible:ring-1 focus-visible:ring-ring"
+                                                                  />
+                                                                  <Button variant="ghost" size="icon" className="text-destructive w-8 h-8" onClick={() => deleteSection(item.id, section.id)}><Trash2 size={14}/></Button>
+                                                              </div>
+                                                          </div>
+                                                      )}
+                                                  </Draggable>
+                                              ))}
+                                              {provided.placeholder}
+                                          </div>
+                                      )}
+                                  </Droppable>
+                              </div>
+                            )}
+                          </CardContent>
+                        </Card>
+                      </div>
+                    )}
+                  </Draggable>
+                ))}
+                {provided.placeholder}
+              </div>
+            )}
+          </Droppable>
+          <Button onClick={addPage} variant="outline" className="w-full">
+            <Plus size={16} className="mr-2" /> Add Page
+          </Button>
+        </div>
+      </DragDropContext>
+    </div>
   );
 }
