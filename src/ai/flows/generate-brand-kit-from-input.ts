@@ -26,15 +26,11 @@ const BrandKitInputSchema = z.object({
 export type BrandKitInput = z.infer<typeof BrandKitInputSchema>;
 
 const BrandKitOutputSchema = z.object({
-  colorPalette: z.array(z.string()).describe('A suggested color palette for the brand.'),
-  typographySuggestions: z.array(z.string()).describe('Suggested typography for the brand.'),
-  moodBoardIdeas: z.array(z.string()).describe('Mood board ideas for the brand.'),
+  colorPalette: z.array(z.string()).describe('A suggested color palette with 3-5 appropriate hex color codes.'),
+  typographySuggestions: z.array(z.string()).describe('Suggested typography with 2-3 font family names.'),
+  moodBoardIdeas: z.array(z.string()).describe('Mood board ideas with 3-5 descriptive ideas for a mood board.'),
 });
 export type BrandKitOutput = z.infer<typeof BrandKitOutputSchema>;
-
-export async function generateBrandKit(input: BrandKitInput): Promise<BrandKitOutput> {
-  return generateBrandKitFlow(input);
-}
 
 const prompt = ai.definePrompt({
   name: 'generateBrandKitPrompt',
@@ -48,15 +44,11 @@ Description: {{{businessDescription}}}
 {{#if industry}}Industry: {{{industry}}}{{/if}}
 {{#if location}}Location: {{{location}}}{{/if}}
 {{#if logoDataUri}}
+Analyze the provided logo for color and style influences.
 Logo: {{media url=logoDataUri}}
 {{/if}}
 
-Your response must be a JSON object with three properties: 'colorPalette', 'typographySuggestions', and 'moodBoardIdeas'.
-- 'colorPalette' should be an array of 3-5 appropriate hex color codes.
-- 'typographySuggestions' should be an array of 2-3 font family names.
-- 'moodBoardIdeas' should be an array of 3-5 descriptive ideas for a mood board.
-
-Generate a cohesive brand kit that reflects the business's identity.`,
+Your response must be a valid JSON object matching the output schema.`,
 });
 
 const generateBrandKitFlow = ai.defineFlow(
@@ -73,3 +65,7 @@ const generateBrandKitFlow = ai.defineFlow(
     return output;
   }
 );
+
+export async function generateBrandKit(input: BrandKitInput): Promise<BrandKitOutput> {
+  return generateBrandKitFlow(input);
+}
