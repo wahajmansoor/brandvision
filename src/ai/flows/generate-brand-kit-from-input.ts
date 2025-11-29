@@ -86,17 +86,10 @@ export async function generateBrandKit(input: BrandKitInput): Promise<BrandKitOu
     Your response must be a valid JSON object following the specified schema, and nothing else.
   `;
 
-  const messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
-    {
-      role: 'user',
-      content: [
-        { type: 'text', text: textPrompt },
-      ],
-    },
-  ];
+  const content: OpenAI.Chat.Completions.ChatCompletionContentPart[] = [{ type: 'text', text: textPrompt }];
 
   if (input.logoDataUri) {
-    (messages[0].content as any[]).push({
+    content.push({
       type: 'image_url',
       image_url: {
         url: input.logoDataUri,
@@ -104,6 +97,12 @@ export async function generateBrandKit(input: BrandKitInput): Promise<BrandKitOu
     });
   }
 
+  const messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
+    {
+      role: 'user',
+      content: content,
+    },
+  ];
 
   try {
     const response = await openai.chat.completions.create({
@@ -121,6 +120,11 @@ export async function generateBrandKit(input: BrandKitInput): Promise<BrandKitOu
     return BrandKitOutputSchema.parse(parsedOutput);
   } catch (error) {
     console.error('Error calling OpenAI API:', error);
+    if (error instanceof Error) {
+      // Re-throw the specific error message from the API client.
+      throw new Error(error.message);
+    }
+    // Fallback error
     throw new Error('Failed to generate brand kit from OpenAI.');
   }
 }
