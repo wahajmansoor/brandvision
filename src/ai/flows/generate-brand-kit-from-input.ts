@@ -19,7 +19,6 @@ const BrandKitInputSchema = z.object({
   businessDescription: z.string().describe('A brief description of the business.'),
   industry: z.string().optional().describe('The industry the business operates in.'),
   location: z.string().optional().describe('The location of the business.'),
-  referenceUrls: z.array(z.string()).optional().describe('A list of reference website URLs.'),
   logoDataUri: z
     .string()
     .optional()
@@ -94,12 +93,6 @@ export async function generateBrandKit(input: BrandKitInput): Promise<BrandKitOu
     2. If NO logo is provided, you MUST generate a fitting color palette based solely on the business description and industry.
   `;
 
-  const referenceUrlsPrompt = input.referenceUrls && input.referenceUrls.length > 0 ? `
-  **User-Provided Reference Websites:**
-  The user has provided the following websites for reference: ${input.referenceUrls.join(', ')}.
-  Take these into account when generating recommendations, especially for competitor analysis.
-  ` : '';
-
   const textPrompt = `
     You are an expert branding and web design consultant. Generate a brand kit and website strategy based on the following business details.
 
@@ -119,7 +112,6 @@ export async function generateBrandKit(input: BrandKitInput): Promise<BrandKitOu
     Description: ${input.businessDescription}
     ${input.industry ? `Industry: ${input.industry}` : ''}
     ${input.location ? `Location: ${input.location}` : ''}
-    ${referenceUrlsPrompt}
 
     Your response must be a valid JSON object following the specified schema, and nothing else.
   `;

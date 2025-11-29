@@ -15,7 +15,7 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { UploadCloud, Loader2, X, Plus } from 'lucide-react';
+import { UploadCloud, Loader2, X } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 import { Combobox } from './ui/combobox';
 import Image from 'next/image';
@@ -44,7 +44,6 @@ const formSchema = z.object({
   }),
   industry: z.string().optional(),
   location: z.string().optional(),
-  referenceUrls: z.array(z.string().url({ message: "Please enter a valid URL." })).optional(),
 });
 
 export type FormValues = z.infer<typeof formSchema>;
@@ -160,8 +159,6 @@ export function BrandKitForm({ onSubmit, isLoading }: BrandKitFormProps) {
   const [extractedColors, setExtractedColors] = useState<string[] | undefined>(undefined);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const [referenceUrls, setReferenceUrls] = useState<string[]>(['']);
-
   useEffect(() => {
     if (!file) {
       setPreviewUrl(null);
@@ -182,7 +179,6 @@ export function BrandKitForm({ onSubmit, isLoading }: BrandKitFormProps) {
       businessDescription: '',
       industry: '',
       location: '',
-      referenceUrls: [''],
     },
   });
 
@@ -231,24 +227,6 @@ export function BrandKitForm({ onSubmit, isLoading }: BrandKitFormProps) {
       fileInputRef.current.value = '';
     }
   }
-
-  const handleUrlChange = (index: number, value: string) => {
-    const newUrls = [...referenceUrls];
-    newUrls[index] = value;
-    setReferenceUrls(newUrls);
-    form.setValue('referenceUrls', newUrls.filter(url => url.trim() !== ''));
-  };
-
-  const addUrlInput = () => {
-    setReferenceUrls([...referenceUrls, '']);
-  };
-
-  const removeUrlInput = (index: number) => {
-    const newUrls = referenceUrls.filter((_, i) => i !== index);
-    setReferenceUrls(newUrls);
-     form.setValue('referenceUrls', newUrls.filter(url => url.trim() !== ''));
-  };
-
 
   return (
     <div className="w-full">
@@ -320,33 +298,9 @@ export function BrandKitForm({ onSubmit, isLoading }: BrandKitFormProps) {
               </FormItem>
             )}
           />
-           <FormItem>
-                <FormLabel>Reference Websites <span className="text-muted-foreground/80">(Optional)</span></FormLabel>
-                <FormDescription>Add URLs of websites you like for design inspiration.</FormDescription>
-                <div className="space-y-2">
-                {referenceUrls.map((url, index) => (
-                    <div key={index} className="flex items-center gap-2">
-                    <Input
-                        type="url"
-                        placeholder="https://example.com"
-                        value={url}
-                        onChange={(e) => handleUrlChange(index, e.target.value)}
-                    />
-                    {referenceUrls.length > 1 && (
-                        <Button type="button" variant="ghost" size="icon" onClick={() => removeUrlInput(index)}>
-                        <X className="w-4 h-4 text-muted-foreground" />
-                        </Button>
-                    )}
-                    </div>
-                ))}
-                </div>
-                <Button type="button" variant="outline" size="sm" onClick={addUrlInput} className="mt-2">
-                    <Plus className="w-4 h-4 mr-2" />
-                    Add another URL
-                </Button>
-            </FormItem>
           <FormItem>
             <FormLabel>Logo <span className="text-muted-foreground/80">(Optional)</span></FormLabel>
+            <FormDescription>The AI will extract colors from your logo to create the palette.</FormDescription>
             {!previewUrl ? (
                 <FormControl>
                   <label
