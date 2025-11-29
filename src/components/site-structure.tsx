@@ -63,8 +63,8 @@ function NodeItem({
           <GripVertical size={16} className="text-muted-foreground" />
         </Button>
         
-        <CollapsibleTrigger asChild disabled={!hasChildren}>
-          <div className={cn('flex items-center gap-2 flex-grow', { 'cursor-pointer': hasChildren })}>
+        <CollapsibleTrigger asChild disabled={!canHaveChildren}>
+          <div className={cn('flex items-center gap-2 flex-grow', { 'cursor-pointer': canHaveChildren })}>
             <div className={cn("p-1.5 rounded-md", item.type === 'page' ? 'bg-primary/10 text-primary' : 'text-muted-foreground')}>{itemIcon}</div>
             <Badge variant={item.type === 'page' ? 'secondary' : 'outline'} className="border-dashed h-6">{item.type}</Badge>
             <Input
@@ -159,8 +159,8 @@ export function SiteStructure({ initialStructure }: SiteStructureProps) {
         </div>
     );
   }
-
-  const findAndModify = (items: StructureItem[], id: string, modifier: (item: StructureItem) => StructureItem | null): StructureItem[] => {
+  
+  const recursivelyFindAndModify = (items: StructureItem[], id: string, modifier: (item: StructureItem) => StructureItem | null): StructureItem[] => {
     return items.reduce((acc, item) => {
         if (item.id === id) {
             const modified = modifier(item);
@@ -168,25 +168,13 @@ export function SiteStructure({ initialStructure }: SiteStructureProps) {
             return acc;
         }
         if (item.children) {
-            const newChildren = findAndModify(item.children, id, modifier);
+            const newChildren = recursivelyFindAndModify(item.children, id, modifier);
             acc.push({ ...item, children: newChildren });
         } else {
             acc.push(item);
         }
         return acc;
     }, [] as StructureItem[]);
-  };
-
-  const findParentAndModify = (items: StructureItem[], childId: string, modifier: (parent: StructureItem) => StructureItem): StructureItem[] => {
-    return items.map(item => {
-        if (item.children?.some(child => child.id === childId)) {
-            return modifier(item);
-        }
-        if (item.children) {
-            return { ...item, children: findParentAndModify(item.children, childId, modifier) };
-        }
-        return item;
-    });
   };
 
   const addItem = (parentId: string | null, type: 'page' | 'section') => {
@@ -200,7 +188,7 @@ export function SiteStructure({ initialStructure }: SiteStructureProps) {
     if (parentId === null) {
       setStructure(prev => [...prev, newItem]);
     } else {
-      setStructure(prev => findAndModify(prev, parentId, item => ({
+      setStructure(prev => recursivelyFindAndModify(prev, parentId, item => ({
           ...item,
           children: [...(item.children || []), newItem],
       })));
@@ -208,29 +196,22 @@ export function SiteStructure({ initialStructure }: SiteStructureProps) {
   };
 
   const deleteItem = (itemId: string) => {
-    // First try to delete from root
     let newStructure = structure.filter(item => item.id !== itemId);
-    // If not found in root, search in children
     if (newStructure.length === structure.length) {
-      newStructure = structure.map(page => {
-        if (page.children) {
-          return { ...page, children: findAndModify(page.children, itemId, () => null) };
-        }
-        return page;
-      });
+      newStructure = recursivelyFindAndModify(structure, itemId, () => null);
     }
     setStructure(newStructure);
   };
   
   const updateItemName = (itemId: string, newName: string) => {
-    setStructure(prev => findAndModify(prev, itemId, item => ({ ...item, name: newName })));
+    setStructure(prev => recursivelyFindAndModify(prev, itemId, item => ({ ...item, name: newName })));
   };
 
   const handleReorder = (parentId: string | null, newOrder: StructureItem[]) => {
     if (parentId === null) {
       setStructure(newOrder);
     } else {
-      setStructure(prev => findAndModify(prev, parentId, item => ({...item, children: newOrder})));
+      setStructure(prev => recursivelyFindAndModify(prev, parentId, item => ({...item, children: newOrder})));
     }
   };
 
