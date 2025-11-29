@@ -3,12 +3,12 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import type { BrandKitOutput } from '@/ai/flows/generate-brand-kit-from-input';
-import { Palette, Type, Globe, Network, Building2, ExternalLink, Copy, Image as ImageIcon } from 'lucide-react';
+import { Palette, Type, Globe, Network, Monitor, Image as ImageIcon, Copy } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from "@/hooks/use-toast";
-import Link from 'next/link';
 import Image from 'next/image';
 import { SiteStructure } from './site-structure';
+import { CompetitorWebsites } from './competitor-websites';
 
 interface BrandKitDisplayProps {
   brandKit: BrandKitOutput | null;
@@ -226,27 +226,8 @@ export function BrandKitDisplay({ brandKit, isLoading, logoDataUri }: BrandKitDi
             ))}
           </CardContent>
         </Card>
-
-        <Card>
-            <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                    <Building2 className="w-5 h-5" />
-                    Top Competitors
-                </CardTitle>
-            </CardHeader>
-            <CardContent>
-                <ul className="space-y-2">
-                {brandKit.competitorWebsites.map((site) => (
-                    <li key={site.name} className="flex justify-between items-center p-3 bg-muted/50 rounded-md text-foreground">
-                    <span>{site.name}</span>
-                    <Link href={site.url} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
-                        <ExternalLink className="w-4 h-4" />
-                    </Link>
-                    </li>
-                ))}
-                </ul>
-            </CardContent>
-        </Card>
+        
+        <CompetitorWebsites initialUrls={brandKit.competitorWebsites} />
       </div>
     )
   }

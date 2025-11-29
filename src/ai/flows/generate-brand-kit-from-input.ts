@@ -19,6 +19,7 @@ const BrandKitInputSchema = z.object({
   businessDescription: z.string().describe('A brief description of the business.'),
   industry: z.string().optional().describe('The industry the business operates in.'),
   location: z.string().optional().describe('The location of the business.'),
+  referenceUrls: z.array(z.string()).optional().describe('A list of reference website URLs.'),
   logoDataUri: z
     .string()
     .optional()
@@ -55,8 +56,8 @@ const BrandKitOutputSchema = z.object({
     )
     .describe('A list of recommended platforms for the business website.'),
   competitorWebsites: z
-    .array(z.object({ name: z.string(), url: z.string() }))
-    .describe('A list of top competitor websites with their name and URL.'),
+    .array(z.string())
+    .describe('A list of top competitor website URLs. Just provide the domain name (e.g., example.com).'),
 });
 export type BrandKitOutput = z.infer<typeof BrandKitOutputSchema>;
 
@@ -93,6 +94,12 @@ export async function generateBrandKit(input: BrandKitInput): Promise<BrandKitOu
     2. If NO logo is provided, you MUST generate a fitting color palette based solely on the business description and industry.
   `;
 
+  const referenceUrlsPrompt = input.referenceUrls && input.referenceUrls.length > 0 ? `
+  **User-Provided Reference Websites:**
+  The user has provided the following websites for reference: ${input.referenceUrls.join(', ')}.
+  Take these into account when generating recommendations, especially for competitor analysis.
+  ` : '';
+
   const textPrompt = `
     You are an expert branding and web design consultant. Generate a brand kit and website strategy based on the following business details.
 
@@ -105,13 +112,14 @@ export async function generateBrandKit(input: BrandKitInput): Promise<BrandKitOu
     - typographySuggestions: MUST be an object with 'heading', 'body', and 'accent' font suggestions.
     - siteStructure: MUST be an array of objects, where each object has a 'page' (string) and 'sections' (array of strings). Example: [{ "page": "Home", "sections": ["Hero", "About Us", "Services", "Contact"] }]
     - recommendedPlatforms: MUST be an array of objects, each with 'name' (string), 'description' (string), and 'bestChoice' (boolean).
-    - competitorWebsites: MUST be an array of objects, each with 'name' (string), and 'url' (string). Find real websites of competitors based on the user's business description and location (if provided). Example: [{ "name": "Competitor A", "url": "https://competitora.com" }]
+    - competitorWebsites: MUST be an array of competitor website URLs (e.g., ["competitor1.com", "competitor2.com"]). Find real, highly relevant competitors based on the user's business description and location (if provided). Only include the domain name.
 
     **Business Details:**
     Business Name: ${input.businessName}
     Description: ${input.businessDescription}
     ${input.industry ? `Industry: ${input.industry}` : ''}
     ${input.location ? `Location: ${input.location}` : ''}
+    ${referenceUrlsPrompt}
 
     Your response must be a valid JSON object following the specified schema, and nothing else.
   `;
