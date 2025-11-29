@@ -15,6 +15,6 @@ export async function generateBrandKitAction(input: BrandKitInput) {
     if (error instanceof Error) {
         throw new Error(error.message);
     }
-    throw new Error('Failed to generate brand kit. The AI model may be unavailable. Please try again later.');
+    throw new Error('Failed to generate brand kit from OpenAI.');
   }
 }
