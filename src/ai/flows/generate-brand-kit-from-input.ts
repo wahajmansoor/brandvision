@@ -63,30 +63,27 @@ export async function generateBrandKit(input: BrandKitInput): Promise<BrandKitOu
   const textPrompt = `
     You are an expert branding and web design consultant. Generate a brand kit and website strategy based on the following business details.
     
-    If a logo is provided, you MUST analyze it. Identify the most prominent color in the logo and set that as the "primary" color in your response. Then, generate the secondary, accent, neutral, and background colors to be harmonious with that primary color.
-    If no logo is provided, generate a fitting color palette based on the business description and industry.
+    **Color Palette Generation Rules:**
+    1.  If a logo is provided, you MUST analyze it first. Identify the most prominent color in the logo and set that as the "primary" color in your response.
+    2.  Based on that primary color, generate a harmonious and professional color palette for the secondary, accent, neutral, and background colors. They must complement the primary color.
+    3.  If NO logo is provided, and only then, generate a fitting color palette based on the business description and industry.
 
-    For the site structure, suggest a complete and logical website structure based on the business description and industry. Provide a list of top-level pages. For each page, provide a list of relevant sections or sub-pages only if it's logical. Some pages, like 'Contact', might not have any sections.
-    For the recommended platforms, choose the best two for the business's needs, mark one as the 'bestChoice', and provide a concise description for why each is a good fit.
-    For the competitor websites, find at least two real-world competitors.
+    **Site Structure Rules:**
+    - Suggest a complete and logical website structure based on the business description and industry. 
+    - Provide a list of top-level pages. 
+    - For each page, provide a list of relevant sections or sub-pages only if it's logical. Some pages, like 'Contact', might not have any sections.
 
+    **Other Rules:**
+    - For recommended platforms, choose the best two for the business's needs, mark one as the 'bestChoice', and provide a concise description for why each is a good fit.
+    - For competitor websites, find at least two real-world competitors.
+
+    **Business Details:**
     Business Name: ${input.businessName}
     Description: ${input.businessDescription}
     ${input.industry ? `Industry: ${input.industry}` : ''}
     ${input.location ? `Location: ${input.location}` : ''}
 
-    Your response must be a valid JSON object with the following structure, and nothing else:
-    {
-      "colorPalette": { "primary": "#...", "secondary": "#...", "accent": "#...", "neutral": "#...", "background": "#..." },
-      "typographySuggestions": { "heading": "Font Name", "body": "Font Name", "accent": "Font Name" },
-      "siteStructure": [ 
-        { "page": "Home", "sections": ["Hero", "About Us", "Services", "Testimonials", "Contact"] },
-        { "page": "About Us", "sections": ["Our Story", "Our Mission", "Our Team"] },
-        { "page": "Contact", "sections": [] }
-      ],
-      "recommendedPlatforms": [ { "name": "Platform 1", "description": "...", "bestChoice": true }, { "name": "Platform 2", "description": "...", "bestChoice": false } ],
-      "competitorWebsites": [ { "name": "Competitor 1", "url": "https://competitor1.com" }, { "name": "Competitor 2", "url": "https://competitor2.com" } ]
-    }
+    Your response must be a valid JSON object following the specified schema, and nothing else.
   `;
 
   const messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
@@ -110,7 +107,7 @@ export async function generateBrandKit(input: BrandKitInput): Promise<BrandKitOu
 
   try {
     const response = await openai.chat.completions.create({
-      model: 'gpt-4o-mini',
+      model: 'gpt-4o',
       messages: messages,
       response_format: { type: 'json_object' },
     });
