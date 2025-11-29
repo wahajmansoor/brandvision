@@ -15,9 +15,10 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { UploadCloud, File as FileIcon, Loader2 } from 'lucide-react';
-import { useState, useRef } from 'react';
+import { UploadCloud, File as FileIcon, Loader2, X } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
 import { Combobox } from './ui/combobox';
+import Image from 'next/image';
 
 const industries = [
   { label: 'Technology', value: 'Technology' },
@@ -52,8 +53,21 @@ interface BrandKitFormProps {
 
 export function BrandKitForm({ onSubmit, isLoading }: BrandKitFormProps) {
   const [file, setFile] = useState<File | undefined>(undefined);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (!file) {
+      setPreviewUrl(null);
+      return;
+    }
+    const objectUrl = URL.createObjectURL(file);
+    setPreviewUrl(objectUrl);
+
+    // cleanup
+    return () => URL.revokeObjectURL(objectUrl);
+  }, [file]);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -181,32 +195,46 @@ export function BrandKitForm({ onSubmit, isLoading }: BrandKitFormProps) {
           />
           <FormItem>
             <FormLabel>Logo <span className="text-muted-foreground/80">(Optional)</span></FormLabel>
-            <FormControl>
-               <label
-                onDragEnter={handleDragEnter}
-                onDragLeave={handleDragLeave}
-                onDragOver={handleDragOver}
-                onDrop={handleDrop}
-                className={`flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer bg-card hover:bg-muted/50 transition-colors ${
-                  isDragging ? 'border-primary' : 'border-input'
-                }`}
-                htmlFor="logo-upload"
-              >
-                <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                  <UploadCloud className={`w-8 h-8 mb-3 ${isDragging ? 'text-primary' : 'text-muted-foreground'}`} />
-                  <p className="mb-1 text-sm text-muted-foreground">
-                    <span className="font-semibold text-primary">Upload a file</span> or drag and drop
-                  </p>
-                  <p className="text-xs text-muted-foreground">PNG, JPG, SVG up to 5MB</p>
+            {!file ? (
+                <FormControl>
+                  <label
+                    onDragEnter={handleDragEnter}
+                    onDragLeave={handleDragLeave}
+                    onDragOver={handleDragOver}
+                    onDrop={handleDrop}
+                    className={`flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer bg-card hover:bg-muted/50 transition-colors ${
+                      isDragging ? 'border-primary' : 'border-input'
+                    }`}
+                    htmlFor="logo-upload"
+                  >
+                    <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                      <UploadCloud className={`w-8 h-8 mb-3 ${isDragging ? 'text-primary' : 'text-muted-foreground'}`} />
+                      <p className="mb-1 text-sm text-muted-foreground">
+                        <span className="font-semibold text-primary">Upload a file</span> or drag and drop
+                      </p>
+                      <p className="text-xs text-muted-foreground">PNG, JPG, SVG up to 5MB</p>
+                    </div>
+                    <Input id="logo-upload" type="file" className="hidden" accept=".png,.jpg,.jpeg,.svg" onChange={handleFileChange} ref={fileInputRef} />
+                  </label>
+                </FormControl>
+            ) : (
+              <div className="mt-2 flex items-center gap-3 text-sm text-muted-foreground border rounded-lg p-2 bg-card">
+                 {previewUrl && (
+                    <Image
+                      src={previewUrl}
+                      alt="Logo preview"
+                      width={40}
+                      height={40}
+                      className="object-contain rounded-md bg-muted/50 p-1"
+                    />
+                  )}
+                <div className="flex-grow min-w-0">
+                  <p className="truncate font-medium text-foreground">{file.name}</p>
+                  <p className="text-xs">{(file.size / 1024).toFixed(2)} KB</p>
                 </div>
-                <Input id="logo-upload" type="file" className="hidden" accept=".png,.jpg,.jpeg,.svg" onChange={handleFileChange} ref={fileInputRef} />
-              </label>
-            </FormControl>
-            {file && (
-              <div className="mt-2 flex items-center gap-2 text-sm text-muted-foreground border rounded-md p-2 bg-card">
-                <FileIcon className="w-4 h-4 flex-shrink-0" />
-                <span className="truncate flex-grow">{file.name}</span>
-                <button type="button" onClick={clearFile} className="ml-2 text-destructive hover:text-destructive/80 font-bold">&times;</button>
+                <Button type="button" variant="ghost" size="icon" onClick={clearFile} className="w-8 h-8 flex-shrink-0 text-destructive hover:bg-destructive/10 hover:text-destructive">
+                    <X className="w-4 h-4" />
+                </Button>
               </div>
             )}
           </FormItem>
