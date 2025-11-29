@@ -105,7 +105,7 @@ export async function generateBrandKit(input: BrandKitInput): Promise<BrandKitOu
     - typographySuggestions: MUST be an object with 'heading', 'body', and 'accent' font suggestions.
     - siteStructure: MUST be an array of objects, where each object has a 'page' (string) and 'sections' (array of strings). Example: [{ "page": "Home", "sections": ["Hero", "About Us", "Services", "Contact"] }]
     - recommendedPlatforms: MUST be an array of objects, each with 'name' (string), 'description' (string), and 'bestChoice' (boolean).
-    - competitorWebsites: MUST be an array of objects, each with 'name' (string), and 'url' (string). Example: [{ "name": "Competitor A", "url": "https://competitora.com" }]
+    - competitorWebsites: MUST be an array of objects, each with 'name' (string), and 'url' (string). Find real websites of competitors based on the user's business description and location (if provided). Example: [{ "name": "Competitor A", "url": "https://competitora.com" }]
 
     **Business Details:**
     Business Name: ${input.businessName}
@@ -143,7 +143,7 @@ export async function generateBrandKit(input: BrandKitInput): Promise<BrandKitOu
   ];
 
   try {
-    // If we have extracted colors, we are confident in the image and should prioritize the call that includes it.
+    // If we have extracted colors or a logo, we are confident in the image and should prioritize the call that includes it.
     if (input.logoDataUri) {
       try {
         console.log("Attempting to generate brand kit WITH logo...");
