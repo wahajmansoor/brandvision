@@ -59,13 +59,30 @@ const BrandKitOutputSchema = z.object({
 });
 export type BrandKitOutput = z.infer<typeof BrandKitOutputSchema>;
 
+async function callOpenAI(messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[]): Promise<BrandKitOutput> {
+  const response = await openai.chat.completions.create({
+    model: 'gpt-4o',
+    messages: messages,
+    response_format: { type: 'json_object' },
+  });
+
+  const content = response.choices[0].message.content;
+  if (!content) {
+    throw new Error('OpenAI returned an empty response.');
+  }
+
+  const parsedOutput = JSON.parse(content);
+  return BrandKitOutputSchema.parse(parsedOutput);
+}
+
+
 export async function generateBrandKit(input: BrandKitInput): Promise<BrandKitOutput> {
   const textPrompt = `
     You are an expert branding and web design consultant. Generate a brand kit and website strategy based on the following business details.
 
     **Color Palette Generation Rules:**
     1. If a logo is provided, you MUST analyze the image and extract the exact key colors from it to create the entire color palette (primary, secondary, accent, neutral, background). The palette MUST be derived directly from the logo's colors.
-    2. If NO logo is provided, OR IF THE IMAGE ANALYSIS FAILS for any reason, you MUST fall back to generating a fitting color palette based solely on the business description and industry. Do not stop generation if the image is unreadable.
+    2. If NO logo is provided, you MUST generate a fitting color palette based solely on the business description and industry.
 
     **JSON Structure Rules:**
     - Your response MUST be a single, valid JSON object and nothing else.
@@ -83,10 +100,11 @@ export async function generateBrandKit(input: BrandKitInput): Promise<BrandKitOu
     Your response must be a valid JSON object following the specified schema, and nothing else.
   `;
 
-  const content: OpenAI.Chat.Completions.ChatCompletionContentPart[] = [{ type: 'text', text: textPrompt }];
-
+  const textPart: OpenAI.Chat.Completions.ChatCompletionContentPart = { type: 'text', text: textPrompt };
+  
+  const contentWithImage: OpenAI.Chat.Completions.ChatCompletionContentPart[] = [textPart];
   if (input.logoDataUri) {
-    content.push({
+    contentWithImage.push({
       type: 'image_url',
       image_url: {
         url: input.logoDataUri,
@@ -94,27 +112,37 @@ export async function generateBrandKit(input: BrandKitInput): Promise<BrandKitOu
     });
   }
 
-  const messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
+  const messagesWithImage: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
     {
       role: 'user',
-      content: content,
+      content: contentWithImage,
+    },
+  ];
+  
+  const messagesWithoutImage: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
+    {
+      role: 'user',
+      content: [textPart],
     },
   ];
 
   try {
-    const response = await openai.chat.completions.create({
-      model: 'gpt-4o',
-      messages: messages,
-      response_format: { type: 'json_object' },
-    });
-
-    const content = response.choices[0].message.content;
-    if (!content) {
-      throw new Error('OpenAI returned an empty response.');
+    // First, try with the image if it exists.
+    if (input.logoDataUri) {
+      try {
+        console.log("Attempting to generate brand kit WITH logo...");
+        return await callOpenAI(messagesWithImage);
+      } catch (error) {
+        console.error("Generating with logo failed, falling back to text-only:", error);
+        // If it fails (e.g., empty response), fall back to text-only.
+        console.log("Attempting to generate brand kit WITHOUT logo (fallback)...");
+        return await callOpenAI(messagesWithoutImage);
+      }
+    } else {
+      // If there's no logo to begin with, just call once.
+      console.log("Attempting to generate brand kit without logo...");
+      return await callOpenAI(messagesWithoutImage);
     }
-
-    const parsedOutput = JSON.parse(content);
-    return BrandKitOutputSchema.parse(parsedOutput);
   } catch (error) {
     console.error('Error calling OpenAI API:', error);
     // Re-throw the raw error to get more details in the UI
