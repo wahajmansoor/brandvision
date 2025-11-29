@@ -50,7 +50,7 @@ export function CompetitorWebsites({ initialUrls }: CompetitorWebsitesProps) {
           <div className="p-2 bg-primary/10 rounded-lg">
             <Monitor className="w-5 h-5 text-primary" />
           </div>
-          Top & Competitor Websites
+          Competitor Websites
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -66,17 +66,20 @@ export function CompetitorWebsites({ initialUrls }: CompetitorWebsitesProps) {
             </li>
           ))}
         </ul>
-        <div className="flex w-full items-center space-x-2 mt-4 pt-4 border-t">
-          <Input
-            type="url"
-            placeholder="https://example.com"
-            value={newUrl}
-            onChange={(e) => setNewUrl(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && handleAddUrl()}
-          />
-          <Button type="button" onClick={handleAddUrl}>
-            Add
-          </Button>
+        <div className="mt-4 pt-4 border-t space-y-2">
+            <label className="text-sm font-medium text-muted-foreground">Reference Website</label>
+            <div className="flex w-full items-center space-x-2">
+                <Input
+                    type="url"
+                    placeholder="https://example.com"
+                    value={newUrl}
+                    onChange={(e) => setNewUrl(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && handleAddUrl()}
+                />
+                <Button type="button" onClick={handleAddUrl}>
+                    Add
+                </Button>
+            </div>
         </div>
       </CardContent>
     </Card>
