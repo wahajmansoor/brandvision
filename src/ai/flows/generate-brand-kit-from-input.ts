@@ -72,16 +72,21 @@ async function callOpenAI(messages: OpenAI.Chat.Completions.ChatCompletionMessag
     throw new Error('OpenAI returned an empty response.');
   }
 
-  const parsedOutput = JSON.parse(content);
-  return BrandKitOutputSchema.parse(parsedOutput);
+  try {
+    const parsedOutput = JSON.parse(content);
+    return BrandKitOutputSchema.parse(parsedOutput);
+  } catch(e) {
+    console.error("Failed to parse OpenAI response:", content);
+    throw new Error('OpenAI returned an invalid JSON response.');
+  }
 }
 
 
 export async function generateBrandKit(input: BrandKitInput): Promise<BrandKitOutput> {
-  const logoColorsPrompt = input.logoColors ? `
+  const logoColorsPrompt = input.logoColors && input.logoColors.length > 0 ? `
     **Extracted Logo Colors:**
     You have been provided with the following key colors extracted directly from the user's logo: ${input.logoColors.join(', ')}.
-    You MUST use these colors to build the color palette. Select the most appropriate colors from this list for the primary, secondary, accent, neutral, and background roles. Do not invent new colors.
+    You MUST use these colors to build the color palette. Select the most appropriate colors from this list for the primary, secondary, accent, neutral, and background roles. Do not invent new colors. The final palette must be diverse and functional, using the provided colors as the source of truth.
   ` : `
     **Color Palette Generation Rules:**
     1. If a logo image is provided, you MUST analyze the image and extract the exact key colors from it to create the entire color palette (primary, secondary, accent, neutral, background). The palette MUST be derived directly from the logo's colors.
@@ -100,7 +105,7 @@ export async function generateBrandKit(input: BrandKitInput): Promise<BrandKitOu
     - typographySuggestions: MUST be an object with 'heading', 'body', and 'accent' font suggestions.
     - siteStructure: MUST be an array of objects, where each object has a 'page' (string) and 'sections' (array of strings). Example: [{ "page": "Home", "sections": ["Hero", "About Us", "Services", "Contact"] }]
     - recommendedPlatforms: MUST be an array of objects, each with 'name' (string), 'description' (string), and 'bestChoice' (boolean).
-    - competitorWebsites: MUST be an array of objects, each with 'name' (string) and 'url' (string). Example: [{ "name": "Competitor A", "url": "https://competitora.com" }]
+    - competitorWebsites: MUST be an array of objects, each with 'name' (string), and 'url' (string). Example: [{ "name": "Competitor A", "url": "https://competitora.com" }]
 
     **Business Details:**
     Business Name: ${input.businessName}
@@ -138,7 +143,7 @@ export async function generateBrandKit(input: BrandKitInput): Promise<BrandKitOu
   ];
 
   try {
-    // First, try with the image if it exists.
+    // If we have extracted colors, we are confident in the image and should prioritize the call that includes it.
     if (input.logoDataUri) {
       try {
         console.log("Attempting to generate brand kit WITH logo...");
