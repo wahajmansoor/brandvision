@@ -66,7 +66,7 @@ export async function generateBrandKit(input: BrandKitInput): Promise<BrandKitOu
     **Color Palette Generation Rules:**
     1.  If a logo is provided, you MUST analyze it first. Identify the most prominent color in the logo and set that as the "primary" color in your response.
     2.  Based on that primary color, generate a harmonious and professional color palette for the secondary, accent, neutral, and background colors. They must complement the primary color.
-    3.  If NO logo is provided, and only then, generate a fitting color palette based on the business description and industry.
+    3.  If NO logo is provided, OR IF THE IMAGE ANALYSIS FAILS for any reason, you MUST fall back to generating a fitting color palette based on the business description and industry. Do not stop generation if the image is unreadable.
 
     **Site Structure Rules:**
     - Suggest a complete and logical website structure based on the business description and industry. 
