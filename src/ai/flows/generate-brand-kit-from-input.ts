@@ -120,11 +120,7 @@ export async function generateBrandKit(input: BrandKitInput): Promise<BrandKitOu
     return BrandKitOutputSchema.parse(parsedOutput);
   } catch (error) {
     console.error('Error calling OpenAI API:', error);
-    if (error instanceof Error) {
-      // Re-throw the specific error message from the API client.
-      throw new Error(error.message);
-    }
-    // Fallback error
-    throw new Error('Failed to generate brand kit from OpenAI.');
+    // Re-throw the raw error to get more details in the UI
+    throw error;
   }
 }
