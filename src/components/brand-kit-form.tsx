@@ -123,7 +123,7 @@ function LogoUploadDisplay({
       <div className="space-y-2">
         <p className="text-sm font-medium text-muted-foreground text-center">Extracted Logo Colors:</p>
         {loading && (
-          <div className="flex justify-center gap-2">
+          <div className="flex justify-center gap-2 mt-2">
             <Skeleton className="w-8 h-8 rounded-full" />
             <Skeleton className="w-8 h-8 rounded-full" />
             <Skeleton className="w-8 h-8 rounded-full" />
@@ -132,7 +132,7 @@ function LogoUploadDisplay({
           </div>
         )}
         {colors && (
-          <div className="flex justify-center gap-2 flex-wrap">
+          <div className="flex justify-center gap-2 flex-wrap mt-2">
             {colors.map((color, index) => (
               <div
                 key={index}
