@@ -6,28 +6,35 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Monitor, Link as LinkIcon } from 'lucide-react';
 import Link from 'next/link';
+import { Badge } from '@/components/ui/badge';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Label } from '@/components/ui/label';
+
+interface UrlItem {
+  url: string;
+  type: 'competitor' | 'reference';
+}
 
 interface CompetitorWebsitesProps {
   initialUrls: string[];
 }
 
 export function CompetitorWebsites({ initialUrls }: CompetitorWebsitesProps) {
-  const [urls, setUrls] = useState<string[]>(initialUrls);
+  const [urls, setUrls] = useState<UrlItem[]>([]);
   const [newUrl, setNewUrl] = useState('');
+  const [newUrlType, setNewUrlType] = useState<'competitor' | 'reference'>('competitor');
 
   useEffect(() => {
-    setUrls(initialUrls);
+    setUrls(initialUrls.map(url => ({ url, type: 'competitor' })));
   }, [initialUrls]);
 
   const handleAddUrl = () => {
-    if (newUrl.trim() !== '' && !urls.includes(newUrl.trim())) {
-      // Basic URL validation
+    if (newUrl.trim() !== '' && !urls.some(item => item.url === newUrl.trim())) {
       try {
         const urlObject = new URL(newUrl.trim().startsWith('http') ? newUrl.trim() : `https://${newUrl.trim()}`);
-        setUrls([...urls, urlObject.hostname]);
+        setUrls([...urls, { url: urlObject.hostname, type: newUrlType }]);
         setNewUrl('');
       } catch (error) {
-        // Handle invalid URL, maybe show a toast
         console.error("Invalid URL format");
       }
     }
@@ -42,7 +49,6 @@ export function CompetitorWebsites({ initialUrls }: CompetitorWebsitesProps) {
     }
   };
 
-
   return (
     <Card>
       <CardHeader>
@@ -55,18 +61,21 @@ export function CompetitorWebsites({ initialUrls }: CompetitorWebsitesProps) {
       </CardHeader>
       <CardContent>
         <ul className="space-y-3">
-          {urls.map((url, index) => (
+          {urls.map((item, index) => (
             <li key={index} className="flex items-center gap-3">
                 <div className="flex items-center justify-center w-8 h-8 rounded-full bg-muted">
                     <LinkIcon className="w-4 h-4 text-muted-foreground" />
                 </div>
-                <Link href={url.startsWith('http') ? url : `https://${url}`} target="_blank" rel="noopener noreferrer" className="text-sm font-medium text-foreground hover:underline">
-                    {getDisplayUrl(url)}
+                <Link href={item.url.startsWith('http') ? item.url : `https://${item.url}`} target="_blank" rel="noopener noreferrer" className="text-sm font-medium text-foreground hover:underline">
+                    {getDisplayUrl(item.url)}
                 </Link>
+                <Badge variant={item.type === 'competitor' ? 'outline' : 'secondary'} className="ml-auto">
+                    {item.type.charAt(0).toUpperCase() + item.type.slice(1)}
+                </Badge>
             </li>
           ))}
         </ul>
-        <div className="mt-4 pt-4 border-t space-y-2">
+        <div className="mt-4 pt-4 border-t space-y-4">
             <label className="text-sm font-medium text-muted-foreground">Reference Website</label>
             <div className="flex w-full items-center space-x-2">
                 <Input
@@ -80,6 +89,16 @@ export function CompetitorWebsites({ initialUrls }: CompetitorWebsitesProps) {
                     Add
                 </Button>
             </div>
+            <RadioGroup defaultValue="competitor" onValueChange={(value: 'competitor' | 'reference') => setNewUrlType(value)} className="flex gap-4">
+                <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="competitor" id="r-competitor" />
+                    <Label htmlFor="r-competitor">Competitor</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="reference" id="r-reference" />
+                    <Label htmlFor="r-reference">Reference</Label>
+                </div>
+            </RadioGroup>
         </div>
       </CardContent>
     </Card>
