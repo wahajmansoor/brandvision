@@ -198,8 +198,6 @@ export function BrandKitDisplay({ brandKit, isLoading, logoDataUri }: BrandKitDi
               >
                 {platform.bestChoice && (
                     <div className="absolute top-0 right-0 h-16 w-16 text-primary-foreground/10">
-                        <div className="absolute transform rotate-45 bg-primary text-center text-white font-semibold py-1 right-[-34px] top-[32px] w-[170px]">
-                        </div>
                         <svg className="absolute inset-0 h-full w-full opacity-10" viewBox="0 0 100 100">
                           <defs>
                             <pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse">
