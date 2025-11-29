@@ -64,13 +64,13 @@ export async function generateBrandKit(input: BrandKitInput): Promise<BrandKitOu
     You are an expert branding and web design consultant. Generate a brand kit and website strategy based on the following business details.
 
     **Color Palette Generation Rules:**
-    1. If a logo is provided, you MUST analyze it first. Identify the most prominent color in the logo and set that as the "primary" color in your response.
-    2. Based on that primary color, generate a harmonious and professional color palette for the secondary, accent, neutral, and background colors. They must complement the primary color.
-    3. If NO logo is provided, OR IF THE IMAGE ANALYSIS FAILS for any reason, you MUST fall back to generating a fitting color palette based on the business description and industry. Do not stop generation if the image is unreadable.
+    1. If a logo is provided, you MUST analyze the image and extract the exact key colors from it to create the entire color palette (primary, secondary, accent, neutral, background). The palette MUST be derived directly from the logo's colors.
+    2. If NO logo is provided, OR IF THE IMAGE ANALYSIS FAILS for any reason, you MUST fall back to generating a fitting color palette based solely on the business description and industry. Do not stop generation if the image is unreadable.
 
     **JSON Structure Rules:**
+    - Your response MUST be a single, valid JSON object and nothing else.
     - typographySuggestions: MUST be an object with 'heading', 'body', and 'accent' font suggestions.
-    - siteStructure: MUST be an array of objects, where each object has a 'page' (string) and 'sections' (array of strings). Example: [{ "page": "Home", "sections": ["Hero", "About Us"] }]
+    - siteStructure: MUST be an array of objects, where each object has a 'page' (string) and 'sections' (array of strings). Example: [{ "page": "Home", "sections": ["Hero", "About Us", "Services", "Contact"] }]
     - recommendedPlatforms: MUST be an array of objects, each with 'name' (string), 'description' (string), and 'bestChoice' (boolean).
     - competitorWebsites: MUST be an array of objects, each with 'name' (string) and 'url' (string). Example: [{ "name": "Competitor A", "url": "https://competitora.com" }]
 
