@@ -68,7 +68,7 @@ function LogoUploadDisplay({
   clearFile: () => void;
   onColorsExtracted: (colors: string[]) => void;
 }) {
-  const [colors, setColors] = useState<number[][] | null>(null);
+  const [colors, setColors] = useState<string[] | null>(null);
   const [loading, setLoading] = useState(true);
   const imgRef = useRef<HTMLImageElement>(null);
 
@@ -77,10 +77,15 @@ function LogoUploadDisplay({
       if (imgRef.current && imgRef.current.complete) {
         try {
           const colorThief = new ColorThief();
+          const dominantColor = colorThief.getColor(imgRef.current);
           const palette = colorThief.getPalette(imgRef.current, 5);
-          setColors(palette);
-          const hexColors = palette.map(rgb => rgbToHex(rgb[0], rgb[1], rgb[2]));
-          onColorsExtracted(hexColors);
+
+          const allColors = [dominantColor, ...palette];
+          
+          const uniqueHexColors = [...new Set(allColors.map(rgb => rgbToHex(rgb[0], rgb[1], rgb[2])))];
+
+          setColors(uniqueHexColors);
+          onColorsExtracted(uniqueHexColors);
         } catch (error) {
           console.error('Error extracting colors:', error);
         } finally {
@@ -127,12 +132,12 @@ function LogoUploadDisplay({
           </div>
         )}
         {colors && (
-          <div className="flex justify-center gap-2">
+          <div className="flex justify-center gap-2 flex-wrap">
             {colors.map((color, index) => (
               <div
                 key={index}
                 className="w-8 h-8 rounded-full border-2 border-white/20 shadow"
-                style={{ backgroundColor: `rgb(${color.join(',')})` }}
+                style={{ backgroundColor: color }}
               />
             ))}
           </div>
