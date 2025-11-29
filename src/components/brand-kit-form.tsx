@@ -15,7 +15,7 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { UploadCloud, Loader2, X, Unlock } from 'lucide-react';
+import { UploadCloud, Loader2, X } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 import { Combobox } from './ui/combobox';
 import Image from 'next/image';
@@ -67,16 +67,21 @@ function LogoUploadDisplay({
   });
 
   return (
-    <div className="w-full space-y-4">
-      <div className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg bg-muted/50">
-        <Unlock className="w-8 h-8 mb-2 text-primary" />
-        <p className="text-sm font-medium text-primary">Logo uploaded successfully</p>
-      </div>
+    <div className="w-full space-y-4 p-4 border-2 border-dashed rounded-lg bg-muted/50">
+        <div className="flex flex-col items-center justify-center w-full">
+            <Image
+                src={previewUrl}
+                alt="Uploaded logo"
+                width={128}
+                height={128}
+                className="max-h-24 w-auto object-contain rounded-md"
+            />
+        </div>
 
-      <div>
-        <p className="text-sm font-medium text-muted-foreground mb-2">Extracted Brand Colors:</p>
+      <div className="space-y-2">
+        <p className="text-sm font-medium text-muted-foreground text-center">Extracted Logo Colors:</p>
         {loading && (
-          <div className="flex gap-2">
+          <div className="flex justify-center gap-2">
             <Skeleton className="w-8 h-8 rounded-full" />
             <Skeleton className="w-8 h-8 rounded-full" />
             <Skeleton className="w-8 h-8 rounded-full" />
@@ -85,7 +90,7 @@ function LogoUploadDisplay({
           </div>
         )}
         {colors && (
-          <div className="flex gap-2">
+          <div className="flex justify-center gap-2">
             {colors.map((color, index) => (
               <div
                 key={index}
