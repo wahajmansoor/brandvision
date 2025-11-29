@@ -19,7 +19,7 @@ import { UploadCloud, Loader2, X } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 import { Combobox } from './ui/combobox';
 import Image from 'next/image';
-import { useColor } from 'color-thief-react';
+import ColorThief from 'colorthief';
 import { Skeleton } from './ui/skeleton';
 
 const industries = [
@@ -60,20 +60,48 @@ function LogoUploadDisplay({
   previewUrl: string;
   clearFile: () => void;
 }) {
-  const { data: colors, loading } = useColor(previewUrl, 'palette', {
-    quality: 10,
-    count: 5,
-  });
+  const [colors, setColors] = useState<number[][] | null>(null);
+  const [loading, setLoading] = useState(true);
+  const imgRef = useRef<HTMLImageElement>(null);
+
+  useEffect(() => {
+    const extractColors = () => {
+      if (imgRef.current && imgRef.current.complete) {
+        try {
+          const colorThief = new ColorThief();
+          const palette = colorThief.getPalette(imgRef.current, 5);
+          setColors(palette);
+        } catch (error) {
+          console.error('Error extracting colors:', error);
+        } finally {
+          setLoading(false);
+        }
+      }
+    };
+
+    const imageElement = imgRef.current;
+    if (imageElement) {
+        imageElement.addEventListener('load', extractColors);
+        if (imageElement.complete) {
+            extractColors();
+        }
+        return () => {
+            imageElement.removeEventListener('load', extractColors);
+        };
+    }
+  }, [previewUrl]);
 
   return (
     <div className="w-full space-y-4 p-4 border-2 border-dashed rounded-lg bg-muted/50">
         <div className="flex flex-col items-center justify-center w-full">
             <Image
+                ref={imgRef}
                 src={previewUrl}
                 alt="Uploaded logo"
                 width={128}
                 height={128}
                 className="max-h-24 w-auto object-contain rounded-md"
+                crossOrigin="anonymous" 
             />
         </div>
 
