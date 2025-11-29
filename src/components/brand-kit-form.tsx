@@ -61,7 +61,6 @@ function LogoUploadDisplay({
   clearFile: () => void;
 }) {
   const { data: colors, loading } = useColor(previewUrl, 'palette', {
-    crossOrigin: 'anonymous',
     quality: 10,
     count: 5,
   });
