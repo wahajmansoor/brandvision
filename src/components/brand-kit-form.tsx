@@ -49,16 +49,24 @@ const formSchema = z.object({
 export type FormValues = z.infer<typeof formSchema>;
 
 interface BrandKitFormProps {
-  onSubmit: (data: FormValues, file?: File) => void;
+  onSubmit: (data: FormValues, file?: File, colors?: string[]) => void;
   isLoading: boolean;
 }
+
+function rgbToHex(r: number, g: number, b: number): string {
+    const toHex = (c: number) => `0${c.toString(16)}`.slice(-2);
+    return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+}
+
 
 function LogoUploadDisplay({
   previewUrl,
   clearFile,
+  onColorsExtracted,
 }: {
   previewUrl: string;
   clearFile: () => void;
+  onColorsExtracted: (colors: string[]) => void;
 }) {
   const [colors, setColors] = useState<number[][] | null>(null);
   const [loading, setLoading] = useState(true);
@@ -71,6 +79,8 @@ function LogoUploadDisplay({
           const colorThief = new ColorThief();
           const palette = colorThief.getPalette(imgRef.current, 5);
           setColors(palette);
+          const hexColors = palette.map(rgb => rgbToHex(rgb[0], rgb[1], rgb[2]));
+          onColorsExtracted(hexColors);
         } catch (error) {
           console.error('Error extracting colors:', error);
         } finally {
@@ -89,7 +99,7 @@ function LogoUploadDisplay({
             imageElement.removeEventListener('load', extractColors);
         };
     }
-  }, [previewUrl]);
+  }, [previewUrl, onColorsExtracted]);
 
   return (
     <div className="w-full space-y-4 p-4 border-2 border-dashed rounded-lg bg-muted/50">
@@ -141,11 +151,13 @@ export function BrandKitForm({ onSubmit, isLoading }: BrandKitFormProps) {
   const [file, setFile] = useState<File | undefined>(undefined);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [extractedColors, setExtractedColors] = useState<string[] | undefined>(undefined);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (!file) {
       setPreviewUrl(null);
+      setExtractedColors(undefined);
       return;
     }
     const objectUrl = URL.createObjectURL(file);
@@ -205,6 +217,7 @@ export function BrandKitForm({ onSubmit, isLoading }: BrandKitFormProps) {
   function clearFile() {
     setFile(undefined);
     setPreviewUrl(null);
+    setExtractedColors(undefined);
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
@@ -220,7 +233,7 @@ export function BrandKitForm({ onSubmit, isLoading }: BrandKitFormProps) {
       </div>
 
       <Form {...form}>
-        <form onSubmit={form.handleSubmit((data) => onSubmit(data, file))} className="space-y-6">
+        <form onSubmit={form.handleSubmit((data) => onSubmit(data, file, extractedColors))} className="space-y-6">
           <FormField
             control={form.control}
             name="businessName"
@@ -305,7 +318,7 @@ export function BrandKitForm({ onSubmit, isLoading }: BrandKitFormProps) {
                   </label>
                 </FormControl>
             ) : (
-              <LogoUploadDisplay previewUrl={previewUrl} clearFile={clearFile} />
+              <LogoUploadDisplay previewUrl={previewUrl} clearFile={clearFile} onColorsExtracted={setExtractedColors} />
             )}
           </FormItem>
 

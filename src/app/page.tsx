@@ -24,7 +24,7 @@ export default function Home() {
   const { toast } = useToast();
   const { setTheme } = useTheme();
 
-  const handleFormSubmit = async (data: FormValues, file?: File) => {
+  const handleFormSubmit = async (data: FormValues, file?: File, colors?: string[]) => {
     setIsLoading(true);
     setBrandKit(null);
     setLogoDataUri(undefined);
@@ -46,6 +46,7 @@ export default function Home() {
       const result = await generateBrandKitAction({
         ...data,
         logoDataUri: newLogoDataUri,
+        logoColors: colors,
       });
       setBrandKit(result);
     } catch (error) {

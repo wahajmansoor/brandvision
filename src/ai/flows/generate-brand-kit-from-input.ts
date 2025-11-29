@@ -25,6 +25,7 @@ const BrandKitInputSchema = z.object({
     .describe(
       "The business's existing logo as a data URI."
     ),
+  logoColors: z.array(z.string()).optional().describe('A list of hex colors extracted from the logo.'),
 });
 export type BrandKitInput = z.infer<typeof BrandKitInputSchema>;
 
@@ -77,12 +78,20 @@ async function callOpenAI(messages: OpenAI.Chat.Completions.ChatCompletionMessag
 
 
 export async function generateBrandKit(input: BrandKitInput): Promise<BrandKitOutput> {
+  const logoColorsPrompt = input.logoColors ? `
+    **Extracted Logo Colors:**
+    You have been provided with the following key colors extracted directly from the user's logo: ${input.logoColors.join(', ')}.
+    You MUST use these colors to build the color palette. Select the most appropriate colors from this list for the primary, secondary, accent, neutral, and background roles. Do not invent new colors.
+  ` : `
+    **Color Palette Generation Rules:**
+    1. If a logo image is provided, you MUST analyze the image and extract the exact key colors from it to create the entire color palette (primary, secondary, accent, neutral, background). The palette MUST be derived directly from the logo's colors.
+    2. If NO logo is provided, you MUST generate a fitting color palette based solely on the business description and industry.
+  `;
+
   const textPrompt = `
     You are an expert branding and web design consultant. Generate a brand kit and website strategy based on the following business details.
 
-    **Color Palette Generation Rules:**
-    1. If a logo is provided, you MUST analyze the image and extract the exact key colors from it to create the entire color palette (primary, secondary, accent, neutral, background). The palette MUST be derived directly from the logo's colors.
-    2. If NO logo is provided, you MUST generate a fitting color palette based solely on the business description and industry.
+    ${logoColorsPrompt}
 
     **JSON Structure Rules:**
     - Your response MUST be a single, valid JSON object and nothing else.
