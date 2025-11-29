@@ -15,10 +15,12 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { UploadCloud, File as FileIcon, Loader2, X } from 'lucide-react';
+import { UploadCloud, Loader2, X, Unlock } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 import { Combobox } from './ui/combobox';
 import Image from 'next/image';
+import { useColor } from 'color-thief-react';
+import { Skeleton } from './ui/skeleton';
 
 const industries = [
   { label: 'Technology', value: 'Technology' },
@@ -49,6 +51,58 @@ export type FormValues = z.infer<typeof formSchema>;
 interface BrandKitFormProps {
   onSubmit: (data: FormValues, file?: File) => void;
   isLoading: boolean;
+}
+
+function LogoUploadDisplay({
+  previewUrl,
+  clearFile,
+}: {
+  previewUrl: string;
+  clearFile: () => void;
+}) {
+  const { data: colors, loading } = useColor(previewUrl, 'palette', {
+    crossOrigin: 'anonymous',
+    quality: 10,
+    count: 5,
+  });
+
+  return (
+    <div className="w-full space-y-4">
+      <div className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg bg-muted/50">
+        <Unlock className="w-8 h-8 mb-2 text-primary" />
+        <p className="text-sm font-medium text-primary">Logo uploaded successfully</p>
+      </div>
+
+      <div>
+        <p className="text-sm font-medium text-muted-foreground mb-2">Extracted Brand Colors:</p>
+        {loading && (
+          <div className="flex gap-2">
+            <Skeleton className="w-8 h-8 rounded-full" />
+            <Skeleton className="w-8 h-8 rounded-full" />
+            <Skeleton className="w-8 h-8 rounded-full" />
+            <Skeleton className="w-8 h-8 rounded-full" />
+            <Skeleton className="w-8 h-8 rounded-full" />
+          </div>
+        )}
+        {colors && (
+          <div className="flex gap-2">
+            {colors.map((color, index) => (
+              <div
+                key={index}
+                className="w-8 h-8 rounded-full border-2 border-white/20 shadow"
+                style={{ backgroundColor: `rgb(${color.join(',')})` }}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+
+      <Button type="button" variant="outline" size="sm" onClick={clearFile} className="w-full">
+        <X className="w-4 h-4 mr-2" />
+        Remove Logo
+      </Button>
+    </div>
+  );
 }
 
 export function BrandKitForm({ onSubmit, isLoading }: BrandKitFormProps) {
@@ -118,6 +172,7 @@ export function BrandKitForm({ onSubmit, isLoading }: BrandKitFormProps) {
 
   function clearFile() {
     setFile(undefined);
+    setPreviewUrl(null);
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
@@ -195,7 +250,7 @@ export function BrandKitForm({ onSubmit, isLoading }: BrandKitFormProps) {
           />
           <FormItem>
             <FormLabel>Logo <span className="text-muted-foreground/80">(Optional)</span></FormLabel>
-            {!file ? (
+            {!previewUrl ? (
                 <FormControl>
                   <label
                     onDragEnter={handleDragEnter}
@@ -218,24 +273,7 @@ export function BrandKitForm({ onSubmit, isLoading }: BrandKitFormProps) {
                   </label>
                 </FormControl>
             ) : (
-              <div className="mt-2 flex items-center gap-3 text-sm text-muted-foreground border rounded-lg p-2 bg-card">
-                 {previewUrl && (
-                    <Image
-                      src={previewUrl}
-                      alt="Logo preview"
-                      width={40}
-                      height={40}
-                      className="object-contain rounded-md bg-muted/50 p-1"
-                    />
-                  )}
-                <div className="flex-grow min-w-0">
-                  <p className="truncate font-medium text-foreground">{file.name}</p>
-                  <p className="text-xs">{(file.size / 1024).toFixed(2)} KB</p>
-                </div>
-                <Button type="button" variant="ghost" size="icon" onClick={clearFile} className="w-8 h-8 flex-shrink-0 text-destructive hover:bg-destructive/10 hover:text-destructive">
-                    <X className="w-4 h-4" />
-                </Button>
-              </div>
+              <LogoUploadDisplay previewUrl={previewUrl} clearFile={clearFile} />
             )}
           </FormItem>
 

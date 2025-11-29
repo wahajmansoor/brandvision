@@ -86,6 +86,8 @@ export async function generateBrandKit(input: BrandKitInput): Promise<BrandKitOu
 
     **JSON Structure Rules:**
     - Your response MUST be a single, valid JSON object and nothing else.
+    - The JSON object must conform to the following schema.
+    - colorPalette: MUST be an object with primary, secondary, accent, neutral, and background hex codes.
     - typographySuggestions: MUST be an object with 'heading', 'body', and 'accent' font suggestions.
     - siteStructure: MUST be an array of objects, where each object has a 'page' (string) and 'sections' (array of strings). Example: [{ "page": "Home", "sections": ["Hero", "About Us", "Services", "Contact"] }]
     - recommendedPlatforms: MUST be an array of objects, each with 'name' (string), 'description' (string), and 'bestChoice' (boolean).
