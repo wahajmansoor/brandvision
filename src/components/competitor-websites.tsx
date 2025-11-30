@@ -9,6 +9,7 @@ import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
+import { useToast } from '@/hooks/use-toast';
 
 export interface UrlItem {
   url: string;
@@ -23,17 +24,31 @@ interface CompetitorWebsitesProps {
 export function CompetitorWebsites({ urls, onUrlsChange }: CompetitorWebsitesProps) {
   const [newUrl, setNewUrl] = useState('');
   const [newUrlType, setNewUrlType] = useState<'competitor' | 'reference'>('competitor');
+  const { toast } = useToast();
 
   const handleAddUrl = () => {
-    if (newUrl.trim() !== '' && !urls.some(item => item.url === newUrl.trim())) {
-      try {
-        const urlObject = new URL(newUrl.trim().startsWith('http') ? newUrl.trim() : `https://${newUrl.trim()}`);
-        onUrlsChange([...urls, { url: urlObject.hostname, type: newUrlType }]);
-        setNewUrl('');
-      } catch (error) {
-        console.error("Invalid URL format");
-        // Optionally, show a toast or error message to the user
-      }
+    const trimmedUrl = newUrl.trim();
+    if (trimmedUrl === '') return;
+
+    if (urls.some(item => item.url === trimmedUrl)) {
+      toast({
+        title: 'URL Already Exists',
+        description: 'This website is already in your list.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    try {
+      const urlObject = new URL(trimmedUrl.startsWith('http') ? trimmedUrl : `https://${trimmedUrl}`);
+      onUrlsChange([...urls, { url: urlObject.hostname, type: newUrlType }]);
+      setNewUrl('');
+    } catch (error) {
+      toast({
+        title: 'Invalid URL',
+        description: 'Please enter a valid website URL (e.g., example.com).',
+        variant: 'destructive',
+      });
     }
   };
 
