@@ -4,9 +4,8 @@
 import type { BrandKitOutput } from '@/ai/flows/generate-brand-kit-from-input';
 import Image from 'next/image';
 import { AppLogo } from './app-logo';
-import { Globe, Link as LinkIcon, Network, Palette, Type, Zap } from 'lucide-react';
+import { Link as LinkIcon, Zap } from 'lucide-react';
 import { Badge } from './ui/badge';
-import Link from 'next/link';
 
 interface BrandKitPdfLayoutProps {
   brandKit: BrandKitOutput;
@@ -48,8 +47,7 @@ export function BrandKitPdfLayout({ brandKit, logoDataUri }: BrandKitPdfLayoutPr
             )}
             
             <div>
-              <h2 className="flex items-center gap-3 text-2xl font-bold text-slate-800">
-                <Palette className="w-7 h-7 text-primary" />
+              <h2 className="text-2xl font-bold text-slate-800">
                 <span>Color Palette</span>
               </h2>
               <div className="mt-4 grid grid-cols-2 gap-4">
@@ -67,8 +65,7 @@ export function BrandKitPdfLayout({ brandKit, logoDataUri }: BrandKitPdfLayoutPr
             </div>
 
             <div>
-              <h2 className="flex items-center gap-3 text-2xl font-bold text-slate-800">
-                <Type className="w-7 h-7 text-primary" />
+              <h2 className="text-2xl font-bold text-slate-800">
                 <span>Typography</span>
               </h2>
               <div className="mt-4 space-y-4">
@@ -85,8 +82,7 @@ export function BrandKitPdfLayout({ brandKit, logoDataUri }: BrandKitPdfLayoutPr
           {/* Right Column */}
           <div className="col-span-2 space-y-12">
              <div>
-              <h2 className="flex items-center gap-3 text-2xl font-bold text-slate-800">
-                <Globe className="w-7 h-7 text-primary" />
+              <h2 className="text-2xl font-bold text-slate-800">
                 <span>Recommended Platforms</span>
               </h2>
               <div className="mt-4 space-y-4">
@@ -102,7 +98,6 @@ export function BrandKitPdfLayout({ brandKit, logoDataUri }: BrandKitPdfLayoutPr
                      <div className="flex justify-between items-start">
                         <h3 className="text-2xl font-bold">{platform.name}</h3>
                         <Badge
-                          variant={platform.bestChoice ? 'secondary' : 'default'}
                            className={platform.bestChoice
                             ? 'bg-white/20 text-white'
                             : 'bg-slate-200 text-slate-600'}
@@ -120,14 +115,13 @@ export function BrandKitPdfLayout({ brandKit, logoDataUri }: BrandKitPdfLayoutPr
 
             {brandKit.siteStructure && brandKit.siteStructure.length > 0 && (
                 <div>
-                    <h2 className="flex items-center gap-3 text-2xl font-bold text-slate-800">
-                        <Network className="w-7 h-7 text-primary" />
+                    <h2 className="text-2xl font-bold text-slate-800">
                         <span>Site Structure</span>
                     </h2>
                     <div className="mt-4 grid grid-cols-2 gap-x-8 gap-y-6">
                         {brandKit.siteStructure.map((page, index) => (
                             <div key={index}>
-                                <h3 className="text-lg font-semibold border-b pb-1 mb-2 text-slate-800">{page.page}</h3>
+                                <h3 className="text-lg font-semibold border-b pb-2 mb-3 text-slate-800">{page.page}</h3>
                                 <ul className="mt-2 space-y-1 list-disc list-inside text-slate-600">
                                 {page.sections.map((section, sIndex) => (
                                     <li key={sIndex}>{section}</li>
@@ -140,8 +134,7 @@ export function BrandKitPdfLayout({ brandKit, logoDataUri }: BrandKitPdfLayoutPr
             )}
 
             <div>
-              <h2 className="flex items-center gap-3 text-2xl font-bold text-slate-800">
-                 <LinkIcon className="w-7 h-7 text-primary" />
+              <h2 className="text-2xl font-bold text-slate-800">
                  <span>Competitor Websites</span>
               </h2>
               <ul className="mt-4 space-y-2">
