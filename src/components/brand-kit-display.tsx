@@ -43,17 +43,16 @@ export function BrandKitDisplay({ brandKit: initialBrandKit, isLoading, logoData
   };
 
   const handleColorNameChange = (oldName: string, newName: string) => {
-    if (!editableBrandKit || oldName === newName) return;
+    if (!editableBrandKit || oldName === newName || !newName) return;
 
     const newPalette = { ...editableBrandKit.colorPalette };
     const colorValue = newPalette[oldName as keyof typeof newPalette];
     
-    // Create a new object with the updated key order
     const updatedPalette: { [key: string]: string } = {};
     for (const key in newPalette) {
       if (key === oldName) {
         updatedPalette[newName] = colorValue;
-      } else {
+      } else if (key !== newName) { // Prevent overwriting an existing key
         updatedPalette[key] = newPalette[key as keyof typeof newPalette];
       }
     }
@@ -126,31 +125,35 @@ export function BrandKitDisplay({ brandKit: initialBrandKit, isLoading, logoData
     if (isLoading) {
       return (
         <div className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-6 gap-6">
             {logoDataUri && (
-              <Card>
-                  <CardHeader>
-                    <Skeleton className="h-6 w-24" />
-                  </CardHeader>
-                  <CardContent className="flex items-center justify-center p-6">
-                      <Skeleton className="h-24 w-24 rounded-lg" />
-                  </CardContent>
-                </Card>
+              <div className="lg:col-span-1">
+                <Card>
+                    <CardHeader>
+                      <Skeleton className="h-6 w-24" />
+                    </CardHeader>
+                    <CardContent className="flex items-center justify-center p-6">
+                        <Skeleton className="h-24 w-24 rounded-lg" />
+                    </CardContent>
+                  </Card>
+              </div>
             )}
-            <Card>
-              <CardHeader>
-                <Skeleton className="h-6 w-32" />
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-3 sm:grid-cols-5 gap-4">
-                  <Skeleton className="h-20 w-full rounded-lg" />
-                  <Skeleton className="h-20 w-full rounded-lg" />
-                  <Skeleton className="h-20 w-full rounded-lg" />
-                  <Skeleton className="h-20 w-full rounded-lg" />
-                  <Skeleton className="h-20 w-full rounded-lg" />
-                </div>
-              </CardContent>
-            </Card>
+            <div className={logoDataUri ? "lg:col-span-5" : "lg:col-span-6"}>
+              <Card>
+                <CardHeader>
+                  <Skeleton className="h-6 w-32" />
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-3 sm:grid-cols-5 gap-4">
+                    <Skeleton className="h-20 w-full rounded-lg" />
+                    <Skeleton className="h-20 w-full rounded-lg" />
+                    <Skeleton className="h-20 w-full rounded-lg" />
+                    <Skeleton className="h-20 w-full rounded-lg" />
+                    <Skeleton className="h-20 w-full rounded-lg" />
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           </div>
           <Card>
             <CardHeader>
@@ -205,72 +208,76 @@ export function BrandKitDisplay({ brandKit: initialBrandKit, isLoading, logoData
             </Button>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-6 gap-6">
             {logoDataUri && (
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="flex items-center gap-2">
-                            <ImageIcon className="w-5 h-5" />
-                            Logo
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent className="flex items-center justify-center p-6 bg-muted/20 rounded-lg">
-                        <Image 
-                            src={logoDataUri}
-                            alt="Uploaded Logo"
-                            width={128}
-                            height={128}
-                            className="object-contain max-h-32"
-                        />
-                    </CardContent>
-                </Card>
+                <div className="lg:col-span-1">
+                  <Card>
+                      <CardHeader>
+                          <CardTitle className="flex items-center gap-2 text-xl">
+                              <ImageIcon className="w-5 h-5" />
+                              Logo
+                          </CardTitle>
+                      </CardHeader>
+                      <CardContent className="flex items-center justify-center p-6 bg-muted/20 rounded-lg">
+                          <Image 
+                              src={logoDataUri}
+                              alt="Uploaded Logo"
+                              width={128}
+                              height={128}
+                              className="object-contain max-h-32"
+                          />
+                      </CardContent>
+                  </Card>
+                </div>
             )}
-            <Card>
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                        <Palette className="w-5 h-5" />
-                        Color Palette
-                    </CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-6">
-                        {Object.entries(editableBrandKit.colorPalette).map(([name, color]) => (
-                            <div key={name} className="relative group text-center space-y-2">
-                                <div className="relative">
-                                    <ColorPicker color={color} onChange={(newColor) => handleColorChange(name, newColor)}>
-                                        <div
-                                            className="w-full h-20 rounded-lg shadow-inner border border-border/20 cursor-pointer"
-                                            style={{ backgroundColor: color }}
-                                        />
-                                    </ColorPicker>
-                                    <Button
-                                        variant="destructive"
-                                        size="icon"
-                                        className="absolute -top-2 -right-2 w-6 h-6 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                                        onClick={() => deleteColor(name)}
-                                    >
-                                        <Trash2 className="w-4 h-4" />
-                                    </Button>
-                                </div>
-                                <div>
-                                    <Input
-                                      type="text"
-                                      defaultValue={name}
-                                      onBlur={(e) => handleColorNameChange(name, e.target.value)}
-                                      className="capitalize text-sm font-medium text-center h-8 bg-transparent border-none focus-visible:ring-1 focus-visible:ring-ring"
-                                    />
-                                    <div className="text-muted-foreground text-xs font-mono">{color}</div>
-                                </div>
-                            </div>
-                        ))}
-                        <div className="flex items-center justify-center min-h-[120px]">
-                            <Button variant="outline" size="icon" onClick={handleAddColor} className="w-20 h-20 rounded-lg">
-                                <Plus className="w-8 h-8 text-muted-foreground" />
-                            </Button>
-                        </div>
-                    </div>
-                </CardContent>
-            </Card>
+            <div className={logoDataUri ? "lg:col-span-5" : "lg:col-span-6"}>
+              <Card>
+                  <CardHeader>
+                      <CardTitle className="flex items-center gap-2 text-xl">
+                          <Palette className="w-5 h-5" />
+                          Color Palette
+                      </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-4 gap-y-6">
+                          {Object.entries(editableBrandKit.colorPalette).map(([name, color]) => (
+                              <div key={name} className="relative group text-center space-y-2">
+                                  <div className="relative">
+                                      <ColorPicker color={color} onChange={(newColor) => handleColorChange(name, newColor)}>
+                                          <div
+                                              className="w-full h-20 rounded-lg shadow-inner border border-border/20 cursor-pointer"
+                                              style={{ backgroundColor: color }}
+                                          />
+                                      </ColorPicker>
+                                      <Button
+                                          variant="destructive"
+                                          size="icon"
+                                          className="absolute -top-2 -right-2 w-6 h-6 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                                          onClick={() => deleteColor(name)}
+                                      >
+                                          <Trash2 className="w-4 h-4" />
+                                      </Button>
+                                  </div>
+                                  <div>
+                                      <Input
+                                        type="text"
+                                        defaultValue={name}
+                                        onBlur={(e) => handleColorNameChange(name, e.target.value)}
+                                        className="capitalize text-sm font-medium text-center h-8 bg-transparent border-none focus-visible:ring-1 focus-visible:ring-ring"
+                                      />
+                                      <div className="text-muted-foreground text-xs font-mono">{color}</div>
+                                  </div>
+                              </div>
+                          ))}
+                          <div className="flex items-center justify-center min-h-[120px]">
+                              <Button variant="outline" size="icon" onClick={handleAddColor} className="w-20 h-20 rounded-lg">
+                                  <Plus className="w-8 h-8 text-muted-foreground" />
+                              </Button>
+                          </div>
+                      </div>
+                  </CardContent>
+              </Card>
+            </div>
         </div>
   
         <Card>
@@ -326,12 +333,14 @@ export function BrandKitDisplay({ brandKit: initialBrandKit, isLoading, logoData
                 >
                   <div className="flex justify-between items-start">
                     <h3 className="text-2xl font-bold">{platform.name}</h3>
-                    <Badge
-                      variant={platform.bestChoice ? 'secondary' : 'outline'}
-                      className={platform.bestChoice ? 'bg-white/20 text-white' : ''}
-                    >
-                      {platform.bestChoice ? 'Best Choice' : 'Alternative'}
-                    </Badge>
+                    {platform.bestChoice && (
+                      <Badge
+                        variant={'secondary'}
+                        className={'bg-white/20 text-white'}
+                      >
+                        Best Choice
+                      </Badge>
+                    )}
                   </div>
                   <p className={`mt-2 text-base ${platform.bestChoice ? 'text-primary-foreground/80' : 'text-muted-foreground'}`}>
                     {platform.description}
@@ -349,3 +358,5 @@ export function BrandKitDisplay({ brandKit: initialBrandKit, isLoading, logoData
 
   return <div className="h-full">{renderContent()}</div>;
 }
+
+    
