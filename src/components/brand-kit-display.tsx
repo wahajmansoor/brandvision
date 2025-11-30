@@ -7,7 +7,7 @@ import { Palette, Type, Globe, Network, Image as ImageIcon, Download, Trash2, Pl
 import { Badge } from '@/components/ui/badge';
 import Image from 'next/image';
 import { SiteStructure, type StructureItem } from './site-structure';
-import { CompetitorWebsites } from './competitor-websites';
+import { CompetitorWebsites, type UrlItem } from './competitor-websites';
 import { Button } from './ui/button';
 import { BrandKitPdfLayout } from './brand-kit-pdf-layout';
 import html2canvas from 'html2canvas';
@@ -38,13 +38,22 @@ export function BrandKitDisplay({ brandKit: initialBrandKit, isLoading, logoData
         sections: page.children?.map(section => section.name) || [],
     }));
     
-    // Prevent unnecessary re-renders if structure is the same
-    if (JSON.stringify(editableBrandKit.siteStructure) !== JSON.stringify(updatedSiteStructure)) {
-        setEditableBrandKit(prev => prev ? {
-            ...prev,
-            siteStructure: updatedSiteStructure,
-        } : null);
-    }
+    setEditableBrandKit(prev => prev ? {
+        ...prev,
+        siteStructure: updatedSiteStructure,
+    } : null);
+  }, [editableBrandKit]);
+
+  const handleCompetitorUrlsChange = useCallback((newUrls: UrlItem[]) => {
+    if (!editableBrandKit) return;
+
+    // The AI model expects an array of strings, so we map back to that format.
+    const updatedUrls = newUrls.map(item => item.url);
+
+    setEditableBrandKit(prev => prev ? {
+        ...prev,
+        competitorWebsites: updatedUrls,
+    } : null);
   }, [editableBrandKit]);
 
   const handleColorChange = (name: string, newColor: string) => {
@@ -69,7 +78,7 @@ export function BrandKitDisplay({ brandKit: initialBrandKit, isLoading, logoData
     for (const key in newPalette) {
       if (key === oldName) {
         updatedPalette[newName] = colorValue;
-      } else if (key !== newName) { // Prevent overwriting an existing key
+      } else if (key !== newName) {
         updatedPalette[key] = newPalette[key as keyof typeof newPalette];
       }
     }
@@ -210,6 +219,13 @@ export function BrandKitDisplay({ brandKit: initialBrandKit, isLoading, logoData
         </div>
       );
     }
+
+    const competitorUrlItems = (editableBrandKit.competitorWebsites || []).map(url => ({
+      url,
+      // We assume all URLs from the initial kit are competitors.
+      // The type can be changed by the user in the UI.
+      type: 'competitor' as const 
+    }));
 
     return (
       <div className="space-y-6 animate-in fade-in-50 duration-500">
@@ -372,7 +388,10 @@ export function BrandKitDisplay({ brandKit: initialBrandKit, isLoading, logoData
             </CardContent>
           </Card>
           
-          <CompetitorWebsites initialUrls={editableBrandKit.competitorWebsites} />
+          <CompetitorWebsites 
+            urls={competitorUrlItems} 
+            onUrlsChange={handleCompetitorUrlsChange} 
+          />
         </div>
       </div>
     )
@@ -380,5 +399,3 @@ export function BrandKitDisplay({ brandKit: initialBrandKit, isLoading, logoData
 
   return <div className="h-full">{renderContent()}</div>;
 }
-
-    

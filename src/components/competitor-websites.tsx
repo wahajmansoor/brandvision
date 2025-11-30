@@ -10,38 +10,35 @@ import { Badge } from '@/components/ui/badge';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 
-interface UrlItem {
+export interface UrlItem {
   url: string;
   type: 'competitor' | 'reference';
 }
 
 interface CompetitorWebsitesProps {
-  initialUrls: string[];
+  urls: UrlItem[];
+  onUrlsChange: (urls: UrlItem[]) => void;
 }
 
-export function CompetitorWebsites({ initialUrls }: CompetitorWebsitesProps) {
-  const [urls, setUrls] = useState<UrlItem[]>([]);
+export function CompetitorWebsites({ urls, onUrlsChange }: CompetitorWebsitesProps) {
   const [newUrl, setNewUrl] = useState('');
   const [newUrlType, setNewUrlType] = useState<'competitor' | 'reference'>('competitor');
-
-  useEffect(() => {
-    setUrls(initialUrls.map(url => ({ url, type: 'competitor' })));
-  }, [initialUrls]);
 
   const handleAddUrl = () => {
     if (newUrl.trim() !== '' && !urls.some(item => item.url === newUrl.trim())) {
       try {
         const urlObject = new URL(newUrl.trim().startsWith('http') ? newUrl.trim() : `https://${newUrl.trim()}`);
-        setUrls([...urls, { url: urlObject.hostname, type: newUrlType }]);
+        onUrlsChange([...urls, { url: urlObject.hostname, type: newUrlType }]);
         setNewUrl('');
       } catch (error) {
         console.error("Invalid URL format");
+        // Optionally, show a toast or error message to the user
       }
     }
   };
 
   const handleRemoveUrl = (urlToRemove: string) => {
-    setUrls(urls.filter(item => item.url !== urlToRemove));
+    onUrlsChange(urls.filter(item => item.url !== urlToRemove));
   };
   
   const getDisplayUrl = (url: string) => {
@@ -60,7 +57,7 @@ export function CompetitorWebsites({ initialUrls }: CompetitorWebsitesProps) {
           <div className="p-2 bg-primary/10 rounded-lg">
             <Monitor className="w-5 h-5 text-primary" />
           </div>
-          Competitor Websites
+          Competitor & Reference Websites
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -83,7 +80,7 @@ export function CompetitorWebsites({ initialUrls }: CompetitorWebsitesProps) {
           ))}
         </ul>
         <div className="mt-4 pt-4 border-t space-y-4">
-            <label className="text-sm font-medium text-muted-foreground">Reference Website</label>
+            <label className="text-sm font-medium">Add a Website</label>
             <div className="flex w-full items-center space-x-2">
                 <Input
                     type="url"
