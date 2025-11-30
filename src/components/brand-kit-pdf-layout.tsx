@@ -47,7 +47,7 @@ export function BrandKitPdfLayout({ brandKit, logoDataUri }: BrandKitPdfLayoutPr
             )}
             
             <div>
-              <h2 className="flex items-center gap-3 text-2xl font-bold">
+              <h2 className="flex items-center gap-3 text-2xl font-bold text-slate-800">
                 <Palette className="w-7 h-7 text-primary" />
                 Color Palette
               </h2>
@@ -58,7 +58,7 @@ export function BrandKitPdfLayout({ brandKit, logoDataUri }: BrandKitPdfLayoutPr
                       className="w-full h-16 rounded-md mb-2"
                       style={{ backgroundColor: color }}
                     />
-                    <div className="text-sm font-semibold capitalize">{name}</div>
+                    <div className="text-sm font-semibold capitalize text-slate-800">{name}</div>
                     <div className="text-xs text-slate-500 font-mono">{color}</div>
                   </div>
                 ))}
@@ -66,7 +66,7 @@ export function BrandKitPdfLayout({ brandKit, logoDataUri }: BrandKitPdfLayoutPr
             </div>
 
             <div>
-              <h2 className="flex items-center gap-3 text-2xl font-bold">
+              <h2 className="flex items-center gap-3 text-2xl font-bold text-slate-800">
                 <Type className="w-7 h-7 text-primary" />
                 Typography
               </h2>
@@ -74,7 +74,7 @@ export function BrandKitPdfLayout({ brandKit, logoDataUri }: BrandKitPdfLayoutPr
                 {Object.entries(brandKit.typographySuggestions).map(([type, font]) => (
                   <div key={type} className="p-4 bg-slate-50 rounded-lg">
                     <div className="text-sm capitalize text-slate-500">{type}</div>
-                    <div className="text-2xl font-semibold mt-1">{font}</div>
+                    <div className="text-2xl font-semibold mt-1 text-slate-800">{font}</div>
                   </div>
                 ))}
               </div>
@@ -84,7 +84,7 @@ export function BrandKitPdfLayout({ brandKit, logoDataUri }: BrandKitPdfLayoutPr
           {/* Right Column */}
           <div className="col-span-2 space-y-12">
              <div>
-              <h2 className="flex items-center gap-3 text-2xl font-bold">
+              <h2 className="flex items-center gap-3 text-2xl font-bold text-slate-800">
                 <Globe className="w-7 h-7 text-primary" />
                 Recommended Platform
               </h2>
@@ -113,14 +113,14 @@ export function BrandKitPdfLayout({ brandKit, logoDataUri }: BrandKitPdfLayoutPr
 
             {brandKit.siteStructure && brandKit.siteStructure.length > 0 && (
                 <div>
-                    <h2 className="flex items-center gap-3 text-2xl font-bold">
+                    <h2 className="flex items-center gap-3 text-2xl font-bold text-slate-800">
                         <Network className="w-7 h-7 text-primary" />
                         Site Structure
                     </h2>
                     <div className="mt-4 grid grid-cols-2 gap-x-8 gap-y-6">
                         {brandKit.siteStructure.map((page, index) => (
                             <div key={index}>
-                                <h3 className="text-lg font-semibold border-b pb-1">{page.page}</h3>
+                                <h3 className="text-lg font-semibold border-b pb-1 text-slate-800">{page.page}</h3>
                                 <ul className="mt-2 space-y-1 list-disc list-inside text-slate-600">
                                 {page.sections.map((section, sIndex) => (
                                     <li key={sIndex}>{section}</li>
@@ -133,7 +133,7 @@ export function BrandKitPdfLayout({ brandKit, logoDataUri }: BrandKitPdfLayoutPr
             )}
 
             <div>
-              <h2 className="flex items-center gap-3 text-2xl font-bold">
+              <h2 className="flex items-center gap-3 text-2xl font-bold text-slate-800">
                  <LinkIcon className="w-7 h-7 text-primary" />
                  Competitor Websites
               </h2>
