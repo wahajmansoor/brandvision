@@ -335,6 +335,9 @@ export function BrandKitForm({ onSubmit, isLoading }: BrandKitFormProps) {
                 <FormControl>
                   <Input {...field} placeholder="City, Country" />
                 </FormControl>
+                <FormDescription>
+                  If you add the location you will get best competitor websites
+                </FormDescription>
                 <FormMessage />
               </FormItem>
             )}

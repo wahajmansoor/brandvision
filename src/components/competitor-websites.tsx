@@ -7,8 +7,6 @@ import { Button } from '@/components/ui/button';
 import { Monitor, Link as LinkIcon, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 
 export interface UrlItem {
@@ -23,7 +21,6 @@ interface CompetitorWebsitesProps {
 
 export function CompetitorWebsites({ urls, onUrlsChange }: CompetitorWebsitesProps) {
   const [newUrl, setNewUrl] = useState('');
-  const [newUrlType, setNewUrlType] = useState<'competitor' | 'reference'>('competitor');
   const { toast } = useToast();
 
   const handleAddUrl = () => {
@@ -41,7 +38,7 @@ export function CompetitorWebsites({ urls, onUrlsChange }: CompetitorWebsitesPro
 
     try {
       const urlObject = new URL(trimmedUrl.startsWith('http') ? trimmedUrl : `https://${trimmedUrl}`);
-      onUrlsChange([...urls, { url: urlObject.hostname, type: newUrlType }]);
+      onUrlsChange([...urls, { url: urlObject.hostname, type: 'competitor' }]);
       setNewUrl('');
     } catch (error) {
       toast({
@@ -72,7 +69,7 @@ export function CompetitorWebsites({ urls, onUrlsChange }: CompetitorWebsitesPro
           <div className="p-2 bg-primary/10 rounded-lg">
             <Monitor className="w-5 h-5 text-primary" />
           </div>
-          Competitor & Reference Websites
+          Competitor Websites
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -85,8 +82,8 @@ export function CompetitorWebsites({ urls, onUrlsChange }: CompetitorWebsitesPro
                 <Link href={item.url.startsWith('http') ? item.url : `https://${item.url}`} target="_blank" rel="noopener noreferrer" className="text-sm font-medium text-foreground hover:underline flex-grow">
                     {getDisplayUrl(item.url)}
                 </Link>
-                <Badge variant={item.type === 'competitor' ? 'outline' : 'secondary'} className="ml-auto">
-                    {item.type.charAt(0).toUpperCase() + item.type.slice(1)}
+                <Badge variant={'outline'} className="ml-auto">
+                    Competitor
                 </Badge>
                 <Button variant="ghost" size="icon" className="w-8 h-8 opacity-0 group-hover:opacity-100" onClick={() => handleRemoveUrl(item.url)}>
                     <Trash2 className="w-4 h-4 text-destructive" />
@@ -95,7 +92,7 @@ export function CompetitorWebsites({ urls, onUrlsChange }: CompetitorWebsitesPro
           ))}
         </ul>
         <div className="mt-4 pt-4 border-t space-y-4">
-            <label className="text-sm font-medium">Add a Website</label>
+            <label className="text-sm font-medium">Add a Competitor Website</label>
             <div className="flex w-full items-center space-x-2">
                 <Input
                     type="url"
@@ -108,16 +105,6 @@ export function CompetitorWebsites({ urls, onUrlsChange }: CompetitorWebsitesPro
                     Add
                 </Button>
             </div>
-            <RadioGroup defaultValue="competitor" onValueChange={(value: 'competitor' | 'reference') => setNewUrlType(value)} className="flex gap-4">
-                <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="competitor" id="r-competitor" />
-                    <Label htmlFor="r-competitor">Competitor</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="reference" id="r-reference" />
-                    <Label htmlFor="r-reference">Reference</Label>
-                </div>
-            </RadioGroup>
         </div>
       </CardContent>
     </Card>

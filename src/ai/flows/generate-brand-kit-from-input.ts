@@ -31,7 +31,7 @@ export type BrandKitInput = z.infer<typeof BrandKitInputSchema>;
 
 const WebsiteItemSchema = z.object({
   url: z.string().describe('The domain name of the website (e.g., example.com).'),
-  type: z.enum(['competitor', 'reference']).describe("The type of website, either 'competitor' or 'reference' for design inspiration."),
+  type: z.literal('competitor').describe("The type of website, must be 'competitor'."),
 });
 
 const BrandKitOutputSchema = z.object({
@@ -62,7 +62,7 @@ const BrandKitOutputSchema = z.object({
     .describe('A list of recommended platforms for the business website.'),
   competitorWebsites: z
     .array(WebsiteItemSchema)
-    .describe('A list of top competitor and reference website URLs.'),
+    .describe('A list of top competitor website URLs.'),
 });
 export type BrandKitOutput = z.infer<typeof BrandKitOutputSchema>;
 
@@ -112,7 +112,7 @@ export async function generateBrandKit(input: BrandKitInput): Promise<BrandKitOu
     - typographySuggestions: MUST be an object with 'heading', 'body', and 'accent' font suggestions.
     - siteStructure: MUST be an array of objects, where each object has a 'page' (string) and 'sections' (array of strings). Example: [{ "page": "Home", "sections": ["Hero", "About Us", "Services", "Contact"] }]
     - recommendedPlatforms: MUST be an array of objects, each with 'name' (string), 'description' (string), and 'bestChoice' (boolean).
-    - competitorWebsites: MUST be an array of objects, each with 'url' (string, e.g., "competitor1.com") and 'type' ('competitor' or 'reference'). Find real, highly relevant competitors based on the user's business description and location.
+    - competitorWebsites: MUST be an array of objects, each with 'url' (string, e.g., "competitor1.com") and 'type' which MUST be 'competitor'. Find real, highly relevant competitors based on the user's business description and location. Do NOT generate 'reference' websites.
 
     **Business Details:**
     Business Name: ${input.businessName}
