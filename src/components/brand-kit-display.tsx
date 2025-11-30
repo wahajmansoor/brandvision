@@ -145,7 +145,7 @@ export function BrandKitDisplay({ brandKit: initialBrandKit, isLoading, logoData
             scale: 2,
             useCORS: true,
             allowTaint: true,
-            backgroundColor: null,
+            backgroundColor: '#ffffff',
         });
     
         const imgData = canvas.toDataURL('image/png');
