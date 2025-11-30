@@ -125,7 +125,7 @@ export function BrandKitDisplay({ brandKit: initialBrandKit, isLoading, logoData
     if (isLoading) {
       return (
         <div className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-6 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
             {logoDataUri && (
               <div className="lg:col-span-1">
                 <Card>
@@ -138,7 +138,7 @@ export function BrandKitDisplay({ brandKit: initialBrandKit, isLoading, logoData
                   </Card>
               </div>
             )}
-            <div className={logoDataUri ? "lg:col-span-5" : "lg:col-span-6"}>
+            <div className={logoDataUri ? "lg:col-span-3" : "lg:col-span-4"}>
               <Card>
                 <CardHeader>
                   <Skeleton className="h-6 w-32" />
@@ -208,7 +208,7 @@ export function BrandKitDisplay({ brandKit: initialBrandKit, isLoading, logoData
             </Button>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-6 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
             {logoDataUri && (
                 <div className="lg:col-span-1">
                   <Card>
@@ -230,7 +230,7 @@ export function BrandKitDisplay({ brandKit: initialBrandKit, isLoading, logoData
                   </Card>
                 </div>
             )}
-            <div className={logoDataUri ? "lg:col-span-5" : "lg:col-span-6"}>
+            <div className={logoDataUri ? "lg:col-span-3" : "lg:col-span-4"}>
               <Card>
                   <CardHeader>
                       <CardTitle className="flex items-center gap-2 text-xl">
