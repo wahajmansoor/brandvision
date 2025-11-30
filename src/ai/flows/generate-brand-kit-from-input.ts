@@ -31,7 +31,7 @@ export type BrandKitInput = z.infer<typeof BrandKitInputSchema>;
 
 const WebsiteItemSchema = z.object({
   url: z.string().describe('The domain name of the website (e.g., example.com).'),
-  type: z.literal('competitor').describe("The type of website, must be 'competitor'."),
+  type: z.enum(['competitor', 'reference']).describe("The type of website, either 'competitor' or 'reference'."),
 });
 
 const BrandKitOutputSchema = z.object({
@@ -110,7 +110,7 @@ export async function generateBrandKit(input: BrandKitInput): Promise<BrandKitOu
     - businessName: MUST be the business name provided by the user.
     - colorPalette: MUST be an object with primary, secondary, accent, neutral, and background hex codes.
     - typographySuggestions: MUST be an object with 'heading', 'body', and 'accent' font suggestions.
-    - siteStructure: MUST be an array of objects, where each object has a 'page' (string) and 'sections' (array of strings). Example: [{ "page": "Home", "sections": ["Hero", "About Us", "Services", "Contact"] }]
+    - siteStructure: MUST be an array of objects for the website's navigation. Each object should have a 'page' (string) and 'sections' (an array of strings). A page can have zero or more sections. For example, a simple 'Contact Us' page might have an empty sections array, while a 'Home' page might have several sections like "Hero", "About Us", and "Services". Generate a logical structure. Example: [{ "page": "Home", "sections": ["Hero", "About Us", "Services"] }, { "page": "Contact", "sections": [] }]
     - recommendedPlatforms: MUST be an array of objects, each with 'name' (string), 'description' (string), and 'bestChoice' (boolean).
     - competitorWebsites: MUST be an array of objects, each with 'url' (string, e.g., "competitor1.com") and 'type' which MUST be 'competitor'. Find real, highly relevant competitors based on the user's business description and location. Do NOT generate 'reference' websites.
 
