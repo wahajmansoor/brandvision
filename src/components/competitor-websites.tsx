@@ -31,6 +31,16 @@ export function CompetitorWebsites({ urls, onUrlsChange }: CompetitorWebsitesPro
     let trimmedUrl = newUrl.trim();
     if (trimmedUrl === '') return;
 
+    // Stricter validation: check for a dot, which is essential for a valid domain.
+    if (!trimmedUrl.includes('.')) {
+        toast({
+            title: 'Invalid URL',
+            description: 'Please enter a valid website URL (e.g., example.com).',
+            variant: 'destructive',
+        });
+        return;
+    }
+
     if (!trimmedUrl.startsWith('http://') && !trimmedUrl.startsWith('https://')) {
         trimmedUrl = `https://${trimmedUrl}`;
     }
@@ -38,8 +48,12 @@ export function CompetitorWebsites({ urls, onUrlsChange }: CompetitorWebsitesPro
     try {
       const urlObject = new URL(trimmedUrl);
       const hostname = urlObject.hostname.replace(/^www\./, '');
+      
+      // Prevent adding just a TLD like ".com"
+      if (!hostname.split('.')[0].length) {
+          throw new Error("Invalid domain.");
+      }
 
-      // Correctly check if the exact hostname already exists
       if (urls.some(item => getDisplayUrl(item.url) === hostname)) {
         toast({
           title: 'URL Already Exists',
