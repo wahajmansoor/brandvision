@@ -3,7 +3,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import type { BrandKitOutput } from '@/ai/flows/generate-brand-kit-from-input';
-import { Palette, Type, Globe, Network, Monitor, Image as ImageIcon, Copy } from 'lucide-react';
+import { Palette, Type, Globe, Network, Image as ImageIcon, Copy } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from "@/hooks/use-toast";
 import Image from 'next/image';
@@ -177,55 +177,57 @@ export function BrandKitDisplay({ brandKit, isLoading, logoDataUri }: BrandKitDi
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <div className="bg-primary/10 text-primary p-2 rounded-lg">
-                <Globe className="w-5 h-5" />
-              </div>
-              Recommended Platforms
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {brandKit.recommendedPlatforms.map((platform) => (
-              <div
-                key={platform.name}
-                className={`p-6 rounded-lg relative overflow-hidden ${
-                  platform.bestChoice
-                    ? 'bg-primary text-primary-foreground'
-                    : 'bg-card border'
-                }`}
-              >
-                {platform.bestChoice && (
-                    <div className="absolute top-0 right-0 h-16 w-16 text-primary-foreground/10">
-                        <svg className="absolute inset-0 h-full w-full opacity-10" viewBox="0 0 100 100">
-                          <defs>
-                            <pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse">
-                              <path d="M 10 0 L 0 0 0 10" fill="none" stroke="currentColor" strokeWidth="0.5"/>
-                            </pattern>
-                          </defs>
-                          <rect width="100" height="100" fill="url(#grid)" />
-                        </svg>
-                    </div>
-                )}
-                <div className="flex justify-between items-start">
-                  <h3 className="text-2xl font-bold">{platform.name}</h3>
-                  <Badge
-                    variant={platform.bestChoice ? 'secondary' : 'outline'}
-                    className={platform.bestChoice ? 'bg-white/20 text-white' : ''}
-                  >
-                    {platform.bestChoice ? 'Best Choice' : 'Alternative'}
-                  </Badge>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <div className="bg-primary/10 text-primary p-2 rounded-lg">
+                  <Globe className="w-5 h-5" />
                 </div>
-                <p className={`mt-2 text-base ${platform.bestChoice ? 'text-primary-foreground/80' : 'text-muted-foreground'}`}>
-                  {platform.description}
-                </p>
-              </div>
-            ))}
-          </CardContent>
-        </Card>
-        
-        <CompetitorWebsites initialUrls={brandKit.competitorWebsites} />
+                Recommended Platforms
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {brandKit.recommendedPlatforms.map((platform) => (
+                <div
+                  key={platform.name}
+                  className={`p-6 rounded-lg relative overflow-hidden ${
+                    platform.bestChoice
+                      ? 'bg-primary text-primary-foreground'
+                      : 'bg-card border'
+                  }`}
+                >
+                  {platform.bestChoice && (
+                      <div className="absolute top-0 right-0 h-16 w-16 text-primary-foreground/10">
+                          <svg className="absolute inset-0 h-full w-full opacity-10" viewBox="0 0 100 100">
+                            <defs>
+                              <pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse">
+                                <path d="M 10 0 L 0 0 0 10" fill="none" stroke="currentColor" strokeWidth="0.5"/>
+                              </pattern>
+                            </defs>
+                            <rect width="100" height="100" fill="url(#grid)" />
+                          </svg>
+                      </div>
+                  )}
+                  <div className="flex justify-between items-start">
+                    <h3 className="text-2xl font-bold">{platform.name}</h3>
+                    <Badge
+                      variant={platform.bestChoice ? 'secondary' : 'outline'}
+                      className={platform.bestChoice ? 'bg-white/20 text-white' : ''}
+                    >
+                      {platform.bestChoice ? 'Best Choice' : 'Alternative'}
+                    </Badge>
+                  </div>
+                  <p className={`mt-2 text-base ${platform.bestChoice ? 'text-primary-foreground/80' : 'text-muted-foreground'}`}>
+                    {platform.description}
+                  </p>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+          
+          <CompetitorWebsites initialUrls={brandKit.competitorWebsites} />
+        </div>
       </div>
     )
   }
