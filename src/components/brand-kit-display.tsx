@@ -31,30 +31,33 @@ export function BrandKitDisplay({ brandKit: initialBrandKit, isLoading, logoData
   }, [initialBrandKit]);
 
   const handleStructureChange = useCallback((newStructure: StructureItem[]) => {
-    if (!editableBrandKit) return;
+    setEditableBrandKit(prev => {
+        if (!prev) return null;
 
-    const updatedSiteStructure = newStructure.map(page => ({
-        page: page.name,
-        sections: page.children?.map(section => section.name) || [],
-    }));
-    
-    setEditableBrandKit(prev => prev ? {
-        ...prev,
-        siteStructure: updatedSiteStructure,
-    } : null);
-  }, [editableBrandKit]);
+        const updatedSiteStructure = newStructure.map(page => ({
+            page: page.name,
+            sections: page.children?.map(section => section.name) || [],
+        }));
+
+        return {
+            ...prev,
+            siteStructure: updatedSiteStructure,
+        };
+    });
+  }, []);
 
   const handleCompetitorUrlsChange = useCallback((newUrls: UrlItem[]) => {
-    if (!editableBrandKit) return;
+    setEditableBrandKit(prev => {
+        if (!prev) return null;
+        
+        const updatedUrls = newUrls.map(item => item.url);
 
-    // The AI model expects an array of strings, so we map back to that format.
-    const updatedUrls = newUrls.map(item => item.url);
-
-    setEditableBrandKit(prev => prev ? {
-        ...prev,
-        competitorWebsites: updatedUrls,
-    } : null);
-  }, [editableBrandKit]);
+        return {
+            ...prev,
+            competitorWebsites: updatedUrls,
+        };
+    });
+  }, []);
 
   const handleColorChange = (name: string, newColor: string) => {
     if (!editableBrandKit) return;
