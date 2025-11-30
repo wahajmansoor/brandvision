@@ -39,7 +39,8 @@ export function CompetitorWebsites({ urls, onUrlsChange }: CompetitorWebsitesPro
       const urlObject = new URL(trimmedUrl);
       const hostname = urlObject.hostname.replace(/^www\./, '');
 
-      if (urls.some(item => item.url.includes(hostname))) {
+      // Correctly check if the exact hostname already exists
+      if (urls.some(item => getDisplayUrl(item.url) === hostname)) {
         toast({
           title: 'URL Already Exists',
           description: 'This website is already in your list.',
@@ -105,6 +106,7 @@ export function CompetitorWebsites({ urls, onUrlsChange }: CompetitorWebsitesPro
             <label className="text-sm font-medium">Add a Website</label>
             <RadioGroup
               defaultValue="competitor"
+              value={urlType}
               onValueChange={(value: 'competitor' | 'reference') => setUrlType(value)}
               className="flex gap-4"
             >
