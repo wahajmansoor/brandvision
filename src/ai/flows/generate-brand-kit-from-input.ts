@@ -29,6 +29,11 @@ const BrandKitInputSchema = z.object({
 });
 export type BrandKitInput = z.infer<typeof BrandKitInputSchema>;
 
+const WebsiteItemSchema = z.object({
+  url: z.string().describe('The domain name of the website (e.g., example.com).'),
+  type: z.enum(['competitor', 'reference']).describe("The type of website, either 'competitor' or 'reference' for design inspiration."),
+});
+
 const BrandKitOutputSchema = z.object({
   businessName: z.string().describe('The name of the business.'),
   colorPalette: z.object({
@@ -56,8 +61,8 @@ const BrandKitOutputSchema = z.object({
     )
     .describe('A list of recommended platforms for the business website.'),
   competitorWebsites: z
-    .array(z.string())
-    .describe('A list of top competitor website URLs. Just provide the domain name (e.g., example.com).'),
+    .array(WebsiteItemSchema)
+    .describe('A list of top competitor and reference website URLs.'),
 });
 export type BrandKitOutput = z.infer<typeof BrandKitOutputSchema>;
 
@@ -107,7 +112,7 @@ export async function generateBrandKit(input: BrandKitInput): Promise<BrandKitOu
     - typographySuggestions: MUST be an object with 'heading', 'body', and 'accent' font suggestions.
     - siteStructure: MUST be an array of objects, where each object has a 'page' (string) and 'sections' (array of strings). Example: [{ "page": "Home", "sections": ["Hero", "About Us", "Services", "Contact"] }]
     - recommendedPlatforms: MUST be an array of objects, each with 'name' (string), 'description' (string), and 'bestChoice' (boolean).
-    - competitorWebsites: MUST be an array of competitor website URLs (e.g., ["competitor1.com", "competitor2.com"]). Find real, highly relevant competitors based on the user's business description and location (if provided). Only include the domain name.
+    - competitorWebsites: MUST be an array of objects, each with 'url' (string, e.g., "competitor1.com") and 'type' ('competitor' or 'reference'). Find real, highly relevant competitors based on the user's business description and location.
 
     **Business Details:**
     Business Name: ${input.businessName}

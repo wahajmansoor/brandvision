@@ -47,11 +47,10 @@ export function BrandKitDisplay({ brandKit: initialBrandKit, isLoading, logoData
   const handleCompetitorUrlsChange = useCallback((newUrls: UrlItem[]) => {
     setEditableBrandKit(prev => {
         if (!prev) return null;
-        const updatedUrls = newUrls.map(item => item.url);
-        if (JSON.stringify(prev.competitorWebsites) === JSON.stringify(updatedUrls)) {
+        if (JSON.stringify(prev.competitorWebsites) === JSON.stringify(newUrls)) {
             return prev;
         }
-        return { ...prev, competitorWebsites: updatedUrls };
+        return { ...prev, competitorWebsites: newUrls };
     });
   }, []);
 
@@ -225,12 +224,7 @@ export function BrandKitDisplay({ brandKit: initialBrandKit, isLoading, logoData
       );
     }
 
-    const competitorUrlItems = (editableBrandKit.competitorWebsites || []).map(url => ({
-      url,
-      // We assume all URLs from the initial kit are competitors.
-      // The type can be changed by the user in the UI.
-      type: 'competitor' as const 
-    }));
+    const competitorUrlItems = editableBrandKit.competitorWebsites || [];
 
     return (
       <div className="space-y-6 animate-in fade-in-50 duration-500">
