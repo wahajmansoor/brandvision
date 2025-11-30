@@ -60,60 +60,66 @@ export function BrandKitDisplay({ brandKit: initialBrandKit, isLoading, logoData
   }, [setEditableBrandKit]);
 
   const handleColorChange = (name: string, newColor: string) => {
-    if (!editableBrandKit) return;
-
-    setEditableBrandKit({
-      ...editableBrandKit,
-      colorPalette: {
-        ...editableBrandKit.colorPalette,
-        [name]: newColor,
-      },
+    setEditableBrandKit(prev => {
+      if (!prev) return null;
+      return {
+        ...prev,
+        colorPalette: {
+          ...prev.colorPalette,
+          [name]: newColor,
+        },
+      };
     });
   };
 
   const handleColorNameChange = (oldName: string, newName: string) => {
-    if (!editableBrandKit || oldName === newName || !newName) return;
+    if (!newName || oldName === newName) return;
 
-    const newPalette = { ...editableBrandKit.colorPalette };
-    const colorValue = newPalette[oldName as keyof typeof newPalette];
-    
-    const updatedPalette: { [key: string]: string } = {};
-    for (const key in newPalette) {
-      if (key === oldName) {
-        updatedPalette[newName] = colorValue;
-      } else if (key !== newName) {
-        updatedPalette[key] = newPalette[key as keyof typeof newPalette];
+    setEditableBrandKit(prev => {
+      if (!prev) return null;
+      
+      const newPalette = { ...prev.colorPalette };
+      const colorValue = newPalette[oldName as keyof typeof newPalette];
+      
+      const updatedPalette: { [key: string]: string } = {};
+      for (const key in newPalette) {
+        if (key === oldName) {
+          updatedPalette[newName] = colorValue;
+        } else if (key !== newName) {
+          updatedPalette[key] = newPalette[key as keyof typeof newPalette];
+        }
       }
-    }
 
-    setEditableBrandKit({
-      ...editableBrandKit,
-      colorPalette: updatedPalette,
+      return {
+        ...prev,
+        colorPalette: updatedPalette,
+      };
     });
   };
   
   const handleAddColor = () => {
-    if (!editableBrandKit) return;
-
-    const newColorName = `newColor${Object.keys(editableBrandKit.colorPalette).length + 1}`;
-    setEditableBrandKit({
-        ...editableBrandKit,
-        colorPalette: {
-            ...editableBrandKit.colorPalette,
-            [newColorName]: '#000000'
-        }
+    setEditableBrandKit(prev => {
+      if (!prev) return null;
+      const newColorName = `newColor${Object.keys(prev.colorPalette).length + 1}`;
+      return {
+          ...prev,
+          colorPalette: {
+              ...prev.colorPalette,
+              [newColorName]: '#000000'
+          }
+      };
     });
   };
 
   const deleteColor = (colorName: string) => {
-    if (!editableBrandKit) return;
-
-    const newPalette = { ...editableBrandKit.colorPalette };
-    delete newPalette[colorName as keyof typeof newPalette];
-
-    setEditableBrandKit({
-      ...editableBrandKit,
-      colorPalette: newPalette,
+    setEditableBrandKit(prev => {
+      if (!prev) return null;
+      const newPalette = { ...prev.colorPalette };
+      delete newPalette[colorName as keyof typeof newPalette];
+      return {
+        ...prev,
+        colorPalette: newPalette,
+      };
     });
   };
 
