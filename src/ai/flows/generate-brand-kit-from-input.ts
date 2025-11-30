@@ -113,12 +113,12 @@ export async function generateBrandKit(input: BrandKitInput): Promise<BrandKitOu
     - siteStructure: MUST be an array of objects for the website's navigation. Each object should have a 'page' (string) and 'sections' (an array of strings). A page can have zero or more sections. For example, a simple 'Contact Us' page might have an empty sections array, while a 'Home' page might have several sections like "Hero", "About Us", and "Services". Generate a logical structure. Example: [{ "page": "Home", "sections": ["Hero", "About Us", "Services"] }, { "page": "Contact", "sections": [] }]
     - recommendedPlatforms: MUST be an array of objects, each with 'name' (string), 'description' (string), and 'bestChoice' (boolean).
     - competitorWebsites: MUST be an array of objects. Follow these strict rules for this field:
-        1. Find real, live, and operational websites of actual businesses that are direct competitors. Before including a URL, you must act as if you have verified that the website is currently online and accessible.
-        2. Do NOT include any broken links, placeholder sites, domains that are for sale, or any URL that would result in a "This site can’t be reached" error.
-        3. If a location is provided by the user, you MUST prioritize finding competitors in that specific city and country.
-        4. The websites must be highly relevant to the user's business description and industry.
-        5. Do NOT include any domain registrars, hosting providers, or website builders (e.g., GoDaddy, Namecheap, Wix, Squarespace, etc.).
-        6. Each object in the array must have a 'url' (e.g., "competitor1.com") and a 'type' which MUST be 'competitor'. Do NOT generate 'reference' websites.
+        1. **Location is Paramount**: If the user provides a location, your search for competitors MUST be exclusively scoped to that city and country. This is the most important rule.
+        2. **Find Real, Live Websites**: Find real, live, and operational websites of actual businesses that are direct competitors. Before including a URL, you must act as if you have verified that the website is currently online and accessible.
+        3. **No Broken or Placeholder Links**: Do NOT include any broken links, placeholder sites, domains that are for sale, or any URL that would result in a "This site can’t be reached" error.
+        4. **High Relevance**: The websites must be highly relevant to the user's business description and industry.
+        5. **No Service Providers**: Do NOT include any domain registrars, hosting providers, or website builders (e.g., GoDaddy, Namecheap, Wix, Squarespace, etc.).
+        6. **Correct Format**: Each object in the array must have a 'url' (e.g., "competitor1.com") and a 'type' which MUST be 'competitor'. Do NOT generate 'reference' websites.
 
     **Business Details:**
     Business Name: ${input.businessName}
