@@ -142,7 +142,7 @@ export function BrandKitDisplay({ brandKit: initialBrandKit, isLoading, logoData
         });
     
         pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
-        pdf.save('brand-kit.pdf');
+        pdf.save('Brand Vision In Seconds By Wahaj Mansoor.pdf');
     } catch (error) {
         console.error("Failed to generate PDF", error);
     } finally {
