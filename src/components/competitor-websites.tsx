@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Monitor, Link as LinkIcon } from 'lucide-react';
+import { Monitor, Link as LinkIcon, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
@@ -39,6 +39,10 @@ export function CompetitorWebsites({ initialUrls }: CompetitorWebsitesProps) {
       }
     }
   };
+
+  const handleRemoveUrl = (urlToRemove: string) => {
+    setUrls(urls.filter(item => item.url !== urlToRemove));
+  };
   
   const getDisplayUrl = (url: string) => {
     try {
@@ -62,16 +66,19 @@ export function CompetitorWebsites({ initialUrls }: CompetitorWebsitesProps) {
       <CardContent>
         <ul className="space-y-3">
           {urls.map((item, index) => (
-            <li key={index} className="flex items-center gap-3">
+            <li key={index} className="flex items-center gap-3 group">
                 <div className="flex items-center justify-center w-8 h-8 rounded-full bg-muted">
                     <LinkIcon className="w-4 h-4 text-muted-foreground" />
                 </div>
-                <Link href={item.url.startsWith('http') ? item.url : `https://${item.url}`} target="_blank" rel="noopener noreferrer" className="text-sm font-medium text-foreground hover:underline">
+                <Link href={item.url.startsWith('http') ? item.url : `https://${item.url}`} target="_blank" rel="noopener noreferrer" className="text-sm font-medium text-foreground hover:underline flex-grow">
                     {getDisplayUrl(item.url)}
                 </Link>
                 <Badge variant={item.type === 'competitor' ? 'outline' : 'secondary'} className="ml-auto">
                     {item.type.charAt(0).toUpperCase() + item.type.slice(1)}
                 </Badge>
+                <Button variant="ghost" size="icon" className="w-8 h-8 opacity-0 group-hover:opacity-100" onClick={() => handleRemoveUrl(item.url)}>
+                    <Trash2 className="w-4 h-4 text-destructive" />
+                </Button>
             </li>
           ))}
         </ul>
