@@ -300,7 +300,6 @@ export function BrandKitForm({ onSubmit, isLoading }: BrandKitFormProps) {
           />
           <FormItem>
             <FormLabel>Logo <span className="text-muted-foreground/80">(Optional)</span></FormLabel>
-            <FormDescription>The AI will extract colors from your logo to create the palette.</FormDescription>
             {!previewUrl ? (
                 <FormControl>
                   <label
