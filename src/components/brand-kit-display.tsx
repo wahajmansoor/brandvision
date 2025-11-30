@@ -44,7 +44,7 @@ export function BrandKitDisplay({ brandKit: initialBrandKit, isLoading, logoData
             siteStructure: updatedSiteStructure,
         };
     });
-  }, []);
+  }, [setEditableBrandKit]);
 
   const handleCompetitorUrlsChange = useCallback((newUrls: UrlItem[]) => {
     setEditableBrandKit(prev => {
@@ -57,7 +57,7 @@ export function BrandKitDisplay({ brandKit: initialBrandKit, isLoading, logoData
             competitorWebsites: updatedUrls,
         };
     });
-  }, []);
+  }, [setEditableBrandKit]);
 
   const handleColorChange = (name: string, newColor: string) => {
     if (!editableBrandKit) return;
