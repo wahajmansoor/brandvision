@@ -31,7 +31,7 @@ export function BrandKitPdfLayout({ brandKit, logoDataUri }: BrandKitPdfLayoutPr
           <AppLogo />
         </header>
 
-        <main className="mt-12 grid grid-cols-3 gap-12">
+        <main className="mt-12 grid grid-cols-3 gap-12 items-start">
           {/* Left Column */}
           <div className="col-span-1 space-y-12">
             {logoDataUri && (
@@ -115,24 +115,26 @@ export function BrandKitPdfLayout({ brandKit, logoDataUri }: BrandKitPdfLayoutPr
               </div>
             </div>
 
-            <div>
-              <h2 className="flex items-center gap-3 text-2xl font-bold">
-                <Network className="w-7 h-7 text-primary" />
-                Site Structure
-              </h2>
-              <div className="mt-4 grid grid-cols-2 gap-x-8 gap-y-6">
-                {brandKit.siteStructure.map((page, index) => (
-                    <div key={index}>
-                        <h3 className="text-lg font-semibold border-b pb-1">{page.page}</h3>
-                        <ul className="mt-2 space-y-1 list-disc list-inside text-slate-600">
-                           {page.sections.map((section, sIndex) => (
-                               <li key={sIndex}>{section}</li>
-                           ))}
-                        </ul>
+            {brandKit.siteStructure && brandKit.siteStructure.length > 0 && (
+                <div>
+                    <h2 className="flex items-center gap-3 text-2xl font-bold">
+                        <Network className="w-7 h-7 text-primary" />
+                        Site Structure
+                    </h2>
+                    <div className="mt-4 grid grid-cols-2 gap-x-8 gap-y-6">
+                        {brandKit.siteStructure.map((page, index) => (
+                            <div key={index}>
+                                <h3 className="text-lg font-semibold border-b pb-1">{page.page}</h3>
+                                <ul className="mt-2 space-y-1 list-disc list-inside text-slate-600">
+                                {page.sections.map((section, sIndex) => (
+                                    <li key={sIndex}>{section}</li>
+                                ))}
+                                </ul>
+                            </div>
+                        ))}
                     </div>
-                ))}
-              </div>
-            </div>
+                </div>
+            )}
 
             <div>
               <h2 className="flex items-center gap-3 text-2xl font-bold">

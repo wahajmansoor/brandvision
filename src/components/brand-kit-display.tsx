@@ -6,7 +6,7 @@ import type { BrandKitOutput } from '@/ai/flows/generate-brand-kit-from-input';
 import { Palette, Type, Globe, Network, Image as ImageIcon, Download, Trash2, Plus } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import Image from 'next/image';
-import { SiteStructure } from './site-structure';
+import { SiteStructure, type StructureItem } from './site-structure';
 import { CompetitorWebsites } from './competitor-websites';
 import { Button } from './ui/button';
 import { BrandKitPdfLayout } from './brand-kit-pdf-layout';
@@ -29,6 +29,20 @@ export function BrandKitDisplay({ brandKit: initialBrandKit, isLoading, logoData
   useEffect(() => {
     setEditableBrandKit(initialBrandKit);
   }, [initialBrandKit]);
+
+  const handleStructureChange = (newStructure: StructureItem[]) => {
+    if (!editableBrandKit) return;
+
+    const updatedSiteStructure = newStructure.map(page => ({
+        page: page.name,
+        sections: page.children?.map(section => section.name) || [],
+    }));
+
+    setEditableBrandKit({
+        ...editableBrandKit,
+        siteStructure: updatedSiteStructure,
+    });
+  };
 
   const handleColorChange = (name: string, newColor: string) => {
     if (!editableBrandKit) return;
@@ -307,7 +321,7 @@ export function BrandKitDisplay({ brandKit: initialBrandKit, isLoading, logoData
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <SiteStructure initialStructure={editableBrandKit.siteStructure} />
+            <SiteStructure initialStructure={editableBrandKit.siteStructure} onStructureChange={handleStructureChange} />
           </CardContent>
         </Card>
 

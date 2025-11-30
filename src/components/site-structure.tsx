@@ -11,7 +11,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { Badge } from '@/components/ui/badge';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './ui/collapsible';
 
-type StructureItem = {
+export type StructureItem = {
   id: string;
   name: string;
   type: 'page' | 'section';
@@ -20,6 +20,7 @@ type StructureItem = {
 
 interface SiteStructureProps {
   initialStructure: { page: string; sections: string[] }[];
+  onStructureChange: (structure: StructureItem[]) => void;
 }
 
 function NodeItem({
@@ -37,7 +38,7 @@ function NodeItem({
   updateItemName: (itemId: string, newName: string) => void;
   deleteItem: (itemId: string) => void;
   addItem: (parentId: string, type: 'page' | 'section') => void;
-  handleReorder: (parentId: string, newOrder: StructureItem[]) => void;
+  handleReorder: (parentId: string | null, newOrder: StructureItem[]) => void;
 }) {
   const { dragControls, isDragging } = useReorderItem();
   const [isOpen, setIsOpen] = useState(true);
@@ -131,17 +132,17 @@ function NodeItem({
   );
 }
 
-export function SiteStructure({ initialStructure }: SiteStructureProps) {
+export function SiteStructure({ initialStructure, onStructureChange }: SiteStructureProps) {
   const [structure, setStructure] = useState<StructureItem[]>([]);
   const [isMounted, setIsMounted] = useState(false);
   const [isReordering, setIsReordering] = useState(false);
 
   useEffect(() => {
-    const transformedStructure = initialStructure.map((item, index) => ({
+    const transformedStructure = (initialStructure || []).map((item, index) => ({
       id: `page-${index}-${Date.now()}`,
       name: item.page,
       type: 'page' as const,
-      children: item.sections.map((section, sIndex) => ({
+      children: (item.sections || []).map((section, sIndex) => ({
         id: `section-${index}-${sIndex}-${Date.now()}`,
         name: section,
         type: 'section' as const,
@@ -151,6 +152,12 @@ export function SiteStructure({ initialStructure }: SiteStructureProps) {
     setIsMounted(true);
   }, [initialStructure]);
   
+  useEffect(() => {
+    if (isMounted) {
+      onStructureChange(structure);
+    }
+  }, [structure, isMounted, onStructureChange]);
+
   if (!isMounted) {
     return (
         <div className="space-y-2">
@@ -188,30 +195,66 @@ export function SiteStructure({ initialStructure }: SiteStructureProps) {
     if (parentId === null) {
       setStructure(prev => [...prev, newItem]);
     } else {
-      setStructure(prev => recursivelyFindAndModify(prev, parentId, item => ({
-          ...item,
-          children: [...(item.children || []), newItem],
-      })));
+      setStructure(prev => {
+        const updateChildren = (items: StructureItem[]): StructureItem[] => {
+            return items.map(item => {
+                if (item.id === parentId) {
+                    return { ...item, children: [...(item.children || []), newItem] };
+                }
+                if (item.children) {
+                    return { ...item, children: updateChildren(item.children) };
+                }
+                return item;
+            });
+        };
+        return updateChildren(prev);
+      });
     }
   };
 
   const deleteItem = (itemId: string) => {
-    let newStructure = structure.filter(item => item.id !== itemId);
-    if (newStructure.length === structure.length) {
-      newStructure = recursivelyFindAndModify(structure, itemId, () => null);
-    }
-    setStructure(newStructure);
+    const removeItem = (items: StructureItem[]): StructureItem[] => {
+        return items.filter(item => item.id !== itemId).map(item => {
+            if (item.children) {
+                return { ...item, children: removeItem(item.children) };
+            }
+            return item;
+        });
+    };
+    setStructure(removeItem);
   };
   
   const updateItemName = (itemId: string, newName: string) => {
-    setStructure(prev => recursivelyFindAndModify(prev, itemId, item => ({ ...item, name: newName })));
+     const update = (items: StructureItem[]): StructureItem[] => {
+        return items.map(item => {
+            if (item.id === itemId) {
+                return { ...item, name: newName };
+            }
+            if (item.children) {
+                return { ...item, children: update(item.children) };
+            }
+            return item;
+        });
+    };
+    setStructure(update);
   };
 
   const handleReorder = (parentId: string | null, newOrder: StructureItem[]) => {
     if (parentId === null) {
       setStructure(newOrder);
     } else {
-      setStructure(prev => recursivelyFindAndModify(prev, parentId, item => ({...item, children: newOrder})));
+       const reorderChildren = (items: StructureItem[]): StructureItem[] => {
+        return items.map(item => {
+            if (item.id === parentId) {
+                return {...item, children: newOrder};
+            }
+            if (item.children) {
+                return { ...item, children: reorderChildren(item.children) };
+            }
+            return item;
+        });
+      };
+      setStructure(reorderChildren);
     }
   };
 
