@@ -118,7 +118,7 @@ export async function generateBrandKit(input: BrandKitInput): Promise<BrandKitOu
         3. **No Broken or Placeholder Links**: Do NOT include any broken links, placeholder sites, domains that are for sale, or any URL that would result in a "This site can’t be reached" error.
         4. **High Relevance**: The websites must be highly relevant to the user's business description and industry.
         5. **No Service Providers**: Do NOT include any domain registrars, hosting providers, or website builders (e.g., GoDaddy, Namecheap, Wix, Squarespace, etc.).
-        6. **Correct Format**: Each object in the array must have a 'url' (e.g., "competitor1.com") and a 'type' which MUST be 'competitor'. Do NOT generate 'reference' websites.
+        6. **Correct Format**: Each object in the array must have a 'url' (e.g., "competitor1.com") and a 'type' which MUST be 'competitor'.
 
     **Business Details:**
     Business Name: ${input.businessName}
