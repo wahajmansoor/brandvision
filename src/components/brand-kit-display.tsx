@@ -12,7 +12,7 @@ import { Button } from './ui/button';
 import { BrandKitPdfLayout } from './brand-kit-pdf-layout';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { ColorPicker } from './ui/color-picker';
 import { Input } from './ui/input';
 
@@ -30,19 +30,22 @@ export function BrandKitDisplay({ brandKit: initialBrandKit, isLoading, logoData
     setEditableBrandKit(initialBrandKit);
   }, [initialBrandKit]);
 
-  const handleStructureChange = (newStructure: StructureItem[]) => {
+  const handleStructureChange = useCallback((newStructure: StructureItem[]) => {
     if (!editableBrandKit) return;
 
     const updatedSiteStructure = newStructure.map(page => ({
         page: page.name,
         sections: page.children?.map(section => section.name) || [],
     }));
-
-    setEditableBrandKit({
-        ...editableBrandKit,
-        siteStructure: updatedSiteStructure,
-    });
-  };
+    
+    // Prevent unnecessary re-renders if structure is the same
+    if (JSON.stringify(editableBrandKit.siteStructure) !== JSON.stringify(updatedSiteStructure)) {
+        setEditableBrandKit(prev => prev ? {
+            ...prev,
+            siteStructure: updatedSiteStructure,
+        } : null);
+    }
+  }, [editableBrandKit]);
 
   const handleColorChange = (name: string, newColor: string) => {
     if (!editableBrandKit) return;
@@ -211,9 +214,11 @@ export function BrandKitDisplay({ brandKit: initialBrandKit, isLoading, logoData
     return (
       <div className="space-y-6 animate-in fade-in-50 duration-500">
         <div className="fixed -left-[9999px] top-0 opacity-0" aria-hidden="true">
-            <div id="pdf-container" style={{ width: '1200px' }}>
-                <BrandKitPdfLayout brandKit={editableBrandKit} logoDataUri={logoDataUri} />
-            </div>
+            {editableBrandKit && (
+                <div id="pdf-container" style={{ width: '1200px' }}>
+                    <BrandKitPdfLayout brandKit={editableBrandKit} logoDataUri={logoDataUri} />
+                </div>
+            )}
         </div>
         <div className="flex justify-end">
             <Button onClick={handleDownloadPdf} disabled={isDownloading}>
@@ -321,7 +326,10 @@ export function BrandKitDisplay({ brandKit: initialBrandKit, isLoading, logoData
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <SiteStructure initialStructure={editableBrandKit.siteStructure} onStructureChange={handleStructureChange} />
+            <SiteStructure 
+              initialStructure={editableBrandKit.siteStructure || []} 
+              onStructureChange={handleStructureChange} 
+            />
           </CardContent>
         </Card>
 
