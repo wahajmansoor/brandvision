@@ -30,6 +30,7 @@ const BrandKitInputSchema = z.object({
 export type BrandKitInput = z.infer<typeof BrandKitInputSchema>;
 
 const BrandKitOutputSchema = z.object({
+  businessName: z.string().describe('The name of the business.'),
   colorPalette: z.object({
     primary: z.string().describe('The primary color hex code.'),
     secondary: z.string().describe('The secondary color hex code.'),
@@ -101,6 +102,7 @@ export async function generateBrandKit(input: BrandKitInput): Promise<BrandKitOu
     **JSON Structure Rules:**
     - Your response MUST be a single, valid JSON object and nothing else.
     - The JSON object must conform to the following schema.
+    - businessName: MUST be the business name provided by the user.
     - colorPalette: MUST be an object with primary, secondary, accent, neutral, and background hex codes.
     - typographySuggestions: MUST be an object with 'heading', 'body', and 'accent' font suggestions.
     - siteStructure: MUST be an array of objects, where each object has a 'page' (string) and 'sections' (array of strings). Example: [{ "page": "Home", "sections": ["Hero", "About Us", "Services", "Contact"] }]
