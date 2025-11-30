@@ -63,7 +63,7 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen w-full">
+    <div className="min-h-screen w-full flex flex-col">
       <header className="p-4 border-b border-border/40">
         <div className="container mx-auto flex items-center justify-between">
           <AppLogo />
@@ -89,7 +89,7 @@ export default function Home() {
           </DropdownMenu>
         </div>
       </header>
-      <main className="container mx-auto py-8">
+      <main className="container mx-auto py-8 flex-grow">
         <div className="flex flex-col lg:flex-row lg:gap-12 xl:gap-24">
           <div className="w-full flex-shrink-0 lg:w-[25%]">
             <BrandKitForm onSubmit={handleFormSubmit} isLoading={isLoading} />
@@ -99,6 +99,17 @@ export default function Home() {
           </div>
         </div>
       </main>
+      <footer className="py-6 text-center text-sm text-muted-foreground">
+        © 2025 Brand Vision Tool. Crafted with love by{' '}
+        <a
+            href="https://wahajmansoor.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-medium text-primary hover:underline"
+        >
+            Wahaj Mansoor
+        </a>
+      </footer>
     </div>
   );
 }
