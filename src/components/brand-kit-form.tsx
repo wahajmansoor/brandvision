@@ -42,6 +42,7 @@ const formSchema = z.object({
   businessDescription: z.string().min(10, {
     message: 'Description must be at least 10 characters.',
   }),
+  logo: z.any().refine(file => file, "Logo is required."),
   industry: z.string().optional(),
   location: z.string().optional(),
 });
@@ -186,6 +187,7 @@ export function BrandKitForm({ onSubmit, isLoading }: BrandKitFormProps) {
     const files = event.target.files;
     if (files && files.length > 0) {
       setFile(files[0]);
+      form.setValue('logo', files[0]);
     }
   }
 
@@ -213,6 +215,7 @@ export function BrandKitForm({ onSubmit, isLoading }: BrandKitFormProps) {
     const files = e.dataTransfer.files;
     if (files && files.length > 0) {
       setFile(files[0]);
+      form.setValue('logo', files[0]);
       if (fileInputRef.current) {
         fileInputRef.current.files = files;
       }
@@ -223,6 +226,7 @@ export function BrandKitForm({ onSubmit, isLoading }: BrandKitFormProps) {
     setFile(undefined);
     setPreviewUrl(null);
     setExtractedColors(undefined);
+    form.setValue('logo', undefined);
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
@@ -269,6 +273,43 @@ export function BrandKitForm({ onSubmit, isLoading }: BrandKitFormProps) {
               </FormItem>
             )}
           />
+
+          <FormField
+            control={form.control}
+            name="logo"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Logo</FormLabel>
+                {!previewUrl ? (
+                    <FormControl>
+                      <label
+                        onDragEnter={handleDragEnter}
+                        onDragLeave={handleDragLeave}
+                        onDragOver={handleDragOver}
+                        onDrop={handleDrop}
+                        className={`flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer bg-card hover:bg-muted/50 transition-colors ${
+                          isDragging ? 'border-primary' : 'border-input'
+                        }`}
+                        htmlFor="logo-upload"
+                      >
+                        <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                          <UploadCloud className={`w-8 h-8 mb-3 ${isDragging ? 'text-primary' : 'text-muted-foreground'}`} />
+                          <p className="mb-1 text-sm text-muted-foreground">
+                            <span className="font-semibold text-primary">Upload a file</span> or drag and drop
+                          </p>
+                          <p className="text-xs text-muted-foreground">PNG, JPG, SVG up to 5MB</p>
+                        </div>
+                        <Input id="logo-upload" type="file" className="hidden" accept=".png,.jpg,.jpeg,.svg" onChange={handleFileChange} ref={fileInputRef} />
+                      </label>
+                    </FormControl>
+                ) : (
+                  <LogoUploadDisplay previewUrl={previewUrl} clearFile={clearFile} onColorsExtracted={setExtractedColors} />
+                )}
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
           <FormField
             control={form.control}
             name="industry"
@@ -298,34 +339,7 @@ export function BrandKitForm({ onSubmit, isLoading }: BrandKitFormProps) {
               </FormItem>
             )}
           />
-          <FormItem>
-            <FormLabel>Logo <span className="text-muted-foreground/80">(Optional)</span></FormLabel>
-            {!previewUrl ? (
-                <FormControl>
-                  <label
-                    onDragEnter={handleDragEnter}
-                    onDragLeave={handleDragLeave}
-                    onDragOver={handleDragOver}
-                    onDrop={handleDrop}
-                    className={`flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer bg-card hover:bg-muted/50 transition-colors ${
-                      isDragging ? 'border-primary' : 'border-input'
-                    }`}
-                    htmlFor="logo-upload"
-                  >
-                    <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                      <UploadCloud className={`w-8 h-8 mb-3 ${isDragging ? 'text-primary' : 'text-muted-foreground'}`} />
-                      <p className="mb-1 text-sm text-muted-foreground">
-                        <span className="font-semibold text-primary">Upload a file</span> or drag and drop
-                      </p>
-                      <p className="text-xs text-muted-foreground">PNG, JPG, SVG up to 5MB</p>
-                    </div>
-                    <Input id="logo-upload" type="file" className="hidden" accept=".png,.jpg,.jpeg,.svg" onChange={handleFileChange} ref={fileInputRef} />
-                  </label>
-                </FormControl>
-            ) : (
-              <LogoUploadDisplay previewUrl={previewUrl} clearFile={clearFile} onColorsExtracted={setExtractedColors} />
-            )}
-          </FormItem>
+          
 
           <Button type="submit" disabled={isLoading} className="w-full h-12 text-base font-light rounded-full">
             {isLoading ? <Loader2 className="animate-spin" /> : 'Generate Brand Kit'}
