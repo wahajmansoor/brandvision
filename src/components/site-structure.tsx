@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { File, Plus, Trash2, GripVertical, Shuffle, CornerDownRight, Folder, FolderOpen } from 'lucide-react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
@@ -156,7 +156,8 @@ export function SiteStructure({ initialStructure, onStructureChange }: SiteStruc
     if (isMounted) {
       onStructureChange(structure);
     }
-  }, [structure, isMounted, onStructureChange]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [structure, isMounted]);
 
   if (!isMounted) {
     return (
@@ -167,23 +168,6 @@ export function SiteStructure({ initialStructure, onStructureChange }: SiteStruc
     );
   }
   
-  const recursivelyFindAndModify = (items: StructureItem[], id: string, modifier: (item: StructureItem) => StructureItem | null): StructureItem[] => {
-    return items.reduce((acc, item) => {
-        if (item.id === id) {
-            const modified = modifier(item);
-            if(modified) acc.push(modified);
-            return acc;
-        }
-        if (item.children) {
-            const newChildren = recursivelyFindAndModify(item.children, id, modifier);
-            acc.push({ ...item, children: newChildren });
-        } else {
-            acc.push(item);
-        }
-        return acc;
-    }, [] as StructureItem[]);
-  };
-
   const addItem = (parentId: string | null, type: 'page' | 'section') => {
     const newItem: StructureItem = {
       id: `${type}-new-${Date.now()}`,
