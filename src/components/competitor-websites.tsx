@@ -28,22 +28,28 @@ export function CompetitorWebsites({ urls, onUrlsChange }: CompetitorWebsitesPro
   const { toast } = useToast();
 
   const handleAddUrl = () => {
-    const trimmedUrl = newUrl.trim();
+    let trimmedUrl = newUrl.trim();
     if (trimmedUrl === '') return;
 
-    if (urls.some(item => item.url === trimmedUrl)) {
-      toast({
-        title: 'URL Already Exists',
-        description: 'This website is already in your list.',
-        variant: 'destructive',
-      });
-      return;
+    if (!trimmedUrl.startsWith('http://') && !trimmedUrl.startsWith('https://')) {
+        trimmedUrl = `https://${trimmedUrl}`;
     }
 
     try {
-      const urlObject = new URL(trimmedUrl.startsWith('http') ? trimmedUrl : `https://${trimmedUrl}`);
-      onUrlsChange([...urls, { url: urlObject.hostname, type: urlType }]);
+      const urlObject = new URL(trimmedUrl);
+      const hostname = urlObject.hostname.replace(/^www\./, '');
+
+      if (urls.some(item => item.url.includes(hostname))) {
+        toast({
+          title: 'URL Already Exists',
+          description: 'This website is already in your list.',
+          variant: 'destructive',
+        });
+        return;
+      }
+      onUrlsChange([...urls, { url: hostname, type: urlType }]);
       setNewUrl('');
+
     } catch (error) {
       toast({
         title: 'Invalid URL',
@@ -114,10 +120,15 @@ export function CompetitorWebsites({ urls, onUrlsChange }: CompetitorWebsitesPro
             <div className="flex w-full items-center space-x-2">
                 <Input
                     type="url"
-                    placeholder="https://example.com"
+                    placeholder="example.com"
                     value={newUrl}
                     onChange={(e) => setNewUrl(e.target.value)}
-                    onKeyDown={(e) => e.key === 'Enter' && handleAddUrl()}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        handleAddUrl();
+                      }
+                    }}
                 />
                 <Button type="button" onClick={handleAddUrl}>
                     Add
