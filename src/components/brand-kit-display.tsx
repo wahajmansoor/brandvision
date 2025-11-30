@@ -390,12 +390,16 @@ export function BrandKitDisplay({ brandKit: initialBrandKit, isLoading, logoData
                 >
                   <div className="flex justify-between items-start">
                     <h3 className="text-2xl font-bold">{platform.name}</h3>
-                    {platform.bestChoice && (
+                    {platform.bestChoice ? (
                       <Badge
                         variant={'secondary'}
                         className={'bg-white/20 text-white'}
                       >
                         Best Choice
+                      </Badge>
+                    ) : (
+                      <Badge variant={'outline'}>
+                        Alternative
                       </Badge>
                     )}
                   </div>
