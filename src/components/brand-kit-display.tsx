@@ -33,41 +33,27 @@ export function BrandKitDisplay({ brandKit: initialBrandKit, isLoading, logoData
   const handleStructureChange = useCallback((newStructure: StructureItem[]) => {
     setEditableBrandKit(prev => {
         if (!prev) return null;
-
         const updatedSiteStructure = newStructure.map(page => ({
             page: page.name,
             sections: page.children?.map(section => section.name) || [],
         }));
-
-        // Avoid unnecessary updates
         if (JSON.stringify(prev.siteStructure) === JSON.stringify(updatedSiteStructure)) {
             return prev;
         }
-
-        return {
-            ...prev,
-            siteStructure: updatedSiteStructure,
-        };
+        return { ...prev, siteStructure: updatedSiteStructure };
     });
-  }, [setEditableBrandKit]);
+  }, []);
 
   const handleCompetitorUrlsChange = useCallback((newUrls: UrlItem[]) => {
     setEditableBrandKit(prev => {
         if (!prev) return null;
-        
         const updatedUrls = newUrls.map(item => item.url);
-
-        // Avoid unnecessary updates
         if (JSON.stringify(prev.competitorWebsites) === JSON.stringify(updatedUrls)) {
-          return prev;
+            return prev;
         }
-
-        return {
-            ...prev,
-            competitorWebsites: updatedUrls,
-        };
+        return { ...prev, competitorWebsites: updatedUrls };
     });
-  }, [setEditableBrandKit]);
+  }, []);
 
   const handleColorChange = (name: string, newColor: string) => {
     setEditableBrandKit(prev => {
@@ -145,7 +131,7 @@ export function BrandKitDisplay({ brandKit: initialBrandKit, isLoading, logoData
             scale: 2,
             useCORS: true,
             allowTaint: true,
-            backgroundColor: '#ffffff',
+            backgroundColor: '#ffffff', // Ensure white background
         });
     
         const imgData = canvas.toDataURL('image/png');
