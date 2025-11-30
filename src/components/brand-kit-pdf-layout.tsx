@@ -141,8 +141,8 @@ export function BrandKitPdfLayout({ brandKit, logoDataUri }: BrandKitPdfLayoutPr
                     <span className="text-sm font-medium text-slate-700 hover:underline">
                         {item.url.replace(/^www\./, '')}
                     </span>
-                    <Badge className="bg-slate-200 text-slate-600">
-                        {item.type.charAt(0).toUpperCase() + item.type.slice(1)}
+                    <Badge className="capitalize bg-slate-200 text-slate-600">
+                        {item.type}
                     </Badge>
                 </li>
               ))}
