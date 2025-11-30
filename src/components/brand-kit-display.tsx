@@ -3,9 +3,8 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import type { BrandKitOutput } from '@/ai/flows/generate-brand-kit-from-input';
-import { Palette, Type, Globe, Network, Image as ImageIcon, Copy, Download } from 'lucide-react';
+import { Palette, Type, Globe, Network, Image as ImageIcon, Download, Trash2, Plus, Edit } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import { useToast } from "@/hooks/use-toast";
 import Image from 'next/image';
 import { SiteStructure } from './site-structure';
 import { CompetitorWebsites } from './competitor-websites';
@@ -13,7 +12,8 @@ import { Button } from './ui/button';
 import { BrandKitPdfLayout } from './brand-kit-pdf-layout';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { ColorPicker } from './ui/color-picker';
 
 interface BrandKitDisplayProps {
   brandKit: BrandKitOutput | null;
@@ -21,30 +21,64 @@ interface BrandKitDisplayProps {
   logoDataUri?: string;
 }
 
-export function BrandKitDisplay({ brandKit, isLoading, logoDataUri }: BrandKitDisplayProps) {
-  const { toast } = useToast();
+export function BrandKitDisplay({ brandKit: initialBrandKit, isLoading, logoDataUri }: BrandKitDisplayProps) {
   const [isDownloading, setIsDownloading] = useState(false);
+  const [editableBrandKit, setEditableBrandKit] = useState<BrandKitOutput | null>(initialBrandKit);
 
-  const copyToClipboard = (text: string, label: string) => {
-    navigator.clipboard.writeText(text);
-    toast({
-      title: `Copied ${label} to clipboard!`,
-      description: text,
+  useEffect(() => {
+    setEditableBrandKit(initialBrandKit);
+  }, [initialBrandKit]);
+
+  const handleColorChange = (name: string, newColor: string) => {
+    if (!editableBrandKit) return;
+
+    setEditableBrandKit({
+      ...editableBrandKit,
+      colorPalette: {
+        ...editableBrandKit.colorPalette,
+        [name]: newColor,
+      },
+    });
+  };
+  
+  const handleAddColor = () => {
+    if (!editableBrandKit) return;
+
+    const newColorName = `newColor${Object.keys(editableBrandKit.colorPalette).length + 1}`;
+    setEditableBrandKit({
+        ...editableBrandKit,
+        colorPalette: {
+            ...editableBrandKit.colorPalette,
+            [newColorName]: '#000000'
+        }
     });
   };
 
+  const deleteColor = (colorName: string) => {
+    if (!editableBrandKit) return;
+
+    const newPalette = { ...editableBrandKit.colorPalette };
+    delete newPalette[colorName as keyof typeof newPalette];
+
+    setEditableBrandKit({
+      ...editableBrandKit,
+      colorPalette: newPalette,
+    });
+  };
+
+
   const handleDownloadPdf = async () => {
     const pdfContainer = document.getElementById('pdf-container');
-    if (!pdfContainer || !brandKit) return;
+    if (!pdfContainer || !editableBrandKit) return;
     
     setIsDownloading(true);
 
     try {
         const canvas = await html2canvas(pdfContainer, {
-            scale: 2, // Higher scale for better quality
+            scale: 2,
             useCORS: true,
             allowTaint: true,
-            backgroundColor: null, // Use element's background
+            backgroundColor: null,
         });
     
         const imgData = canvas.toDataURL('image/png');
@@ -59,11 +93,6 @@ export function BrandKitDisplay({ brandKit, isLoading, logoDataUri }: BrandKitDi
         pdf.save('brand-kit.pdf');
     } catch (error) {
         console.error("Failed to generate PDF", error);
-        toast({
-            title: "PDF Generation Failed",
-            description: "There was an error creating the PDF. Please try again.",
-            variant: "destructive"
-        })
     } finally {
         setIsDownloading(false);
     }
@@ -125,7 +154,7 @@ export function BrandKitDisplay({ brandKit, isLoading, logoDataUri }: BrandKitDi
       );
     }
   
-    if (!brandKit) {
+    if (!editableBrandKit) {
       return (
         <div className="flex flex-col items-center justify-center h-full text-center border-2 border-dashed border-border rounded-lg p-8 min-h-[400px] lg:min-h-full">
             <div className="mx-auto bg-muted rounded-full p-3 mb-4 ring-8 ring-muted/20">
@@ -141,7 +170,7 @@ export function BrandKitDisplay({ brandKit, isLoading, logoDataUri }: BrandKitDi
       <div className="space-y-6 animate-in fade-in-50 duration-500">
         <div className="fixed -left-[9999px] top-0 opacity-0" aria-hidden="true">
             <div id="pdf-container" style={{ width: '1200px' }}>
-                <BrandKitPdfLayout brandKit={brandKit} logoDataUri={logoDataUri} />
+                <BrandKitPdfLayout brandKit={editableBrandKit} logoDataUri={logoDataUri} />
             </div>
         </div>
         <div className="flex justify-end">
@@ -170,34 +199,43 @@ export function BrandKitDisplay({ brandKit, isLoading, logoDataUri }: BrandKitDi
             </Card>
         )}
         <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Palette className="w-5 h-5" />
-              Color Palette
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-3 sm:grid-cols-5 gap-4">
-              {Object.entries(brandKit.colorPalette).map(([name, color]) => (
-                <div key={name} className="text-center">
-                   <div className="relative group">
-                    <div
-                      className="w-full h-20 rounded-lg shadow-inner mb-2 border border-border/20"
-                      style={{ backgroundColor: color }}
-                    />
-                    <div 
-                      className="absolute inset-0 flex items-center justify-center bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg cursor-pointer"
-                      onClick={() => copyToClipboard(color, name)}
-                    >
-                      <Copy className="w-6 h-6 text-white" />
+            <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                    <Palette className="w-5 h-5" />
+                    Color Palette
+                </CardTitle>
+            </CardHeader>
+            <CardContent>
+                <div className="grid grid-cols-3 sm:grid-cols-5 gap-4">
+                    {Object.entries(editableBrandKit.colorPalette).map(([name, color]) => (
+                        <div key={name} className="relative group text-center">
+                            <div className="relative">
+                                <ColorPicker color={color} onChange={(newColor) => handleColorChange(name, newColor)}>
+                                    <div
+                                        className="w-full h-20 rounded-lg shadow-inner mb-2 border border-border/20 cursor-pointer"
+                                        style={{ backgroundColor: color }}
+                                    />
+                                </ColorPicker>
+                                <Button
+                                    variant="destructive"
+                                    size="icon"
+                                    className="absolute -top-2 -right-2 w-6 h-6 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                                    onClick={() => deleteColor(name)}
+                                >
+                                    <Trash2 className="w-4 h-4" />
+                                </Button>
+                            </div>
+                            <div className="capitalize text-sm font-medium mt-1">{name}</div>
+                            <div className="text-muted-foreground text-xs font-mono">{color}</div>
+                        </div>
+                    ))}
+                    <div className="flex items-center justify-center">
+                        <Button variant="outline" size="icon" onClick={handleAddColor} className="w-20 h-20 rounded-lg">
+                            <Plus className="w-8 h-8 text-muted-foreground" />
+                        </Button>
                     </div>
-                  </div>
-                  <div className="capitalize text-sm font-medium mt-1">{name}</div>
-                  <div className="text-muted-foreground text-xs font-mono">{color}</div>
                 </div>
-              ))}
-            </div>
-          </CardContent>
+            </CardContent>
         </Card>
   
         <Card>
@@ -209,7 +247,7 @@ export function BrandKitDisplay({ brandKit, isLoading, logoDataUri }: BrandKitDi
           </CardHeader>
           <CardContent>
             <div className="grid sm:grid-cols-3 gap-4">
-              {Object.entries(brandKit.typographySuggestions).map(([type, font]) => (
+              {Object.entries(editableBrandKit.typographySuggestions).map(([type, font]) => (
                  <div key={type} className="p-4 bg-muted/50 rounded-lg text-center">
                    <div className="text-sm capitalize text-muted-foreground">{type}</div>
                    <div className="text-lg font-semibold mt-1">{font}</div>
@@ -227,7 +265,7 @@ export function BrandKitDisplay({ brandKit, isLoading, logoDataUri }: BrandKitDi
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <SiteStructure initialStructure={brandKit.siteStructure} />
+            <SiteStructure initialStructure={editableBrandKit.siteStructure} />
           </CardContent>
         </Card>
 
@@ -242,7 +280,7 @@ export function BrandKitDisplay({ brandKit, isLoading, logoDataUri }: BrandKitDi
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              {brandKit.recommendedPlatforms.map((platform) => (
+              {editableBrandKit.recommendedPlatforms.map((platform) => (
                 <div
                   key={platform.name}
                   className={`p-6 rounded-lg relative overflow-hidden ${
@@ -251,18 +289,6 @@ export function BrandKitDisplay({ brandKit, isLoading, logoDataUri }: BrandKitDi
                       : 'bg-card border'
                   }`}
                 >
-                  {platform.bestChoice && (
-                      <div className="absolute top-0 right-0 h-16 w-16 text-primary-foreground/10">
-                          <svg className="absolute inset-0 h-full w-full opacity-10" viewBox="0 0 100 100">
-                            <defs>
-                              <pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse">
-                                <path d="M 10 0 L 0 0 0 10" fill="none" stroke="currentColor" strokeWidth="0.5"/>
-                              </pattern>
-                            </defs>
-                            <rect width="100" height="100" fill="url(#grid)" />
-                          </svg>
-                      </div>
-                  )}
                   <div className="flex justify-between items-start">
                     <h3 className="text-2xl font-bold">{platform.name}</h3>
                     <Badge
@@ -280,7 +306,7 @@ export function BrandKitDisplay({ brandKit, isLoading, logoDataUri }: BrandKitDi
             </CardContent>
           </Card>
           
-          <CompetitorWebsites initialUrls={brandKit.competitorWebsites} />
+          <CompetitorWebsites initialUrls={editableBrandKit.competitorWebsites} />
         </div>
       </div>
     )
