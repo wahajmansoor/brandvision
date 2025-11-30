@@ -3,7 +3,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import type { BrandKitOutput } from '@/ai/flows/generate-brand-kit-from-input';
-import { Palette, Type, Globe, Network, Image as ImageIcon, Download, Trash2, Plus, Edit } from 'lucide-react';
+import { Palette, Type, Globe, Network, Image as ImageIcon, Download, Trash2, Plus } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import Image from 'next/image';
 import { SiteStructure } from './site-structure';
@@ -12,8 +12,9 @@ import { Button } from './ui/button';
 import { BrandKitPdfLayout } from './brand-kit-pdf-layout';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { ColorPicker } from './ui/color-picker';
+import { Input } from './ui/input';
 
 interface BrandKitDisplayProps {
   brandKit: BrandKitOutput | null;
@@ -38,6 +39,28 @@ export function BrandKitDisplay({ brandKit: initialBrandKit, isLoading, logoData
         ...editableBrandKit.colorPalette,
         [name]: newColor,
       },
+    });
+  };
+
+  const handleColorNameChange = (oldName: string, newName: string) => {
+    if (!editableBrandKit || oldName === newName) return;
+
+    const newPalette = { ...editableBrandKit.colorPalette };
+    const colorValue = newPalette[oldName as keyof typeof newPalette];
+    
+    // Create a new object with the updated key order
+    const updatedPalette: { [key: string]: string } = {};
+    for (const key in newPalette) {
+      if (key === oldName) {
+        updatedPalette[newName] = colorValue;
+      } else {
+        updatedPalette[key] = newPalette[key as keyof typeof newPalette];
+      }
+    }
+
+    setEditableBrandKit({
+      ...editableBrandKit,
+      colorPalette: updatedPalette,
     });
   };
   
@@ -103,30 +126,32 @@ export function BrandKitDisplay({ brandKit: initialBrandKit, isLoading, logoData
     if (isLoading) {
       return (
         <div className="space-y-6">
-           {logoDataUri && (
-             <Card>
-                <CardHeader>
-                  <Skeleton className="h-6 w-24" />
-                </CardHeader>
-                <CardContent className="flex items-center justify-center p-6">
-                    <Skeleton className="h-24 w-24 rounded-lg" />
-                </CardContent>
-              </Card>
-           )}
-          <Card>
-            <CardHeader>
-              <Skeleton className="h-6 w-32" />
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-3 sm:grid-cols-5 gap-4">
-                <Skeleton className="h-20 w-full rounded-lg" />
-                <Skeleton className="h-20 w-full rounded-lg" />
-                <Skeleton className="h-20 w-full rounded-lg" />
-                <Skeleton className="h-20 w-full rounded-lg" />
-                <Skeleton className="h-20 w-full rounded-lg" />
-              </div>
-            </CardContent>
-          </Card>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {logoDataUri && (
+              <Card>
+                  <CardHeader>
+                    <Skeleton className="h-6 w-24" />
+                  </CardHeader>
+                  <CardContent className="flex items-center justify-center p-6">
+                      <Skeleton className="h-24 w-24 rounded-lg" />
+                  </CardContent>
+                </Card>
+            )}
+            <Card>
+              <CardHeader>
+                <Skeleton className="h-6 w-32" />
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-3 sm:grid-cols-5 gap-4">
+                  <Skeleton className="h-20 w-full rounded-lg" />
+                  <Skeleton className="h-20 w-full rounded-lg" />
+                  <Skeleton className="h-20 w-full rounded-lg" />
+                  <Skeleton className="h-20 w-full rounded-lg" />
+                  <Skeleton className="h-20 w-full rounded-lg" />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
           <Card>
             <CardHeader>
               <Skeleton className="h-6 w-32" />
@@ -179,64 +204,74 @@ export function BrandKitDisplay({ brandKit: initialBrandKit, isLoading, logoData
                 {isDownloading ? 'Downloading...' : 'Download PDF'}
             </Button>
         </div>
-        {logoDataUri && (
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {logoDataUri && (
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                            <ImageIcon className="w-5 h-5" />
+                            Logo
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent className="flex items-center justify-center p-6 bg-muted/20 rounded-lg">
+                        <Image 
+                            src={logoDataUri}
+                            alt="Uploaded Logo"
+                            width={128}
+                            height={128}
+                            className="object-contain max-h-32"
+                        />
+                    </CardContent>
+                </Card>
+            )}
             <Card>
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2">
-                        <ImageIcon className="w-5 h-5" />
-                        Logo
+                        <Palette className="w-5 h-5" />
+                        Color Palette
                     </CardTitle>
                 </CardHeader>
-                <CardContent className="flex items-center justify-center p-6 bg-muted/20 rounded-lg">
-                    <Image 
-                        src={logoDataUri}
-                        alt="Uploaded Logo"
-                        width={128}
-                        height={128}
-                        className="object-contain max-h-32"
-                    />
+                <CardContent>
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-6">
+                        {Object.entries(editableBrandKit.colorPalette).map(([name, color]) => (
+                            <div key={name} className="relative group text-center space-y-2">
+                                <div className="relative">
+                                    <ColorPicker color={color} onChange={(newColor) => handleColorChange(name, newColor)}>
+                                        <div
+                                            className="w-full h-20 rounded-lg shadow-inner border border-border/20 cursor-pointer"
+                                            style={{ backgroundColor: color }}
+                                        />
+                                    </ColorPicker>
+                                    <Button
+                                        variant="destructive"
+                                        size="icon"
+                                        className="absolute -top-2 -right-2 w-6 h-6 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                                        onClick={() => deleteColor(name)}
+                                    >
+                                        <Trash2 className="w-4 h-4" />
+                                    </Button>
+                                </div>
+                                <div>
+                                    <Input
+                                      type="text"
+                                      defaultValue={name}
+                                      onBlur={(e) => handleColorNameChange(name, e.target.value)}
+                                      className="capitalize text-sm font-medium text-center h-8 bg-transparent border-none focus-visible:ring-1 focus-visible:ring-ring"
+                                    />
+                                    <div className="text-muted-foreground text-xs font-mono">{color}</div>
+                                </div>
+                            </div>
+                        ))}
+                        <div className="flex items-center justify-center min-h-[120px]">
+                            <Button variant="outline" size="icon" onClick={handleAddColor} className="w-20 h-20 rounded-lg">
+                                <Plus className="w-8 h-8 text-muted-foreground" />
+                            </Button>
+                        </div>
+                    </div>
                 </CardContent>
             </Card>
-        )}
-        <Card>
-            <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                    <Palette className="w-5 h-5" />
-                    Color Palette
-                </CardTitle>
-            </CardHeader>
-            <CardContent>
-                <div className="grid grid-cols-3 sm:grid-cols-5 gap-4">
-                    {Object.entries(editableBrandKit.colorPalette).map(([name, color]) => (
-                        <div key={name} className="relative group text-center">
-                            <div className="relative">
-                                <ColorPicker color={color} onChange={(newColor) => handleColorChange(name, newColor)}>
-                                    <div
-                                        className="w-full h-20 rounded-lg shadow-inner mb-2 border border-border/20 cursor-pointer"
-                                        style={{ backgroundColor: color }}
-                                    />
-                                </ColorPicker>
-                                <Button
-                                    variant="destructive"
-                                    size="icon"
-                                    className="absolute -top-2 -right-2 w-6 h-6 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                                    onClick={() => deleteColor(name)}
-                                >
-                                    <Trash2 className="w-4 h-4" />
-                                </Button>
-                            </div>
-                            <div className="capitalize text-sm font-medium mt-1">{name}</div>
-                            <div className="text-muted-foreground text-xs font-mono">{color}</div>
-                        </div>
-                    ))}
-                    <div className="flex items-center justify-center">
-                        <Button variant="outline" size="icon" onClick={handleAddColor} className="w-20 h-20 rounded-lg">
-                            <Plus className="w-8 h-8 text-muted-foreground" />
-                        </Button>
-                    </div>
-                </div>
-            </CardContent>
-        </Card>
+        </div>
   
         <Card>
           <CardHeader>
@@ -272,7 +307,7 @@ export function BrandKitDisplay({ brandKit: initialBrandKit, isLoading, logoData
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+              <CardTitle className="flex items-center gap-3">
                 <div className="bg-primary/10 text-primary p-2 rounded-lg">
                   <Globe className="w-5 h-5" />
                 </div>
