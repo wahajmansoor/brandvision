@@ -112,7 +112,12 @@ export async function generateBrandKit(input: BrandKitInput): Promise<BrandKitOu
     - typographySuggestions: MUST be an object with 'heading', 'body', and 'accent' font suggestions.
     - siteStructure: MUST be an array of objects for the website's navigation. Each object should have a 'page' (string) and 'sections' (an array of strings). A page can have zero or more sections. For example, a simple 'Contact Us' page might have an empty sections array, while a 'Home' page might have several sections like "Hero", "About Us", and "Services". Generate a logical structure. Example: [{ "page": "Home", "sections": ["Hero", "About Us", "Services"] }, { "page": "Contact", "sections": [] }]
     - recommendedPlatforms: MUST be an array of objects, each with 'name' (string), 'description' (string), and 'bestChoice' (boolean).
-    - competitorWebsites: MUST be an array of objects, each with 'url' (string, e.g., "competitor1.com") and 'type' which MUST be 'competitor'. Find real, highly relevant competitors based on the user's business description and location. Do NOT generate 'reference' websites.
+    - competitorWebsites: MUST be an array of objects. Follow these strict rules for this field:
+        1. Find real, live, and operational websites of actual businesses that are direct competitors.
+        2. If a location is provided by the user, you MUST prioritize finding competitors in that specific city and country.
+        3. The websites must be highly relevant to the user's business description and industry.
+        4. Do NOT include any domain registrars, hosting providers, or website builders (e.g., GoDaddy, Namecheap, Wix, Squarespace, etc.).
+        5. Each object in the array must have a 'url' (e.g., "competitor1.com") and a 'type' which MUST be 'competitor'. Do NOT generate 'reference' websites.
 
     **Business Details:**
     Business Name: ${input.businessName}
