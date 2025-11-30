@@ -86,28 +86,24 @@ export function BrandKitPdfLayout({ brandKit, logoDataUri }: BrandKitPdfLayoutPr
              <div>
               <h2 className="flex items-center gap-3 text-2xl font-bold">
                 <Globe className="w-7 h-7 text-primary" />
-                Recommended Platforms
+                Recommended Platform
               </h2>
               <div className="mt-4 space-y-4">
-                {brandKit.recommendedPlatforms.map((platform) => (
+                {brandKit.recommendedPlatforms.filter(p => p.bestChoice).map((platform) => (
                   <div
                     key={platform.name}
-                    className={`p-6 rounded-xl ${
-                      platform.bestChoice
-                        ? 'bg-primary text-primary-foreground'
-                        : 'bg-slate-50 border'
-                    }`}
+                    className={'p-6 rounded-xl bg-primary text-primary-foreground'}
                   >
                      <div className="flex justify-between items-start">
                         <h3 className="text-2xl font-bold">{platform.name}</h3>
                         <Badge
-                          variant={platform.bestChoice ? 'secondary' : 'outline'}
-                           className={platform.bestChoice ? 'bg-white/20 text-white' : 'bg-white'}
+                          variant={'secondary'}
+                           className={'bg-white/20 text-white'}
                         >
-                          {platform.bestChoice ? 'Best Choice' : 'Alternative'}
+                          Best Choice
                         </Badge>
                       </div>
-                    <p className={`mt-2 ${platform.bestChoice ? 'text-primary-foreground/80' : 'text-slate-600'}`}>
+                    <p className={'mt-2 text-primary-foreground/80'}>
                       {platform.description}
                     </p>
                   </div>
