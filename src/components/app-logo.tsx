@@ -8,7 +8,7 @@ export function AppLogo() {
       </div>
       <div className="flex flex-col">
         <span className="font-bold text-lg leading-tight">Brand Vision</span>
-        <span className="text-xs text-muted-foreground leading-tight">Tool</span>
+        <span className="text-xs text-muted-foreground leading-tight">In Seconds</span>
       </div>
     </div>
   );

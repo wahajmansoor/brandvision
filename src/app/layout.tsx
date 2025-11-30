@@ -4,7 +4,7 @@ import { Toaster } from "@/components/ui/toaster"
 import { ThemeProvider } from '@/components/theme-provider';
 
 export const metadata: Metadata = {
-  title: 'Brand Vision Tool',
+  title: 'Brand Vision In Seconds',
   description: 'Generate a brand kit in seconds using AI',
 };
 

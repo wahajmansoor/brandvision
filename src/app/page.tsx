@@ -100,7 +100,7 @@ export default function Home() {
         </div>
       </main>
       <footer className="py-6 text-center text-sm text-muted-foreground">
-        © 2025 Brand Vision Tool. Crafted with love by{' '}
+        © 2025 Brand Vision In Seconds. Crafted with love by{' '}
         <a
             href="https://wahajmansoor.com/"
             target="_blank"
