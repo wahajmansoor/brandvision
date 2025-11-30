@@ -3,12 +3,17 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import type { BrandKitOutput } from '@/ai/flows/generate-brand-kit-from-input';
-import { Palette, Type, Globe, Network, Image as ImageIcon, Copy } from 'lucide-react';
+import { Palette, Type, Globe, Network, Image as ImageIcon, Copy, Download } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from "@/hooks/use-toast";
 import Image from 'next/image';
 import { SiteStructure } from './site-structure';
 import { CompetitorWebsites } from './competitor-websites';
+import { Button } from './ui/button';
+import { BrandKitPdfLayout } from './brand-kit-pdf-layout';
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
+import { useState } from 'react';
 
 interface BrandKitDisplayProps {
   brandKit: BrandKitOutput | null;
@@ -18,6 +23,7 @@ interface BrandKitDisplayProps {
 
 export function BrandKitDisplay({ brandKit, isLoading, logoDataUri }: BrandKitDisplayProps) {
   const { toast } = useToast();
+  const [isDownloading, setIsDownloading] = useState(false);
 
   const copyToClipboard = (text: string, label: string) => {
     navigator.clipboard.writeText(text);
@@ -26,6 +32,43 @@ export function BrandKitDisplay({ brandKit, isLoading, logoDataUri }: BrandKitDi
       description: text,
     });
   };
+
+  const handleDownloadPdf = async () => {
+    const pdfContainer = document.getElementById('pdf-container');
+    if (!pdfContainer || !brandKit) return;
+    
+    setIsDownloading(true);
+
+    try {
+        const canvas = await html2canvas(pdfContainer, {
+            scale: 2, // Higher scale for better quality
+            useCORS: true,
+            allowTaint: true,
+            backgroundColor: null, // Use element's background
+        });
+    
+        const imgData = canvas.toDataURL('image/png');
+        
+        const pdf = new jsPDF({
+            orientation: 'p',
+            unit: 'px',
+            format: [canvas.width, canvas.height]
+        });
+    
+        pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
+        pdf.save('brand-kit.pdf');
+    } catch (error) {
+        console.error("Failed to generate PDF", error);
+        toast({
+            title: "PDF Generation Failed",
+            description: "There was an error creating the PDF. Please try again.",
+            variant: "destructive"
+        })
+    } finally {
+        setIsDownloading(false);
+    }
+  };
+
 
   const renderContent = () => {
     if (isLoading) {
@@ -96,6 +139,17 @@ export function BrandKitDisplay({ brandKit, isLoading, logoDataUri }: BrandKitDi
 
     return (
       <div className="space-y-6 animate-in fade-in-50 duration-500">
+        <div className="fixed -left-[9999px] top-0 opacity-0" aria-hidden="true">
+            <div id="pdf-container" style={{ width: '1200px' }}>
+                <BrandKitPdfLayout brandKit={brandKit} logoDataUri={logoDataUri} />
+            </div>
+        </div>
+        <div className="flex justify-end">
+            <Button onClick={handleDownloadPdf} disabled={isDownloading}>
+                <Download className="mr-2 h-4 w-4" />
+                {isDownloading ? 'Downloading...' : 'Download PDF'}
+            </Button>
+        </div>
         {logoDataUri && (
             <Card>
                 <CardHeader>
