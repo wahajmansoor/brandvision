@@ -39,6 +39,11 @@ export function BrandKitDisplay({ brandKit: initialBrandKit, isLoading, logoData
             sections: page.children?.map(section => section.name) || [],
         }));
 
+        // Avoid unnecessary updates
+        if (JSON.stringify(prev.siteStructure) === JSON.stringify(updatedSiteStructure)) {
+            return prev;
+        }
+
         return {
             ...prev,
             siteStructure: updatedSiteStructure,
@@ -51,6 +56,11 @@ export function BrandKitDisplay({ brandKit: initialBrandKit, isLoading, logoData
         if (!prev) return null;
         
         const updatedUrls = newUrls.map(item => item.url);
+
+        // Avoid unnecessary updates
+        if (JSON.stringify(prev.competitorWebsites) === JSON.stringify(updatedUrls)) {
+          return prev;
+        }
 
         return {
             ...prev,

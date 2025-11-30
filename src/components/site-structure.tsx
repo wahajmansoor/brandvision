@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { File, Plus, Trash2, GripVertical, Shuffle, CornerDownRight, Folder, FolderOpen } from 'lucide-react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
@@ -156,8 +156,7 @@ export function SiteStructure({ initialStructure, onStructureChange }: SiteStruc
     if (isMounted) {
       onStructureChange(structure);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [structure, isMounted]);
+  }, [structure, isMounted, onStructureChange]);
 
   if (!isMounted) {
     return (
