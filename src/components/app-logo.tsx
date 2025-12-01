@@ -1,11 +1,9 @@
-import { Zap } from 'lucide-react';
+import { AppLogoSvg } from './app-logo-svg';
 
 export function AppLogo() {
   return (
     <div className="flex items-center gap-2">
-      <div className="bg-primary text-primary-foreground p-1.5 rounded-md">
-        <Zap className="w-5 h-5" />
-      </div>
+      <AppLogoSvg className="w-9 h-9" />
       <div className="flex flex-col">
         <span className="font-bold text-lg leading-tight">Brand Vision</span>
         <span className="text-xs text-muted-foreground leading-tight">In Seconds</span>
