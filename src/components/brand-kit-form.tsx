@@ -37,6 +37,8 @@ const industries = [
   { label: 'Non-profit', value: 'Non-profit' },
 ];
 
+const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png"];
+
 const formSchema = z.object({
   businessName: z.string().min(2, {
     message: 'Business name must be at least 2 characters.',
@@ -44,7 +46,13 @@ const formSchema = z.object({
   businessDescription: z.string().min(10, {
     message: 'Description must be at least 10 characters.',
   }),
-  logo: z.any().optional(),
+  logo: z.any()
+    .refine((file) => file, "Logo is required.")
+    .refine((file) => file?.size <= 5 * 1024 * 1024, `Max file size is 5MB.`)
+    .refine(
+      (file) => ACCEPTED_IMAGE_TYPES.includes(file?.type),
+      ".jpg, .jpeg and .png files are accepted."
+    ),
   industry: z.string().optional(),
   location: z.string().optional(),
 });
@@ -232,19 +240,18 @@ export function BrandKitForm({ onSubmit, isLoading }: BrandKitFormProps) {
       return;
     }
 
-    // Validate file type and size
-    const acceptedTypes = ['image/png', 'image/jpeg', 'image/svg+xml', 'image/webp'];
-    if (!acceptedTypes.includes(file.type)) {
-        toast({ title: "Invalid File Type", description: "Please upload a PNG, JPG, or SVG file.", variant: "destructive" });
-        return;
+    // Validate file type and size with Zod schema before processing
+    const validation = formSchema.shape.logo.safeParse(file);
+    if (!validation.success) {
+      const issues = validation.error.issues;
+      const errorMessage = issues.map(issue => issue.message).join('\n');
+      toast({ title: "Invalid File", description: errorMessage, variant: "destructive" });
+      form.setError("logo", { type: "manual", message: errorMessage });
+      return;
     }
-    if (file.size > 5 * 1024 * 1024) { // 5MB
-        toast({ title: "File Too Large", description: "Please upload a file smaller than 5MB.", variant: "destructive" });
-        return;
-    }
-
-    form.setValue('logo', file);
-
+    
+    form.setValue('logo', file, { shouldValidate: true });
+    
     try {
         const resizedUri = await resizeAndCompressImage(file);
         setResizedDataUri(resizedUri);
@@ -341,7 +348,7 @@ export function BrandKitForm({ onSubmit, isLoading }: BrandKitFormProps) {
             name="logo"
             render={() => (
               <FormItem>
-                <FormLabel>Logo <span className="text-muted-foreground/80">(Optional)</span></FormLabel>
+                <FormLabel>Logo</FormLabel>
                 {!previewUrl ? (
                     <FormControl>
                       <label
@@ -358,9 +365,9 @@ export function BrandKitForm({ onSubmit, isLoading }: BrandKitFormProps) {
                           <p className="mb-1 text-sm text-muted-foreground">
                             <span className="font-semibold text-primary">Upload a file</span> or drag and drop
                           </p>
-                          <p className="text-xs text-muted-foreground">PNG, JPG, SVG up to 5MB</p>
+                          <p className="text-xs text-muted-foreground">PNG, JPG, JPEG up to 5MB</p>
                         </div>
-                        <Input id="logo-upload" type="file" className="hidden" accept=".png,.jpg,.jpeg,.svg,.webp" onChange={handleFileChange} ref={fileInputRef} />
+                        <Input id="logo-upload" type="file" className="hidden" accept=".png,.jpg,.jpeg" onChange={handleFileChange} ref={fileInputRef} />
                       </label>
                     </FormControl>
                 ) : (
@@ -413,3 +420,5 @@ export function BrandKitForm({ onSubmit, isLoading }: BrandKitFormProps) {
     </div>
   );
 }
+
+    
