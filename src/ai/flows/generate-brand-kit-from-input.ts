@@ -66,6 +66,23 @@ const BrandKitOutputSchema = z.object({
 });
 export type BrandKitOutput = z.infer<typeof BrandKitOutputSchema>;
 
+function cleanAndParseJson(rawContent: string): any {
+  // Find the start and end of the JSON object
+  const jsonStart = rawContent.indexOf('{');
+  const jsonEnd = rawContent.lastIndexOf('}');
+  
+  if (jsonStart === -1 || jsonEnd === -1) {
+    throw new Error('No JSON object found in the response.');
+  }
+
+  // Extract the JSON string
+  const jsonString = rawContent.substring(jsonStart, jsonEnd + 1);
+
+  // Parse the extracted JSON string
+  return JSON.parse(jsonString);
+}
+
+
 async function callOpenAI(messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[]): Promise<BrandKitOutput> {
   const response = await openai.chat.completions.create({
     model: 'gpt-4o',
@@ -79,10 +96,11 @@ async function callOpenAI(messages: OpenAI.Chat.Completions.ChatCompletionMessag
   }
 
   try {
-    const parsedOutput = JSON.parse(content);
+    const parsedOutput = cleanAndParseJson(content);
     return BrandKitOutputSchema.parse(parsedOutput);
-  } catch(e) {
-    console.error("Failed to parse OpenAI response:", content, e);
+  } catch(e: any) {
+    console.error("Failed to parse OpenAI response. Raw content:", content);
+    console.error("Parsing Error:", e);
     throw new Error('An unexpected response was received from the server.');
   }
 }
@@ -100,32 +118,32 @@ export async function generateBrandKit(input: BrandKitInput): Promise<BrandKitOu
   `;
 
   const textPrompt = `
-    You are an expert branding and web design consultant. Generate a brand kit and website strategy based on the following business details.
+    You are an expert branding and web design consultant. Your task is to generate a comprehensive brand kit and website strategy.
+
+    **Business Details:**
+    - Name: ${input.businessName}
+    - Description: ${input.businessDescription}
+    ${input.industry ? `- Industry: ${input.industry}` : ''}
+    ${input.location ? `- Location: ${input.location}` : ''}
 
     ${logoColorsPrompt}
 
-    **JSON Structure Rules:**
-    - Your response MUST be a single, valid JSON object and nothing else.
-    - The JSON object must conform to the following schema.
-    - businessName: MUST be the business name provided by the user.
-    - colorPalette: MUST be an object with primary, secondary, accent, neutral, and background hex codes.
-    - typographySuggestions: MUST be an object with 'heading', 'body', and 'accent' font suggestions.
-    - siteStructure: MUST be an array of objects for the website's navigation. Each object should have a 'page' (string) and 'sections' (an array of strings). A page can have zero or more sections. For example, a simple 'Contact Us' page might have an empty sections array, while a 'Home' page might have several sections like "Hero", "About Us", and "Services". Generate a logical structure. Example: [{ "page": "Home", "sections": ["Hero", "About Us", "Services"] }, { "page": "Contact", "sections": [] }]
-    - recommendedPlatforms: MUST be an array of objects, each with 'name' (string), 'description' (string), and 'bestChoice' (boolean).
-    - competitorWebsites: MUST be an array of objects. Follow these strict rules for this field:
-        1. **Simulate a Search**: If the user provides an industry and location, you MUST simulate a Google search for "Top ${input.industry || ''} in ${input.location || ''}" and return the top 3 organic (non-ad) search results.
-        2. **Find Real, Live Websites**: The websites must be real, live, and operational. Before including a URL, you must act as if you have verified that the website is currently online and accessible.
-        3. **No Broken or Placeholder Links**: Do NOT include any broken links, placeholder sites, domains that are for sale, or any URL that would result in a "This site can’t be reached" error.
-        4. **No Service Providers or Directories**: Do NOT include any domain registrars, hosting providers, website builders (e.g., GoDaddy, Wix), or directory sites (e.g., Yelp, Yellow Pages). The results must be actual businesses in the specified industry.
-        5. **Correct Format**: Each object in the array must have a 'url' (e.g., "example.com") and a 'type' which MUST be 'search-result'. If no industry or location is provided, return an empty array.
+    **Competitor Research Rules:**
+    - Analyze the business description, industry, and location to understand its niche.
+    - Simulate a Google search for 'Top ${input.industry || ''} in ${input.location || ''}' combined with an analysis of the business description.
+    - Return the top 3-5 organic (non-ad) competitor websites.
+    - The websites MUST be real, live, and operational.
+    - Do NOT include directories (Yelp), social media, website builders (Wix), or placeholder sites.
 
-    **Business Details:**
-    Business Name: ${input.businessName}
-    Description: ${input.businessDescription}
-    ${input.industry ? `Industry: ${input.industry}` : ''}
-    ${input.location ? `Location: ${input.location}` : ''}
-
-    Your response must be a valid JSON object following the specified schema, and nothing else.
+    **Output Format Rules:**
+    - Your response MUST be a single, valid JSON object and nothing else. Do not wrap it in markdown or any other text.
+    - The JSON object must strictly conform to the following schema:
+      - businessName: The exact business name provided.
+      - colorPalette: An object with 'primary', 'secondary', 'accent', 'neutral', and 'background' hex codes.
+      - typographySuggestions: An object with 'heading', 'body', and 'accent' font family suggestions.
+      - siteStructure: An array of objects, each with 'page' (string) and 'sections' (array of strings). Example: [{ "page": "Home", "sections": ["Hero", "Services"] }]
+      - recommendedPlatforms: An array of objects, each with 'name', 'description', and 'bestChoice' (boolean).
+      - competitorWebsites: An array of objects. Each object must have a 'url' (e.g., "example.com") and a 'type' of 'search-result'. Return an empty array if no relevant competitors are found.
   `;
 
   const messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
@@ -147,11 +165,10 @@ export async function generateBrandKit(input: BrandKitInput): Promise<BrandKitOu
   }
   
   try {
-    console.log("Attempting to generate brand kit...");
     return await callOpenAI(messages);
   } catch (error) {
-    console.error('Error calling OpenAI API:', error);
-    // Re-throw the raw error to get more details in the UI
+    console.error('Error in generateBrandKit calling OpenAI API:', error);
+    // Re-throw the original error to provide more details in the server logs/UI
     throw error;
   }
 }
