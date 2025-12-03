@@ -31,7 +31,7 @@ export type BrandKitInput = z.infer<typeof BrandKitInputSchema>;
 
 const WebsiteItemSchema = z.object({
   url: z.string().describe('The domain name of the website (e.g., example.com).'),
-  type: z.enum(['competitor', 'reference']).describe("The type of website, either 'competitor' or 'reference'."),
+  type: z.enum(['competitor', 'reference', 'search-result']).describe("The type of website, either 'competitor', 'reference', or 'search-result'."),
 });
 
 const BrandKitOutputSchema = z.object({
@@ -82,8 +82,8 @@ async function callOpenAI(messages: OpenAI.Chat.Completions.ChatCompletionMessag
     const parsedOutput = JSON.parse(content);
     return BrandKitOutputSchema.parse(parsedOutput);
   } catch(e) {
-    console.error("Failed to parse OpenAI response:", content);
-    throw new Error('OpenAI returned an invalid JSON response.');
+    console.error("Failed to parse OpenAI response:", content, e);
+    throw new Error('An unexpected response was received from the server.');
   }
 }
 
@@ -113,12 +113,11 @@ export async function generateBrandKit(input: BrandKitInput): Promise<BrandKitOu
     - siteStructure: MUST be an array of objects for the website's navigation. Each object should have a 'page' (string) and 'sections' (an array of strings). A page can have zero or more sections. For example, a simple 'Contact Us' page might have an empty sections array, while a 'Home' page might have several sections like "Hero", "About Us", and "Services". Generate a logical structure. Example: [{ "page": "Home", "sections": ["Hero", "About Us", "Services"] }, { "page": "Contact", "sections": [] }]
     - recommendedPlatforms: MUST be an array of objects, each with 'name' (string), 'description' (string), and 'bestChoice' (boolean).
     - competitorWebsites: MUST be an array of objects. Follow these strict rules for this field:
-        1. **Location is Paramount**: If the user provides a location, your search for competitors MUST be exclusively scoped to that city and country. This is the most important rule.
-        2. **Find Real, Live Websites**: Find real, live, and operational websites of actual businesses that are direct competitors. Before including a URL, you must act as if you have verified that the website is currently online and accessible.
+        1. **Simulate a Search**: If the user provides an industry and location, you MUST simulate a Google search for "Top ${input.industry || ''} in ${input.location || ''}" and return the top 3 organic (non-ad) search results.
+        2. **Find Real, Live Websites**: The websites must be real, live, and operational. Before including a URL, you must act as if you have verified that the website is currently online and accessible.
         3. **No Broken or Placeholder Links**: Do NOT include any broken links, placeholder sites, domains that are for sale, or any URL that would result in a "This site can’t be reached" error.
-        4. **High Relevance**: The websites must be highly relevant to the user's business description and industry.
-        5. **No Service Providers**: Do NOT include any domain registrars, hosting providers, or website builders (e.g., GoDaddy, Namecheap, Wix, Squarespace, etc.).
-        6. **Correct Format**: Each object in the array must have a 'url' (e.g., "competitor1.com") and a 'type' which MUST be 'competitor'.
+        4. **No Service Providers or Directories**: Do NOT include any domain registrars, hosting providers, website builders (e.g., GoDaddy, Wix), or directory sites (e.g., Yelp, Yellow Pages). The results must be actual businesses in the specified industry.
+        5. **Correct Format**: Each object in the array must have a 'url' (e.g., "example.com") and a 'type' which MUST be 'search-result'. If no industry or location is provided, return an empty array.
 
     **Business Details:**
     Business Name: ${input.businessName}
@@ -129,49 +128,27 @@ export async function generateBrandKit(input: BrandKitInput): Promise<BrandKitOu
     Your response must be a valid JSON object following the specified schema, and nothing else.
   `;
 
-  const textPart: OpenAI.Chat.Completions.ChatCompletionContentPart = { type: 'text', text: textPrompt };
-  
-  const contentWithImage: OpenAI.Chat.Completions.ChatCompletionContentPart[] = [textPart];
+  const messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
+    {
+      role: 'user',
+      content: [
+        { type: 'text', text: textPrompt }
+      ]
+    },
+  ];
+
   if (input.logoDataUri) {
-    contentWithImage.push({
+    (messages[0].content as OpenAI.Chat.Completions.ChatCompletionContentPart[]).push({
       type: 'image_url',
       image_url: {
         url: input.logoDataUri,
       },
     });
   }
-
-  const messagesWithImage: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
-    {
-      role: 'user',
-      content: contentWithImage,
-    },
-  ];
   
-  const messagesWithoutImage: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
-    {
-      role: 'user',
-      content: [textPart],
-    },
-  ];
-
   try {
-    // If we have extracted colors or a logo, we are confident in the image and should prioritize the call that includes it.
-    if (input.logoDataUri) {
-      try {
-        console.log("Attempting to generate brand kit WITH logo...");
-        return await callOpenAI(messagesWithImage);
-      } catch (error) {
-        console.error("Generating with logo failed, falling back to text-only:", error);
-        // If it fails (e.g., empty response), fall back to text-only.
-        console.log("Attempting to generate brand kit WITHOUT logo (fallback)...");
-        return await callOpenAI(messagesWithoutImage);
-      }
-    } else {
-      // If there's no logo to begin with, just call once.
-      console.log("Attempting to generate brand kit without logo...");
-      return await callOpenAI(messagesWithoutImage);
-    }
+    console.log("Attempting to generate brand kit...");
+    return await callOpenAI(messages);
   } catch (error) {
     console.error('Error calling OpenAI API:', error);
     // Re-throw the raw error to get more details in the UI

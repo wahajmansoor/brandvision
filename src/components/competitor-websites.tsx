@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Monitor, Link as LinkIcon, Trash2 } from 'lucide-react';
+import { Monitor, Link as LinkIcon, Trash2, Search } from 'lucide-react';
 import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
@@ -14,7 +14,7 @@ import { Label } from './ui/label';
 
 export interface UrlItem {
   url: string;
-  type: 'competitor' | 'reference';
+  type: 'competitor' | 'reference' | 'search-result';
 }
 
 interface CompetitorWebsitesProps {
@@ -86,6 +86,11 @@ export function CompetitorWebsites({ urls, onUrlsChange }: CompetitorWebsitesPro
       return url;
     }
   };
+  
+  const getTypeDisplayName = (type: UrlItem['type']) => {
+    if (type === 'search-result') return 'Search Result';
+    return type.charAt(0).toUpperCase() + type.slice(1);
+  };
 
   return (
     <Card>
@@ -102,13 +107,17 @@ export function CompetitorWebsites({ urls, onUrlsChange }: CompetitorWebsitesPro
           {urls.map((item, index) => (
             <li key={index} className="flex items-center gap-3 group">
                 <div className="flex items-center justify-center w-8 h-8 rounded-full bg-muted">
-                    <LinkIcon className="w-4 h-4 text-muted-foreground" />
+                    {item.type === 'search-result' ? (
+                        <Search className="w-4 h-4 text-muted-foreground" />
+                    ) : (
+                        <LinkIcon className="w-4 h-4 text-muted-foreground" />
+                    )}
                 </div>
                 <Link href={item.url.startsWith('http') ? item.url : `https://${item.url}`} target="_blank" rel="noopener noreferrer" className="text-sm font-medium text-foreground hover:underline flex-grow">
                     {getDisplayUrl(item.url)}
                 </Link>
                 <Badge variant={'outline'} className="ml-auto capitalize">
-                    {item.type}
+                    {getTypeDisplayName(item.type)}
                 </Badge>
                 <Button variant="ghost" size="icon" className="w-8 h-8 opacity-0 group-hover:opacity-100" onClick={() => handleRemoveUrl(item.url)}>
                     <Trash2 className="w-4 h-4 text-destructive" />

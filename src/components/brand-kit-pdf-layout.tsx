@@ -19,6 +19,12 @@ function PdfLogo() {
 }
 
 export function BrandKitPdfLayout({ brandKit, logoDataUri }: BrandKitPdfLayoutProps) {
+  
+  const getTypeDisplayName = (type: 'competitor' | 'reference' | 'search-result') => {
+    if (type === 'search-result') return 'Search Result';
+    return type.charAt(0).toUpperCase() + type.slice(1);
+  };
+
   return (
     <div className="bg-white text-slate-900 p-16 font-sans relative">
       {/* Watermark */}
@@ -145,7 +151,7 @@ export function BrandKitPdfLayout({ brandKit, logoDataUri }: BrandKitPdfLayoutPr
                         {item.url.replace(/^www\./, '')}
                     </span>
                     <Badge className="capitalize bg-slate-200 text-slate-600">
-                        {item.type}
+                        {getTypeDisplayName(item.type)}
                     </Badge>
                 </li>
               ))}
