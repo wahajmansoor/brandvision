@@ -129,11 +129,12 @@ export async function generateBrandKit(input: BrandKitInput): Promise<BrandKitOu
     ${logoColorsPrompt}
 
     **Competitor Research Rules:**
-    - Analyze the business description, industry, and location to understand its niche.
-    - Simulate a Google search for 'Top ${input.industry || ''} in ${input.location || ''}' combined with an analysis of the business description.
-    - Return the top 3-5 organic (non-ad) competitor websites.
+    - You MUST find real, operational competitor websites by analyzing the user's business description, industry, and location.
     - The websites MUST be real, live, and operational.
+    - Do NOT invent websites or include sites that result in a 404 error.
     - Do NOT include directories (Yelp), social media, website builders (Wix), or placeholder sites.
+    - Return the top 3-5 organic competitor results.
+    - If no relevant competitors are found, you MUST return an empty array for the 'competitorWebsites' field.
 
     **Output Format Rules:**
     - Your response MUST be a single, valid JSON object and nothing else. Do not wrap it in markdown or any other text.
