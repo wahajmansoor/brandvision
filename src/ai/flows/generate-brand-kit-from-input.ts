@@ -135,9 +135,8 @@ export async function generateBrandKit(client: OpenAI, input: BrandKitInput): Pr
 
     **Site Structure Rules:**
     - Create a logical and relevant site structure based on the business type.
-    - For pages like 'FAQ' or 'Contact Us', ensure the sections within them are meaningful and not redundant.
-    - Good Example: A page 'FAQ' might have sections like 'General Questions', 'Service-related Questions', and 'Billing Information'.
-    - Bad Example: A page 'FAQ' with only one section called 'FAQ'. Do not do this.
+    - If you include pages like 'FAQ' or 'Contact Us', they must be top-level pages and their 'sections' array MUST be empty. Do not create sections for these pages.
+    - For all other pages, ensure the sections within them are meaningful and not redundant (e.g., a 'Services' page should have sections like 'Web Design', 'Branding', not a single section called 'Services').
 
     **Output Format Rules:**
     - Your response MUST be a single, valid JSON object and nothing else. Do not wrap it in markdown or any other text.
