@@ -36,6 +36,9 @@ const nextConfig: NextConfig = {
     'https://6000-firebase-studio-1764365669384.cluster-isls3qj2gbd5qs4jkjqvhahfv6.cloudworkstations.dev',
     'https://9000-firebase-studio-1764365669384.cluster-isls3qj2gbd5qs4jkjqvhahfv6.cloudworkstations.dev',
   ],
+  serverActions: {
+    bodySizeLimit: '5mb',
+  },
 };
 
 export default nextConfig;
