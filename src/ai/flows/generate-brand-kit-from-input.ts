@@ -10,10 +10,6 @@
 import OpenAI from 'openai';
 import {z} from 'zod';
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
-
 const BrandKitInputSchema = z.object({
   businessName: z.string().describe('The name of the business.'),
   businessDescription: z.string().describe('A brief description of the business.'),
@@ -83,8 +79,8 @@ function cleanAndParseJson(rawContent: string): any {
 }
 
 
-async function callOpenAI(messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[]): Promise<BrandKitOutput> {
-  const response = await openai.chat.completions.create({
+async function callOpenAI(client: OpenAI, messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[]): Promise<BrandKitOutput> {
+  const response = await client.chat.completions.create({
     model: 'gpt-4o',
     messages: messages,
     response_format: { type: 'json_object' },
@@ -106,7 +102,7 @@ async function callOpenAI(messages: OpenAI.Chat.Completions.ChatCompletionMessag
 }
 
 
-export async function generateBrandKit(input: BrandKitInput): Promise<BrandKitOutput> {
+export async function generateBrandKit(client: OpenAI, input: BrandKitInput): Promise<BrandKitOutput> {
   const logoColorsPrompt = input.logoColors && input.logoColors.length > 0 ? `
     **Extracted Logo Colors:**
     You have been provided with the following key colors extracted directly from the user's logo: ${input.logoColors.join(', ')}.
@@ -168,7 +164,7 @@ export async function generateBrandKit(input: BrandKitInput): Promise<BrandKitOu
   }
   
   try {
-    return await callOpenAI(messages);
+    return await callOpenAI(client, messages);
   } catch (error) {
     console.error('Error in generateBrandKit calling OpenAI API:', error);
     // Re-throw the original error to provide more details in the server logs/UI
