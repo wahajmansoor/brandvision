@@ -128,6 +128,7 @@ export async function generateBrandKit(client: OpenAI, input: BrandKitInput): Pr
     - You MUST find real, operational competitor websites by analyzing the user's business description, industry, and location.
     - The websites MUST be real, live, and operational.
     - Do NOT invent websites or include sites that result in a 404 error.
+    - Do NOT include websites that are for sale, such as those listed on 'hugedomains.com' or other domain marketplaces.
     - Do NOT include directories (Yelp), social media, website builders (Wix), or placeholder sites.
     - Return the top 3-5 organic competitor results.
     - If no relevant competitors are found, you MUST return an empty array for the 'competitorWebsites' field.
