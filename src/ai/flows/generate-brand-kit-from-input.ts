@@ -133,6 +133,11 @@ export async function generateBrandKit(client: OpenAI, input: BrandKitInput): Pr
     - Return the top 3-5 organic competitor results.
     - If no relevant competitors are found, you MUST return an empty array for the 'competitorWebsites' field.
 
+    **Site Structure Rules:**
+    - Create a logical and relevant site structure based on the business type.
+    - For pages like 'FAQ' or 'Contact Us', ensure the sections within them are meaningful (e.g., a 'Contact Us' page might have sections like 'Contact Form', 'Our Location', 'Business Hours').
+    - Do NOT create redundant structures where a page's only section is the same as the page title (e.g., a page 'FAQ' with only one section called 'FAQ').
+
     **Output Format Rules:**
     - Your response MUST be a single, valid JSON object and nothing else. Do not wrap it in markdown or any other text.
     - The JSON object must strictly conform to the following schema:
