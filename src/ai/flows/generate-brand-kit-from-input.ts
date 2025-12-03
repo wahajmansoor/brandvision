@@ -23,7 +23,7 @@ const BrandKitInputSchema = z.object({
     .string()
     .optional()
     .describe(
-      "The business's existing logo as a data URI."
+      "A resized and compressed version of the business's logo as a data URI."
     ),
   logoColors: z.array(z.string()).optional().describe('A list of hex colors extracted from the logo.'),
 });
@@ -160,6 +160,8 @@ export async function generateBrandKit(input: BrandKitInput): Promise<BrandKitOu
       type: 'image_url',
       image_url: {
         url: input.logoDataUri,
+        // The detail parameter is not directly available but this shows intent
+        // The actual resizing happens on the client
       },
     });
   }

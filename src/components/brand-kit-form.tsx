@@ -16,11 +16,12 @@ import {
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { UploadCloud, Loader2, X } from 'lucide-react';
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { Combobox } from './ui/combobox';
 import Image from 'next/image';
 import ColorThief from 'colorthief';
 import { Skeleton } from './ui/skeleton';
+import { useToast } from '@/hooks/use-toast';
 
 const industries = [
   { label: 'Technology', value: 'Technology' },
@@ -42,7 +43,7 @@ const formSchema = z.object({
   businessDescription: z.string().min(10, {
     message: 'Description must be at least 10 characters.',
   }),
-  logo: z.any().refine(file => file, "Logo is required."),
+  logo: z.any().optional(),
   industry: z.string().optional(),
   location: z.string().optional(),
 });
@@ -50,7 +51,7 @@ const formSchema = z.object({
 export type FormValues = z.infer<typeof formSchema>;
 
 interface BrandKitFormProps {
-  onSubmit: (data: FormValues, file?: File, colors?: string[]) => void;
+  onSubmit: (data: FormValues, resizedLogoDataUri?: string, colors?: string[]) => void;
   isLoading: boolean;
 }
 
@@ -154,24 +155,88 @@ function LogoUploadDisplay({
 }
 
 export function BrandKitForm({ onSubmit, isLoading }: BrandKitFormProps) {
-  const [file, setFile] = useState<File | undefined>(undefined);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [resizedDataUri, setResizedDataUri] = useState<string | undefined>(undefined);
   const [isDragging, setIsDragging] = useState(false);
   const [extractedColors, setExtractedColors] = useState<string[] | undefined>(undefined);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { toast } = useToast();
 
-  useEffect(() => {
+  const resizeAndCompressImage = useCallback((file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onerror = reject;
+        reader.onload = (event) => {
+            const img = document.createElement('img');
+            img.src = event.target?.result as string;
+            img.onerror = reject;
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                const MAX_WIDTH = 512;
+                const MAX_HEIGHT = 512;
+                let width = img.width;
+                let height = img.height;
+
+                if (width > height) {
+                    if (width > MAX_WIDTH) {
+                        height *= MAX_WIDTH / width;
+                        width = MAX_WIDTH;
+                    }
+                } else {
+                    if (height > MAX_HEIGHT) {
+                        width *= MAX_HEIGHT / height;
+                        height = MAX_HEIGHT;
+                    }
+                }
+
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                if (!ctx) return reject(new Error('Could not get canvas context'));
+                
+                ctx.drawImage(img, 0, 0, width, height);
+
+                // Use JPEG for better compression of photos, with a quality setting.
+                const dataUrl = canvas.toDataURL('image/jpeg', 0.9);
+                resolve(dataUrl);
+            };
+        };
+    });
+  }, []);
+
+  const processFile = useCallback(async (file: File | undefined) => {
     if (!file) {
       setPreviewUrl(null);
+      setResizedDataUri(undefined);
       setExtractedColors(undefined);
+      form.setValue('logo', undefined);
       return;
     }
-    const objectUrl = URL.createObjectURL(file);
-    setPreviewUrl(objectUrl);
 
-    // cleanup
-    return () => URL.revokeObjectURL(objectUrl);
-  }, [file]);
+    // Validate file type and size
+    const acceptedTypes = ['image/png', 'image/jpeg', 'image/svg+xml', 'image/webp'];
+    if (!acceptedTypes.includes(file.type)) {
+        toast({ title: "Invalid File Type", description: "Please upload a PNG, JPG, or SVG file.", variant: "destructive" });
+        return;
+    }
+    if (file.size > 5 * 1024 * 1024) { // 5MB
+        toast({ title: "File Too Large", description: "Please upload a file smaller than 5MB.", variant: "destructive" });
+        return;
+    }
+
+    form.setValue('logo', file);
+
+    try {
+        const resizedUri = await resizeAndCompressImage(file);
+        setResizedDataUri(resizedUri);
+        setPreviewUrl(resizedUri); // Show the resized image as preview
+    } catch (error) {
+        console.error("Image processing failed:", error);
+        toast({ title: "Image Processing Failed", description: "Could not process the uploaded logo. Please try a different image.", variant: "destructive" });
+        clearFile();
+    }
+  }, [form, resizeAndCompressImage, toast]);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -186,8 +251,7 @@ export function BrandKitForm({ onSubmit, isLoading }: BrandKitFormProps) {
   function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
     const files = event.target.files;
     if (files && files.length > 0) {
-      setFile(files[0]);
-      form.setValue('logo', files[0]);
+      processFile(files[0]);
     }
   }
 
@@ -214,8 +278,7 @@ export function BrandKitForm({ onSubmit, isLoading }: BrandKitFormProps) {
     setIsDragging(false);
     const files = e.dataTransfer.files;
     if (files && files.length > 0) {
-      setFile(files[0]);
-      form.setValue('logo', files[0]);
+      processFile(files[0]);
       if (fileInputRef.current) {
         fileInputRef.current.files = files;
       }
@@ -223,8 +286,8 @@ export function BrandKitForm({ onSubmit, isLoading }: BrandKitFormProps) {
   }
 
   function clearFile() {
-    setFile(undefined);
     setPreviewUrl(null);
+    setResizedDataUri(undefined);
     setExtractedColors(undefined);
     form.setValue('logo', undefined);
     if (fileInputRef.current) {
@@ -242,7 +305,7 @@ export function BrandKitForm({ onSubmit, isLoading }: BrandKitFormProps) {
       </div>
 
       <Form {...form}>
-        <form onSubmit={form.handleSubmit((data) => onSubmit(data, file, extractedColors))} className="space-y-6">
+        <form onSubmit={form.handleSubmit((data) => onSubmit(data, resizedDataUri, extractedColors))} className="space-y-6">
           <FormField
             control={form.control}
             name="businessName"
@@ -277,9 +340,9 @@ export function BrandKitForm({ onSubmit, isLoading }: BrandKitFormProps) {
           <FormField
             control={form.control}
             name="logo"
-            render={({ field }) => (
+            render={() => (
               <FormItem>
-                <FormLabel>Logo</FormLabel>
+                <FormLabel>Logo <span className="text-muted-foreground/80">(Optional)</span></FormLabel>
                 {!previewUrl ? (
                     <FormControl>
                       <label
@@ -293,13 +356,12 @@ export function BrandKitForm({ onSubmit, isLoading }: BrandKitFormProps) {
                         htmlFor="logo-upload"
                       >
                         <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                          <UploadCloud className={`w-8 h-8 mb-3 ${isDragging ? 'text-primary' : 'text-muted-foreground'}`} />
                           <p className="mb-1 text-sm text-muted-foreground">
                             <span className="font-semibold text-primary">Upload a file</span> or drag and drop
                           </p>
                           <p className="text-xs text-muted-foreground">PNG, JPG, SVG up to 5MB</p>
                         </div>
-                        <Input id="logo-upload" type="file" className="hidden" accept=".png,.jpg,.jpeg,.svg" onChange={handleFileChange} ref={fileInputRef} />
+                        <Input id="logo-upload" type="file" className="hidden" accept=".png,.jpg,.jpeg,.svg,.webp" onChange={handleFileChange} ref={fileInputRef} />
                       </label>
                     </FormControl>
                 ) : (

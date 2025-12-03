@@ -24,28 +24,15 @@ export default function Home() {
   const { toast } = useToast();
   const { setTheme } = useTheme();
 
-  const handleFormSubmit = async (data: FormValues, file?: File, colors?: string[]) => {
+  const handleFormSubmit = async (data: FormValues, resizedLogoDataUri?: string, colors?: string[]) => {
     setIsLoading(true);
     setBrandKit(null);
-    setLogoDataUri(undefined);
-
-    let newLogoDataUri: string | undefined = undefined;
-    if (file) {
-      const getBase64 = (file: File): Promise<string> =>
-        new Promise((resolve, reject) => {
-          const reader = new FileReader();
-          reader.readAsDataURL(file);
-          reader.onload = () => resolve(reader.result as string);
-          reader.onerror = (error) => reject(error);
-        });
-      newLogoDataUri = await getBase64(file);
-      setLogoDataUri(newLogoDataUri);
-    }
+    setLogoDataUri(resizedLogoDataUri);
 
     try {
       const result = await generateBrandKitAction({
         ...data,
-        logoDataUri: newLogoDataUri,
+        logoDataUri: resizedLogoDataUri,
         logoColors: colors,
       });
       setBrandKit(result);
