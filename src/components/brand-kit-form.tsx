@@ -1,3 +1,4 @@
+
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -15,7 +16,7 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { UploadCloud, Loader2, X } from 'lucide-react';
+import { Loader2, X } from 'lucide-react';
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { Combobox } from './ui/combobox';
 import Image from 'next/image';
@@ -162,6 +163,26 @@ export function BrandKitForm({ onSubmit, isLoading }: BrandKitFormProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
+  const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      businessName: '',
+      businessDescription: '',
+      industry: '',
+      location: '',
+    },
+  });
+
+  const clearFile = useCallback(() => {
+    setPreviewUrl(null);
+    setResizedDataUri(undefined);
+    setExtractedColors(undefined);
+    form.setValue('logo', undefined);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  }, [form]);
+
   const resizeAndCompressImage = useCallback((file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -207,10 +228,7 @@ export function BrandKitForm({ onSubmit, isLoading }: BrandKitFormProps) {
 
   const processFile = useCallback(async (file: File | undefined) => {
     if (!file) {
-      setPreviewUrl(null);
-      setResizedDataUri(undefined);
-      setExtractedColors(undefined);
-      form.setValue('logo', undefined);
+      clearFile();
       return;
     }
 
@@ -236,17 +254,8 @@ export function BrandKitForm({ onSubmit, isLoading }: BrandKitFormProps) {
         toast({ title: "Image Processing Failed", description: "Could not process the uploaded logo. Please try a different image.", variant: "destructive" });
         clearFile();
     }
-  }, [form, resizeAndCompressImage, toast]);
+  }, [form, resizeAndCompressImage, toast, clearFile]);
 
-  const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      businessName: '',
-      businessDescription: '',
-      industry: '',
-      location: '',
-    },
-  });
 
   function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
     const files = event.target.files;
@@ -282,16 +291,6 @@ export function BrandKitForm({ onSubmit, isLoading }: BrandKitFormProps) {
       if (fileInputRef.current) {
         fileInputRef.current.files = files;
       }
-    }
-  }
-
-  function clearFile() {
-    setPreviewUrl(null);
-    setResizedDataUri(undefined);
-    setExtractedColors(undefined);
-    form.setValue('logo', undefined);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
     }
   }
 
