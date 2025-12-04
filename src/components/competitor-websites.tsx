@@ -128,7 +128,7 @@ export function CompetitorWebsites({ urls, onUrlsChange }: CompetitorWebsitesPro
             </ul>
         ) : (
             <div className="text-center text-muted-foreground py-8">
-                <p>No competitor websites found. Add one below to get started.</p>
+                <p>Add Competitor & Reference Websites</p>
             </div>
         )}
         <div className="mt-4 pt-4 border-t space-y-4">

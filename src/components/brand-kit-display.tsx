@@ -25,9 +25,15 @@ interface BrandKitDisplayProps {
 export function BrandKitDisplay({ brandKit: initialBrandKit, isLoading, logoDataUri }: BrandKitDisplayProps) {
   const [isDownloading, setIsDownloading] = useState(false);
   const [editableBrandKit, setEditableBrandKit] = useState<BrandKitOutput | null>(initialBrandKit);
+  const [competitorUrls, setCompetitorUrls] = useState<UrlItem[]>([]);
 
   useEffect(() => {
     setEditableBrandKit(initialBrandKit);
+    if (initialBrandKit) {
+      setCompetitorUrls(initialBrandKit.competitorWebsites || []);
+    } else {
+      setCompetitorUrls([]);
+    }
   }, [initialBrandKit]);
 
   const handleStructureChange = useCallback((newStructure: StructureItem[]) => {
@@ -45,11 +51,9 @@ export function BrandKitDisplay({ brandKit: initialBrandKit, isLoading, logoData
   }, []);
 
   const handleCompetitorUrlsChange = useCallback((newUrls: UrlItem[]) => {
+    setCompetitorUrls(newUrls);
     setEditableBrandKit(prev => {
         if (!prev) return null;
-        if (JSON.stringify(prev.competitorWebsites) === JSON.stringify(newUrls)) {
-            return prev;
-        }
         return { ...prev, competitorWebsites: newUrls };
     });
   }, []);
@@ -224,8 +228,6 @@ export function BrandKitDisplay({ brandKit: initialBrandKit, isLoading, logoData
       );
     }
 
-    const competitorUrlItems = editableBrandKit.competitorWebsites || [];
-
     return (
       <div className="space-y-6 animate-in fade-in-50 duration-500">
         <div className="fixed -left-[9999px] top-0 opacity-0" aria-hidden="true">
@@ -392,7 +394,7 @@ export function BrandKitDisplay({ brandKit: initialBrandKit, isLoading, logoData
           </Card>
           
           <CompetitorWebsites 
-            urls={competitorUrlItems} 
+            urls={competitorUrls} 
             onUrlsChange={handleCompetitorUrlsChange} 
           />
         </div>

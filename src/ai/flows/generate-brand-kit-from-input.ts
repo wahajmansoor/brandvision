@@ -76,15 +76,6 @@ export async function generateBrandKit(client: OpenAI, input: BrandKitInput): Pr
 
     ${logoColorsPrompt}
 
-    **Competitor Research Rules:**
-    - You MUST find real, operational competitor websites by analyzing the user's business description, industry, and location.
-    - The websites MUST be real, live, and operational.
-    - Do NOT invent websites or include sites that result in a 404 error.
-    - Do NOT include websites that are for sale, such as those listed on 'hugedomains.com' or other domain marketplaces.
-    - Do NOT include directories (Yelp), social media, website builders (Wix), or placeholder sites.
-    - Return the top 3-5 organic competitor results.
-    - If no relevant competitors are found, you MUST return an empty array for the 'competitorWebsites' field.
-
     **Site Structure Rules:**
     - Create a logical and relevant site structure based on the business type.
     - If you include pages like 'FAQ' or 'Contact Us', they must be top-level pages and their 'sections' array MUST be empty. Do not create sections for these pages.
@@ -98,7 +89,6 @@ export async function generateBrandKit(client: OpenAI, input: BrandKitInput): Pr
       - typographySuggestions: An object with 'heading', 'body', and 'accent' font family suggestions.
       - siteStructure: An array of objects, each with 'page' (string) and 'sections' (array of strings). Example: [{ "page": "Home", "sections": ["Hero", "Services"] }]
       - recommendedPlatforms: An array of objects, each with 'name', 'description', and 'bestChoice' (boolean).
-      - competitorWebsites: An array of objects. Each object must have a 'url' (e.g., "example.com") and a 'type' of 'search-result'. Return an empty array if no relevant competitors are found.
   `;
 
   const messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
@@ -124,7 +114,8 @@ export async function generateBrandKit(client: OpenAI, input: BrandKitInput): Pr
   try {
     // Re-validate the input before making the API call
     const validatedInput = BrandKitInputSchema.parse(input);
-    return await callOpenAI(client, messages);
+    const result = await callOpenAI(client, messages);
+    return { ...result, competitorWebsites: [] };
   } catch (error) {
     console.error('Error in generateBrandKit calling OpenAI API:', error);
     // Re-throw the original error to provide more details in the server logs/UI
