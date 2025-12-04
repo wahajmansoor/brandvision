@@ -1,3 +1,4 @@
+
 import { z } from 'zod';
 
 /**
@@ -52,9 +53,6 @@ export const BrandKitOutputSchema = z.object({
       })
     )
     .describe('A list of recommended platforms for the business website.'),
-  competitorWebsites: z
-    .array(WebsiteItemSchema)
-    .describe('A list of top competitor website URLs.'),
 });
 export type BrandKitOutput = z.infer<typeof BrandKitOutputSchema>;
 

@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview Generates a basic brand kit based on user-provided business information using the OpenAI API.
@@ -33,7 +34,7 @@ function cleanAndParseJson(rawContent: string): any {
 
 async function callOpenAI(client: OpenAI, messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[]): Promise<BrandKitOutput> {
   const response = await client.chat.completions.create({
-    model: 'gpt-4o',
+    model: 'gpt-4o-mini',
     messages: messages,
     response_format: { type: 'json_object' },
   });
@@ -113,9 +114,9 @@ export async function generateBrandKit(client: OpenAI, input: BrandKitInput): Pr
   
   try {
     // Re-validate the input before making the API call
-    const validatedInput = BrandKitInputSchema.parse(input);
+    BrandKitInputSchema.parse(input);
     const result = await callOpenAI(client, messages);
-    return { ...result, competitorWebsites: [] };
+    return result;
   } catch (error) {
     console.error('Error in generateBrandKit calling OpenAI API:', error);
     // Re-throw the original error to provide more details in the server logs/UI

@@ -6,9 +6,10 @@ import type { BrandKitOutput } from '@/ai/types';
 import Image from 'next/image';
 import { Badge } from './ui/badge';
 import { AppLogo } from './app-logo';
+import { UrlItem } from './competitor-websites';
 
 interface BrandKitPdfLayoutProps {
-  brandKit: BrandKitOutput;
+  brandKit: BrandKitOutput & { competitorWebsites?: UrlItem[] };
   logoDataUri?: string;
 }
 
@@ -142,21 +143,23 @@ export function BrandKitPdfLayout({ brandKit, logoDataUri }: BrandKitPdfLayoutPr
               </div>
           )}
 
-          <div>
-            <h2 className="text-2xl font-bold text-slate-800 mb-6">Competitor & Reference Websites</h2>
-            <ul className="mt-4 space-y-3">
-              {(brandKit.competitorWebsites || []).map((item, index) => (
-                <li key={index} className="flex items-center gap-3 group">
-                    <span className="text-sm font-medium text-slate-700 hover:underline">
-                        {item.url.replace(/^www\./, '')}
-                    </span>
-                    <Badge className="capitalize bg-slate-200 text-slate-600">
-                        {getTypeDisplayName(item.type)}
-                    </Badge>
-                </li>
-              ))}
-            </ul>
-          </div>
+          {brandKit.competitorWebsites && brandKit.competitorWebsites.length > 0 && (
+            <div>
+              <h2 className="text-2xl font-bold text-slate-800 mb-6">Competitor & Reference Websites</h2>
+              <ul className="mt-4 space-y-3">
+                {(brandKit.competitorWebsites).map((item, index) => (
+                  <li key={index} className="flex items-center gap-3 group">
+                      <span className="text-sm font-medium text-slate-700 hover:underline">
+                          {item.url.replace(/^www\./, '')}
+                      </span>
+                      <Badge className="capitalize bg-slate-200 text-slate-600">
+                          {getTypeDisplayName(item.type)}
+                      </Badge>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
         </div>
       </main>
 

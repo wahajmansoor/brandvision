@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -30,9 +31,8 @@ export function BrandKitDisplay({ brandKit: initialBrandKit, isLoading, logoData
   useEffect(() => {
     setEditableBrandKit(initialBrandKit);
     if (initialBrandKit) {
-      setCompetitorUrls(initialBrandKit.competitorWebsites || []);
-    } else {
-      setCompetitorUrls([]);
+        // We reset competitor URLs when a new brand kit is generated.
+        setCompetitorUrls([]);
     }
   }, [initialBrandKit]);
 
@@ -52,10 +52,6 @@ export function BrandKitDisplay({ brandKit: initialBrandKit, isLoading, logoData
 
   const handleCompetitorUrlsChange = useCallback((newUrls: UrlItem[]) => {
     setCompetitorUrls(newUrls);
-    setEditableBrandKit(prev => {
-        if (!prev) return null;
-        return { ...prev, competitorWebsites: newUrls };
-    });
   }, []);
 
   const handleColorChange = (name: string, newColor: string) => {
@@ -233,7 +229,7 @@ export function BrandKitDisplay({ brandKit: initialBrandKit, isLoading, logoData
         <div className="fixed -left-[9999px] top-0 opacity-0" aria-hidden="true">
             {editableBrandKit && (
                 <div id="pdf-container" style={{ width: '1200px' }}>
-                    <BrandKitPdfLayout brandKit={editableBrandKit} logoDataUri={logoDataUri} />
+                    <BrandKitPdfLayout brandKit={{...editableBrandKit, competitorWebsites: competitorUrls }} logoDataUri={logoDataUri} />
                 </div>
             )}
         </div>
