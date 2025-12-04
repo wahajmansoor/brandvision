@@ -91,9 +91,9 @@ export default function Home() {
             <BrandKitForm onSubmit={handleFormSubmit} isLoading={isLoading} />
           </div>
           <div className="w-full mt-10 lg:mt-0">
-            <SeoKitDisplay seoKit={seoKit} isLoading={isLoading} />
-            {(seoKit || isLoading) && <Separator className="my-8" />}
             <BrandKitDisplay brandKit={brandKit} isLoading={isLoading} logoDataUri={logoDataUri} />
+            {(brandKit || isLoading) && <Separator className="my-8" />}
+            <SeoKitDisplay seoKit={seoKit} isLoading={isLoading} />
           </div>
         </div>
       </main>
