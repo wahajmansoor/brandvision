@@ -2,9 +2,11 @@
 
 import { useState } from 'react';
 import type { BrandKitOutput } from '@/ai/flows/generate-brand-kit-from-input';
+import type { SeoKitOutput } from '@/ai/flows/generate-seo-kit';
 import { BrandKitForm, type FormValues } from '@/components/brand-kit-form';
 import { BrandKitDisplay } from '@/components/brand-kit-display';
-import { generateBrandKitAction } from '@/app/actions';
+import { SeoKitDisplay } from '@/components/seo-kit-display';
+import { generateBrandKitAction, generateSeoKitAction } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
 import { AppLogo } from '@/components/app-logo';
 import { Moon, Sun } from 'lucide-react';
@@ -16,10 +18,12 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { Separator } from '@/components/ui/separator';
 
 export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
   const [brandKit, setBrandKit] = useState<BrandKitOutput | null>(null);
+  const [seoKit, setSeoKit] = useState<SeoKitOutput | null>(null);
   const [logoDataUri, setLogoDataUri] = useState<string | undefined>(undefined);
   const { toast } = useToast();
   const { setTheme } = useTheme();
@@ -27,15 +31,21 @@ export default function Home() {
   const handleFormSubmit = async (data: FormValues, resizedLogoDataUri?: string, colors?: string[]) => {
     setIsLoading(true);
     setBrandKit(null);
+    setSeoKit(null);
     setLogoDataUri(resizedLogoDataUri);
 
     try {
-      const result = await generateBrandKitAction({
-        ...data,
-        logoDataUri: resizedLogoDataUri,
-        logoColors: colors,
-      });
-      setBrandKit(result);
+      // Run both actions in parallel
+      const [brandResult, seoResult] = await Promise.all([
+        generateBrandKitAction({
+          ...data,
+          logoDataUri: resizedLogoDataUri,
+          logoColors: colors,
+        }),
+        generateSeoKitAction(data),
+      ]);
+      setBrandKit(brandResult);
+      setSeoKit(seoResult);
     } catch (error) {
       console.error(error);
       toast({
@@ -82,6 +92,8 @@ export default function Home() {
             <BrandKitForm onSubmit={handleFormSubmit} isLoading={isLoading} />
           </div>
           <div className="w-full mt-10 lg:mt-0">
+            <SeoKitDisplay seoKit={seoKit} isLoading={isLoading} />
+            {(seoKit || isLoading) && <Separator className="my-8" />}
             <BrandKitDisplay brandKit={brandKit} isLoading={isLoading} logoDataUri={logoDataUri} />
           </div>
         </div>
