@@ -37,7 +37,7 @@ const industries = [
   { label: 'Non-profit', value: 'Non-profit' },
 ];
 
-const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png"];
+const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/svg+xml"];
 
 const formSchema = z.object({
   businessName: z.string().min(2, {
@@ -47,11 +47,11 @@ const formSchema = z.object({
     message: 'Description must be at least 10 characters.',
   }),
   logo: z.any()
-    .optional()
-    .refine((file) => !file || file.size <= 5 * 1024 * 1024, `Max file size is 5MB.`)
+    .refine((file) => file, "Logo is required.")
+    .refine((file) => file?.size <= 5 * 1024 * 1024, `Max file size is 5MB.`)
     .refine(
-      (file) => !file || ACCEPTED_IMAGE_TYPES.includes(file.type),
-      ".jpg, .jpeg and .png files are accepted."
+      (file) => ACCEPTED_IMAGE_TYPES.includes(file?.type),
+      ".jpg, .jpeg, .png, and .svg files are accepted."
     ),
   industry: z.string().optional(),
   location: z.string().optional(),
@@ -198,6 +198,11 @@ export function BrandKitForm({ onSubmit, isLoading }: BrandKitFormProps) {
         reader.readAsDataURL(file);
         reader.onerror = reject;
         reader.onload = (event) => {
+            if (file.type === "image/svg+xml") {
+                resolve(event.target?.result as string);
+                return;
+            }
+
             const img = document.createElement('img');
             img.src = event.target?.result as string;
             img.onerror = reject;
@@ -226,9 +231,9 @@ export function BrandKitForm({ onSubmit, isLoading }: BrandKitFormProps) {
                 if (!ctx) return reject(new Error('Could not get canvas context'));
                 
                 ctx.drawImage(img, 0, 0, width, height);
-
-                // Use JPEG for better compression of photos, with a quality setting.
-                const dataUrl = canvas.toDataURL('image/jpeg', 0.9);
+                
+                // Use PNG to preserve transparency.
+                const dataUrl = canvas.toDataURL('image/png');
                 resolve(dataUrl);
             };
         };
@@ -349,7 +354,7 @@ export function BrandKitForm({ onSubmit, isLoading }: BrandKitFormProps) {
             name="logo"
             render={() => (
               <FormItem>
-                <FormLabel>Logo <span className="text-muted-foreground/80">(Optional)</span></FormLabel>
+                <FormLabel>Logo</FormLabel>
                 {!previewUrl ? (
                     <FormControl>
                       <label
@@ -366,9 +371,9 @@ export function BrandKitForm({ onSubmit, isLoading }: BrandKitFormProps) {
                           <p className="mb-1 text-sm text-muted-foreground">
                             <span className="font-semibold text-primary">Upload a file</span> or drag and drop
                           </p>
-                          <p className="text-xs text-muted-foreground">PNG, JPG, JPEG up to 5MB</p>
+                          <p className="text-xs text-muted-foreground">PNG, JPG, SVG up to 5MB</p>
                         </div>
-                        <Input id="logo-upload" type="file" className="hidden" accept=".png,.jpg,.jpeg" onChange={handleFileChange} ref={fileInputRef} />
+                        <Input id="logo-upload" type="file" className="hidden" accept=".png,.jpg,.jpeg,.svg" onChange={handleFileChange} ref={fileInputRef} />
                       </label>
                     </FormControl>
                 ) : (
@@ -421,3 +426,5 @@ export function BrandKitForm({ onSubmit, isLoading }: BrandKitFormProps) {
     </div>
   );
 }
+
+    
