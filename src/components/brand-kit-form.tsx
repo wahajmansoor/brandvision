@@ -19,7 +19,6 @@ import { Textarea } from '@/components/ui/textarea';
 import { Loader2, X } from 'lucide-react';
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { Combobox } from './ui/combobox';
-import Image from 'next/image';
 import ColorThief from 'colorthief';
 import { Skeleton } from './ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
@@ -84,14 +83,14 @@ function LogoUploadDisplay({
   const [loading, setLoading] = useState(true);
   const imgRef = useRef<HTMLImageElement>(null);
 
-  useEffect(() => {
-    const extractColors = () => {
-      if (imgRef.current && imgRef.current.complete) {
+  const extractColors = useCallback(() => {
+    if (imgRef.current) {
         try {
           const colorThief = new ColorThief();
+          // Use the current image element from the ref
           const dominantColor = colorThief.getColor(imgRef.current);
           const palette = colorThief.getPalette(imgRef.current, 5);
-
+          
           const allColors = [dominantColor, ...palette];
           
           const uniqueHexColors = [...new Set(allColors.map(rgb => rgbToHex(rgb[0], rgb[1], rgb[2])))];
@@ -103,30 +102,41 @@ function LogoUploadDisplay({
         } finally {
           setLoading(false);
         }
-      }
-    };
-
-    const imageElement = imgRef.current;
-    if (imageElement) {
-        imageElement.addEventListener('load', extractColors);
-        if (imageElement.complete) {
-            extractColors();
-        }
-        return () => {
-            imageElement.removeEventListener('load', extractColors);
-        };
     }
-  }, [previewUrl, onColorsExtracted]);
+  }, [onColorsExtracted]);
+
+  useEffect(() => {
+      const imageElement = imgRef.current;
+      if (imageElement) {
+          setLoading(true);
+          // Reset colors when previewUrl changes
+          setColors(null);
+          
+          const handleLoad = () => {
+              extractColors();
+          };
+          
+          imageElement.addEventListener('load', handleLoad);
+          
+          // If the image is already complete (e.g., from cache), extract colors immediately
+          if (imageElement.complete) {
+              extractColors();
+          }
+
+          return () => {
+              imageElement.removeEventListener('load', handleLoad);
+          };
+      }
+  }, [previewUrl, extractColors]);
 
   return (
     <div className="w-full space-y-4 p-4 border-2 border-dashed rounded-lg bg-muted/50">
         <div className="flex flex-col items-center justify-center w-full">
-            <Image
+            {/* Using a standard img tag to allow colorthief to work correctly */}
+            <img
                 ref={imgRef}
                 src={previewUrl}
                 alt="Uploaded logo"
-                width={128}
-                height={128}
                 className="max-h-24 w-auto object-contain rounded-md"
                 crossOrigin="anonymous" 
             />
@@ -426,5 +436,3 @@ export function BrandKitForm({ onSubmit, isLoading }: BrandKitFormProps) {
     </div>
   );
 }
-
-    
