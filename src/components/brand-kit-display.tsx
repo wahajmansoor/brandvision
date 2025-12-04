@@ -3,7 +3,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import type { BrandKitOutput } from '@/ai/types';
+import type { BrandKitOutput, SeoKitOutput } from '@/ai/types';
 import { Palette, Type, Globe, Network, Image as ImageIcon, Download, Trash2, Plus } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import Image from 'next/image';
@@ -16,14 +16,17 @@ import jsPDF from 'jspdf';
 import { useState, useEffect, useCallback } from 'react';
 import { ColorPicker } from './ui/color-picker';
 import { Input } from './ui/input';
+import { SeoKitDisplay } from './seo-kit-display';
+import { Separator } from './ui/separator';
 
 interface BrandKitDisplayProps {
   brandKit: BrandKitOutput | null;
+  seoKit: SeoKitOutput | null;
   isLoading: boolean;
   logoDataUri?: string;
 }
 
-export function BrandKitDisplay({ brandKit: initialBrandKit, isLoading, logoDataUri }: BrandKitDisplayProps) {
+export function BrandKitDisplay({ brandKit: initialBrandKit, seoKit, isLoading, logoDataUri }: BrandKitDisplayProps) {
   const [isDownloading, setIsDownloading] = useState(false);
   const [editableBrandKit, setEditableBrandKit] = useState<BrandKitOutput | null>(initialBrandKit);
   const [competitorUrls, setCompetitorUrls] = useState<UrlItem[]>([]);
@@ -208,6 +211,8 @@ export function BrandKitDisplay({ brandKit: initialBrandKit, isLoading, logoData
               </div>
             </CardContent>
           </Card>
+          <Separator className="my-8" />
+          <SeoKitDisplay seoKit={seoKit} isLoading={isLoading} />
         </div>
       );
     }
@@ -394,6 +399,10 @@ export function BrandKitDisplay({ brandKit: initialBrandKit, isLoading, logoData
             onUrlsChange={handleCompetitorUrlsChange} 
           />
         </div>
+        
+        {(editableBrandKit || isLoading) && <Separator className="my-8" />}
+        <SeoKitDisplay seoKit={seoKit} isLoading={isLoading} />
+
       </div>
     )
   }

@@ -4,7 +4,6 @@ import { useState } from 'react';
 import type { BrandKitOutput, SeoKitOutput } from '@/ai/types';
 import { BrandKitForm, type FormValues } from '@/components/brand-kit-form';
 import { BrandKitDisplay } from '@/components/brand-kit-display';
-import { SeoKitDisplay } from '@/components/seo-kit-display';
 import { generateBrandKitAction, generateSeoKitAction } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
 import { AppLogo } from '@/components/app-logo';
@@ -91,9 +90,12 @@ export default function Home() {
             <BrandKitForm onSubmit={handleFormSubmit} isLoading={isLoading} />
           </div>
           <div className="w-full mt-10 lg:mt-0">
-            <BrandKitDisplay brandKit={brandKit} isLoading={isLoading} logoDataUri={logoDataUri} />
-            {(brandKit || isLoading) && <Separator className="my-8" />}
-            <SeoKitDisplay seoKit={seoKit} isLoading={isLoading} />
+            <BrandKitDisplay 
+              brandKit={brandKit} 
+              seoKit={seoKit}
+              isLoading={isLoading} 
+              logoDataUri={logoDataUri} 
+            />
           </div>
         </div>
       </main>
