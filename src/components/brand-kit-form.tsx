@@ -16,7 +16,7 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Loader2, X } from 'lucide-react';
+import { Loader2, X, CloudUpload } from 'lucide-react';
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { Combobox } from './ui/combobox';
 import ColorThief from 'colorthief';
@@ -36,7 +36,7 @@ const industries = [
   { label: 'Non-profit', value: 'Non-profit' },
 ];
 
-const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/svg+xml"];
+const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/gif", "image/webp"];
 
 const formSchema = z.object({
   businessName: z.string().min(2, {
@@ -50,7 +50,7 @@ const formSchema = z.object({
     .refine((file) => file?.size <= 5 * 1024 * 1024, `Max file size is 5MB.`)
     .refine(
       (file) => ACCEPTED_IMAGE_TYPES.includes(file?.type),
-      ".jpg, .jpeg, .png, and .svg files are accepted."
+      "Only .jpg, .jpeg, .png, .gif and .webp formats are supported."
     ),
   industry: z.string().optional(),
   location: z.string().optional(),
@@ -208,11 +208,6 @@ export function BrandKitForm({ onSubmit, isLoading }: BrandKitFormProps) {
         reader.readAsDataURL(file);
         reader.onerror = reject;
         reader.onload = (event) => {
-            if (file.type === "image/svg+xml") {
-                resolve(event.target?.result as string);
-                return;
-            }
-
             const img = document.createElement('img');
             img.src = event.target?.result as string;
             img.onerror = reject;
@@ -377,13 +372,14 @@ export function BrandKitForm({ onSubmit, isLoading }: BrandKitFormProps) {
                         }`}
                         htmlFor="logo-upload"
                       >
-                        <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                        <div className="flex flex-col items-center justify-center pt-5 pb-6 text-center">
+                          <CloudUpload className="w-10 h-10 mb-3 text-muted-foreground" />
                           <p className="mb-1 text-sm text-muted-foreground">
                             <span className="font-semibold text-primary">Upload a file</span> or drag and drop
                           </p>
-                          <p className="text-xs text-muted-foreground">PNG, JPG, SVG up to 5MB</p>
+                          <p className="text-xs text-muted-foreground">PNG, JPG, GIF, WEBP up to 5MB</p>
                         </div>
-                        <Input id="logo-upload" type="file" className="hidden" accept=".png,.jpg,.jpeg,.svg" onChange={handleFileChange} ref={fileInputRef} />
+                        <Input id="logo-upload" type="file" className="hidden" accept=".png,.jpg,.jpeg,.gif,.webp" onChange={handleFileChange} ref={fileInputRef} />
                       </label>
                     </FormControl>
                 ) : (
@@ -436,3 +432,5 @@ export function BrandKitForm({ onSubmit, isLoading }: BrandKitFormProps) {
     </div>
   );
 }
+
+    
