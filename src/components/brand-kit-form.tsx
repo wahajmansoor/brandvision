@@ -47,17 +47,18 @@ const formSchema = z.object({
     message: 'Description must be at least 10 characters.',
   }),
   logo: z.any()
-    .refine((file) => file, "Logo is required.")
-    .refine((file) => file?.size <= 5 * 1024 * 1024, `Max file size is 5MB.`)
+    .optional()
+    .refine((file) => !file || file.size <= 5 * 1024 * 1024, `Max file size is 5MB.`)
     .refine(
-      (file) => ACCEPTED_IMAGE_TYPES.includes(file?.type),
+      (file) => !file || ACCEPTED_IMAGE_TYPES.includes(file.type),
       ".jpg, .jpeg and .png files are accepted."
     ),
   industry: z.string().optional(),
   location: z.string().optional(),
 });
 
-export type FormValues = z.infer<typeof formSchema>;
+export type FormValues = Omit<z.infer<typeof formSchema>, 'logo'>;
+
 
 interface BrandKitFormProps {
   onSubmit: (data: FormValues, resizedLogoDataUri?: string, colors?: string[]) => void;
@@ -171,7 +172,7 @@ export function BrandKitForm({ onSubmit, isLoading }: BrandKitFormProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
-  const form = useForm<FormValues>({
+  const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       businessName: '',
@@ -348,7 +349,7 @@ export function BrandKitForm({ onSubmit, isLoading }: BrandKitFormProps) {
             name="logo"
             render={() => (
               <FormItem>
-                <FormLabel>Logo</FormLabel>
+                <FormLabel>Logo <span className="text-muted-foreground/80">(Optional)</span></FormLabel>
                 {!previewUrl ? (
                     <FormControl>
                       <label
@@ -404,7 +405,7 @@ export function BrandKitForm({ onSubmit, isLoading }: BrandKitFormProps) {
                   <Input {...field} placeholder="City, Country" />
                 </FormControl>
                 <FormDescription>
-                  If you add the location you will get best competitor websites
+                  Providing a location helps generate better competitor suggestions.
                 </FormDescription>
                 <FormMessage />
               </FormItem>
@@ -420,5 +421,3 @@ export function BrandKitForm({ onSubmit, isLoading }: BrandKitFormProps) {
     </div>
   );
 }
-
-    

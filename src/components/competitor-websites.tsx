@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -128,7 +128,7 @@ export function CompetitorWebsites({ urls, onUrlsChange }: CompetitorWebsitesPro
             </ul>
         ) : (
             <div className="text-center text-muted-foreground py-8">
-                <p>No good competitor websites found, please provide more detail about your business.</p>
+                <p>No competitor websites found. Add one below to get started.</p>
             </div>
         )}
         <div className="mt-4 pt-4 border-t space-y-4">
