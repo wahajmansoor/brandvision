@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -234,7 +235,11 @@ export function BrandKitDisplay({ brandKit: initialBrandKit, seoKit, isLoading, 
         <div className="fixed -left-[9999px] top-0 opacity-0" aria-hidden="true">
             {editableBrandKit && (
                 <div id="pdf-container" style={{ width: '1200px' }}>
-                    <BrandKitPdfLayout brandKit={{...editableBrandKit, competitorWebsites: competitorUrls }} logoDataUri={logoDataUri} />
+                    <BrandKitPdfLayout 
+                      brandKit={{...editableBrandKit, competitorWebsites: competitorUrls }} 
+                      seoKit={seoKit}
+                      logoDataUri={logoDataUri} 
+                    />
                 </div>
             )}
         </div>

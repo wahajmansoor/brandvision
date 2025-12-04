@@ -2,7 +2,7 @@
 
 'use client';
 
-import type { BrandKitOutput } from '@/ai/types';
+import type { BrandKitOutput, SeoKitOutput } from '@/ai/types';
 import Image from 'next/image';
 import { Badge } from './ui/badge';
 import { AppLogo } from './app-logo';
@@ -10,6 +10,7 @@ import { UrlItem } from './competitor-websites';
 
 interface BrandKitPdfLayoutProps {
   brandKit: BrandKitOutput & { competitorWebsites?: UrlItem[] };
+  seoKit: SeoKitOutput | null;
   logoDataUri?: string;
 }
 
@@ -19,7 +20,7 @@ function PdfLogo() {
     )
 }
 
-export function BrandKitPdfLayout({ brandKit, logoDataUri }: BrandKitPdfLayoutProps) {
+export function BrandKitPdfLayout({ brandKit, seoKit, logoDataUri }: BrandKitPdfLayoutProps) {
   
   const getTypeDisplayName = (type: 'competitor' | 'reference' | 'search-result') => {
     if (type === 'search-result') return 'Search Result';
@@ -158,6 +159,40 @@ export function BrandKitPdfLayout({ brandKit, logoDataUri }: BrandKitPdfLayoutPr
                   </li>
                 ))}
               </ul>
+            </div>
+          )}
+
+          {seoKit && (
+            <div>
+              <h2 className="text-2xl font-bold text-slate-800 mb-6 border-t-2 pt-12 border-slate-200">SEO Starter Kit</h2>
+              <div className="space-y-8">
+                <div>
+                  <h3 className="text-lg font-semibold text-slate-700">Website Title</h3>
+                  <p className="text-xl text-slate-900 mt-1">{seoKit.websiteTitle}</p>
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-slate-700">Tagline</h3>
+                  <p className="text-xl text-slate-900 mt-1 italic">"{seoKit.tagline}"</p>
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-slate-700">Homepage Hero Heading</h3>
+                  <p className="text-2xl font-bold text-slate-900 tracking-tight mt-1">{seoKit.homepageHeroHeading}</p>
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-slate-700">Meta Description</h3>
+                  <p className="text-base text-slate-600 mt-1">{seoKit.metaDescription}</p>
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-slate-700">Keywords</h3>
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {seoKit.keywords.map((keyword, index) => (
+                      <span key={index} className="px-3 py-1 bg-slate-100 text-slate-700 rounded-full text-sm">
+                        {keyword}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </div>
             </div>
           )}
         </div>
