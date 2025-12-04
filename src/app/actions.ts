@@ -1,13 +1,8 @@
 'use server';
 
-import {
-  generateBrandKit,
-  type BrandKitInput,
-} from '@/ai/flows/generate-brand-kit-from-input';
-import {
-  generateSeoKit,
-  type SeoKitInput,
-} from '@/ai/flows/generate-seo-kit';
+import { generateBrandKit } from '@/ai/flows/generate-brand-kit-from-input';
+import { generateSeoKit } from '@/ai/flows/generate-seo-kit';
+import type { BrandKitInput, SeoKitInput } from '@/ai/types';
 import OpenAI from 'openai';
 
 function getOpenAIClient() {

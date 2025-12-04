@@ -2,7 +2,7 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import type { SeoKitOutput } from '@/ai/flows/generate-seo-kit';
+import type { SeoKitOutput } from '@/ai/types';
 import { Badge } from '@/components/ui/badge';
 import { FileText, Tags, Search, Type, Heading } from 'lucide-react';
 

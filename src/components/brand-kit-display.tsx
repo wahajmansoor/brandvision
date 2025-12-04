@@ -2,7 +2,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import type { BrandKitOutput } from '@/ai/flows/generate-brand-kit-from-input';
+import type { BrandKitOutput } from '@/ai/types';
 import { Palette, Type, Globe, Network, Image as ImageIcon, Download, Trash2, Plus } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import Image from 'next/image';

@@ -2,7 +2,7 @@
 
 'use client';
 
-import type { BrandKitOutput } from '@/ai/flows/generate-brand-kit-from-input';
+import type { BrandKitOutput } from '@/ai/types';
 import Image from 'next/image';
 import { Badge } from './ui/badge';
 import { AppLogo } from './app-logo';

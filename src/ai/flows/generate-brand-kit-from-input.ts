@@ -3,64 +3,16 @@
  * @fileOverview Generates a basic brand kit based on user-provided business information using the OpenAI API.
  *
  * - generateBrandKit - A function that generates a brand kit.
- * - BrandKitInput - The input type for the generateBrandKit function.
- * - BrandKitOutput - The return type for the generateBrandKit function.
  */
 
 import OpenAI from 'openai';
-import {z} from 'zod';
+import {
+  BrandKitInputSchema,
+  BrandKitOutputSchema,
+  type BrandKitInput,
+  type BrandKitOutput
+} from '@/ai/types';
 
-const BrandKitInputSchema = z.object({
-  businessName: z.string().describe('The name of the business.'),
-  businessDescription: z.string().describe('A brief description of the business.'),
-  industry: z.string().optional().describe('The industry the business operates in.'),
-  location: z.string().optional().describe('The location of the business.'),
-  logoDataUri: z
-    .string()
-    .optional()
-    .describe(
-      "A resized and compressed version of the business's logo as a data URI."
-    ),
-  logoColors: z.array(z.string()).optional().describe('A list of hex colors extracted from the logo.'),
-});
-export type BrandKitInput = z.infer<typeof BrandKitInputSchema>;
-
-const WebsiteItemSchema = z.object({
-  url: z.string().describe('The domain name of the website (e.g., example.com).'),
-  type: z.enum(['competitor', 'reference', 'search-result']).describe("The type of website, either 'competitor', 'reference', or 'search-result'."),
-});
-
-const BrandKitOutputSchema = z.object({
-  businessName: z.string().describe('The name of the business.'),
-  colorPalette: z.object({
-    primary: z.string().describe('The primary color hex code.'),
-    secondary: z.string().describe('The secondary color hex code.'),
-    accent: z.string().describe('The accent color hex code.'),
-    neutral: z.string().describe('The neutral color hex code.'),
-    background: z.string().describe('The background color hex code.'),
-  }),
-  typographySuggestions: z.object({
-    heading: z.string().describe('Suggested font family for headings.'),
-    body: z.string().describe('Suggested font family for body text.'),
-    accent: z.string().describe('Suggested font family for accent text.'),
-  }),
-  siteStructure: z
-    .array(z.object({ page: z.string(), sections: z.array(z.string()) }))
-    .describe('A suggested site structure with pages and sections for each page.'),
-  recommendedPlatforms: z
-    .array(
-      z.object({
-        name: z.string(),
-        description: z.string(),
-        bestChoice: z.boolean(),
-      })
-    )
-    .describe('A list of recommended platforms for the business website.'),
-  competitorWebsites: z
-    .array(WebsiteItemSchema)
-    .describe('A list of top competitor website URLs.'),
-});
-export type BrandKitOutput = z.infer<typeof BrandKitOutputSchema>;
 
 function cleanAndParseJson(rawContent: string): any {
   // Find the start and end of the JSON object
@@ -170,6 +122,8 @@ export async function generateBrandKit(client: OpenAI, input: BrandKitInput): Pr
   }
   
   try {
+    // Re-validate the input before making the API call
+    const validatedInput = BrandKitInputSchema.parse(input);
     return await callOpenAI(client, messages);
   } catch (error) {
     console.error('Error in generateBrandKit calling OpenAI API:', error);

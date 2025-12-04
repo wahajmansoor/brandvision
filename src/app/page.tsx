@@ -1,8 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import type { BrandKitOutput } from '@/ai/flows/generate-brand-kit-from-input';
-import type { SeoKitOutput } from '@/ai/flows/generate-seo-kit';
+import type { BrandKitOutput, SeoKitOutput } from '@/ai/types';
 import { BrandKitForm, type FormValues } from '@/components/brand-kit-form';
 import { BrandKitDisplay } from '@/components/brand-kit-display';
 import { SeoKitDisplay } from '@/components/seo-kit-display';

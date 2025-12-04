@@ -3,28 +3,10 @@
  * @fileOverview Generates an SEO starter kit based on user-provided business information.
  *
  * - generateSeoKit - A function that generates SEO suggestions.
- * - SeoKitInput - The input type for the generateSeoKit function.
- * - SeoKitOutput - The return type for the generateSeoKit function.
  */
 
 import OpenAI from 'openai';
-import {z} from 'zod';
-
-export const SeoKitInputSchema = z.object({
-  businessName: z.string().describe('The name of the business.'),
-  businessDescription: z.string().describe('A brief description of the business.'),
-  industry: z.string().optional().describe('The industry the business operates in.'),
-});
-export type SeoKitInput = z.infer<typeof SeoKitInputSchema>;
-
-export const SeoKitOutputSchema = z.object({
-  websiteTitle: z.string().describe('A concise and catchy title for the website homepage.'),
-  tagline: z.string().describe('A short, memorable slogan or tagline for the brand.'),
-  metaDescription: z.string().describe('An SEO-optimized meta description for the homepage, around 155 characters.'),
-  keywords: z.array(z.string()).describe('A list of 5-10 relevant SEO keywords.'),
-  homepageHeroHeading: z.string().describe('A compelling heading for the hero section of the homepage.'),
-});
-export type SeoKitOutput = z.infer<typeof SeoKitOutputSchema>;
+import { SeoKitOutputSchema, type SeoKitInput, type SeoKitOutput } from '@/ai/types';
 
 function cleanAndParseJson(rawContent: string): any {
   const jsonMatch = rawContent.match(/```json([\s\S]*?)```/);
