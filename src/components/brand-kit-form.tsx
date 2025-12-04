@@ -415,9 +415,6 @@ export function BrandKitForm({ onSubmit, isLoading }: BrandKitFormProps) {
                 <FormControl>
                   <Input {...field} placeholder="City, Country" />
                 </FormControl>
-                <FormDescription>
-                  Providing a location helps generate better competitor suggestions.
-                </FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -432,5 +429,3 @@ export function BrandKitForm({ onSubmit, isLoading }: BrandKitFormProps) {
     </div>
   );
 }
-
-    
