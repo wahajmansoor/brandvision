@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -67,7 +68,7 @@ export function SeoKitDisplay({ seoKit, isLoading }: SeoKitDisplayProps) {
             <CardHeader>
                 <CardTitle className="text-2xl flex items-center gap-3">
                     <Search className="w-6 h-6 text-primary" />
-                    Your AI-Generated SEO Starter Kit
+                    Your SEO Starter Kit
                 </CardTitle>
                 <CardDescription>Use these suggestions to boost your website's visibility on search engines.</CardDescription>
             </CardHeader>
